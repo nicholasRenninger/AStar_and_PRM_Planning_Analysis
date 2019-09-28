@@ -1,0 +1,14 @@
+# coordinates of the robot start state in the workspace
+qStart: [0, 0]
+
+# coordinates of the robot goal state in the workspace
+qGoal: [10, 10]
+
+# each list element is a list of tuples containing the coordinates of the
+# vertices of the rectangular obstacles in the workspace
+WO:
+  - [[1, 1], [2, 1], [2, 5], [1, 5]]
+  - [[3, 4], [4, 4], [4, 12], [3, 12]]
+  - [[3, 12], [12, 12], [12, 13], [3, 13]]
+  - [[12, 5], [13, 5], [13, 13], [12, 13]]
+  - [[6, 5], [12, 5], [12, 6], [6, 6]]
