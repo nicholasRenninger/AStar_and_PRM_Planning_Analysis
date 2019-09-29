@@ -12,9 +12,12 @@ class Workspace:
     #
     # @brief      Workspace class constructor
     #
-    # @param      self            The workspace object object
-    # @param      configFileName  The workspace configuration file name
-    #                             contains the obstacle coords
+    # @param      self             The workspace object object
+    # @param      configFileName   The workspace YAML configuration file name
+    #                              containing the obstacle coords
+    # @param      shouldSavePlots  Boolean controlling whether or not the plt
+    #                              objs can be saved to the baseSaveName dir
+    # @param      baseSaveFName    The base directory file name for output plot
     #
     # @return     initialized workspace object
     #
@@ -41,8 +44,53 @@ class Workspace:
         obstacles = config_data['WO']
         return obstacles
 
+    #
+    # @brief      Checks if the robot collides with any workspace obstacle
+    #
+    # USES primative obstacle representation
+    #
+    # Assumes that the obstacles are given as 2D, rectangular blocks specified
+    # as lists of rectangle vertex lists in the following order:
+    #
+    # self.obstacles = [obstacle_1, obstacle_2, ..., obstacle_N]
+    # obstacle_i = [bottomLeft, bottomRight, topRight, topLeft]
+    # bottomLeft = [x, y]
+    #
+    # @param      self      The Workspace object
+    # @param      robotLoc  The robot location coordinates as a list
+    #
+    # @return     boolean returning whether or not the robot's location
+    #             collides with ANY workspace obstacle
+    #
+    def doesRobotCollideWithObstacle(self, robotLoc):
 
-    def 
+        robX = robotLoc[0]
+        robY = robotLoc[1]
+
+        # construct a set of primatives for each obstacle and check for
+        # collision
+        for obstacle in self.obstacles:
+
+            # x, y coordinates of each vertex of the rectangular obstacle
+            bottom = obstacle[0][1]
+            right = obstacle[1][0]
+            top = obstacle[2][1]
+            left = obstacle[3][0]
+
+            primative1 = (robY >= bottom)
+            primative2 = (robX <= right)
+            primative3 = (robY <= top)
+            primative4 = (robX >= left)
+
+            insideObstacle = (primative1 and primative2 and
+                              primative3 and primative4)
+
+            if insideObstacle:
+                return True
+
+        # if the location triggers none of the primatives for any of the
+        # obstacles, it must not collide
+        return False
 
     #
     # @brief      Plot all workspace objects and saves to self.baseSaveFName
@@ -50,7 +98,7 @@ class Workspace:
     #             obstacles, the robot's path, the start location, and the goal
     #             location
     #
-    # @param      self        The workspace object
+    # @param      self        The Workspace object
     # @param      robotPath   A list with workspace coordinates of the robot's
     #                         path
     # @param      startState  A list with the robot's start state coordinates
