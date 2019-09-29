@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 
-# @brief      Class for workspace objects for a 2D robot
+# @brief      Class for 2D robot workspace objects
 #
 #  Workspace can only be comprised of rectangular obstacles, a
 #  start location, and a goal location
@@ -14,17 +14,14 @@ class Workspace:
     #
     # @param      self            The workspace object object
     # @param      configFileName  The workspace configuration file name
-    #                             contains the obstacle coords, and the start /
-    #                             goal coords
+    #                             contains the obstacle coords
     #
     # @return     initialized workspace object
     #
     def __init__(self, configFileName, shouldSavePlots, baseSaveFName):
 
-        (startLoc, goalLoc, obstacles) = self.getEnvFromFile(configFileName)
+        obstacles = self.getEnvFromFile(configFileName)
         self.obstacles = obstacles
-        self.startLoc = startLoc
-        self.goalLoc = goalLoc
 
         self.shouldSavePlots = shouldSavePlots
         self.baseSaveFName = baseSaveFName
@@ -32,9 +29,8 @@ class Workspace:
     #
     # @brief      Creates a list of obstacles from a YAML config file
     #
-    # @return     (start location coords, goal location coords,
-    #              a list of workspace obstacle vertex coordinates for each
-    #              obstacle)
+    # @return     a list of workspace obstacle vertex coordinates for each
+    #             obstacle
     #
     @staticmethod
     def getEnvFromFile(configFileName):
@@ -42,25 +38,33 @@ class Workspace:
         with open(configFileName, 'r') as stream:
             config_data = yaml.safe_load(stream)
 
-        startLoc = config_data['qStart']
-        goalLoc = config_data['qGoal']
         obstacles = config_data['WO']
-        return (startLoc, goalLoc, obstacles)
+        return obstacles
+
+
+    def 
 
     #
-    # @brief      Plots of all workspace objects and saves to ../figures
+    # @brief      Plot all workspace objects and saves to self.baseSaveFName
     #
-    # obstacles, the robot's path, the start location, and the goal location
+    #             obstacles, the robot's path, the start location, and the goal
+    #             location
     #
-    # @param      self  The workspace object
+    # @param      self        The workspace object
+    # @param      robotPath   A list with workspace coordinates of the robot's
+    #                         path
+    # @param      startState  A list with the robot's start state coordinates
+    # @param      goalState   A list with the robot's goal state coordinates
+    # @param      plotTitle   The plot title string
     #
-    # @return     a plot of the workspace in the ../figures directory
+    # @return     a plot of the workspace in the self.baseSaveFName directory
     #
-    def plot(self, robotPath, plotTitle):
+    def plot(self, robotPath, startState, goalState, plotTitle):
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
+        # plotting all the obstacles
         for obstacle in self.obstacles:
             bottomLeftVertex = obstacle[0]
             bottomRightVertex = obstacle[1]
@@ -73,8 +77,18 @@ class Workspace:
             p = Rectangle(xy, width, height, color='black')
             ax.add_patch(p)
 
+        # plotting the robot's path
         x, y = zip(*robotPath)
         plt.plot(x, y)
+
+        # plotting the start / end location of the robot
+        plt.plot(startState[0], startState[1],
+                 color='green', marker='o', linestyle='solid',
+                 linewidth=2, markersize=16)
+
+        plt.plot(goalState[0], goalState[1],
+                 color='red', marker='x', linestyle='solid',
+                 linewidth=4, markersize=16)
 
         ax.set_axis_off()
 

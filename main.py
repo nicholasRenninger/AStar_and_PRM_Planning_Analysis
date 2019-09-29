@@ -6,7 +6,7 @@ import os.path
 
 def main():
 
-    shouldSavePlots = False
+    shouldSavePlots = True
     basePlotDir = 'figures'
 
     OS_Calls.clear_screen()
@@ -29,18 +29,14 @@ def bugAlgorithmRunner(shouldSavePlots, basePlotDir):
                                             shouldSavePlots=shouldSavePlots,
                                             baseSaveFName=baseSaveFName)
 
-        startLoc = currWorkspace.startLoc
-        goalLoc = currWorkspace.goalLoc
-
         algStr = 'bug1'
-        bug1Robot = BugRobot.BugRobot(initialState=startLoc, goalState=goalLoc,
+        bug1Robot = BugRobot.BugRobot(configFileName=file,
+                                      workspace=currWorkspace,
                                       algorithm=algStr)
-        currWorkspace.plot(bug1Robot.stateHistory, plotTitle=algStr)
-
-        algStr = 'bug2'
-        bug2Robot = BugRobot.BugRobot(initialState=startLoc, goalState=goalLoc,
-                                      algorithm=algStr)
-        currWorkspace.plot(bug2Robot.stateHistory, plotTitle=algStr)
+        currWorkspace.plot(robotPath=bug1Robot.stateHistory,
+                           startState=bug1Robot.startState,
+                           goalState=bug1Robot.goalState,
+                           plotTitle=algStr)
 
 
 if __name__ == "__main__":
