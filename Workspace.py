@@ -13,7 +13,7 @@ class Workspace:
     # @brief      Workspace class constructor
     #
     # @param      self             The workspace object object
-    # @param      configFileName   The workspace YAML configuration file name
+    # @param      configFileName   The YAML configuration file name
     #                              containing the obstacle coords
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
@@ -31,6 +31,8 @@ class Workspace:
 
     #
     # @brief      Creates a list of obstacles from a YAML config file
+    #
+    # @param      configFileName  The YAML configuration file name
     #
     # @return     a list of workspace obstacle vertex coordinates for each
     #             obstacle
