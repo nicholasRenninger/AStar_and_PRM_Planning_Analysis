@@ -127,8 +127,8 @@ class Workspace:
 
         # plotting the robot's path
         x, y = zip(*robotPath)
-        plt.plot(x, y, color='blue', linestyle='solid',
-                 linewidth=2, markersize=16)
+        plt.plot(x, y, color='blue', linestyle='dashed',
+                 linewidth=4, markersize=16)
 
         # plotting the start / end location of the robot
         plt.plot(startState[0], startState[1],

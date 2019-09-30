@@ -40,10 +40,12 @@ class BugRobot:
         self.velocityMag = 1
 
         # define the smallest angle [rad] the robot can rotate by
-        self.turnAngleResolution = (2 * math.pi) / 64
+        NUM_ROT_POSITIONS = 36
+        self.turnAngleResolution = (2 * math.pi) / NUM_ROT_POSITIONS
 
-        # 2-norm radius tolerance to be considered "at the goal"
-        self.atGoalTolerance = 0.1
+        # 2-norm radius tolerance to be considered "near" an object in
+        # workspace
+        self.nearObjTolerance = 0.2
 
         # define how far in front of the robot the bump sensor is
         # this is effectively the distance detection limit, and how far away
@@ -103,14 +105,28 @@ class BugRobot:
 
     def isAtGoal(self):
 
-        (xDist, yDist) = vectorComponentDiff(self.goalState, self.currentState)
-        distToGoal = vectorMag([xDist, yDist])
+        closeToGoal = self.isCloseTo(self.goalState)
 
-        closeToGoal = (distToGoal <= self.atGoalTolerance)
         if closeToGoal:
-            print('reached goal at:', xDist, yDist)
+            print('reached goal at:', self.goalState)
 
         return closeToGoal
+
+    def isCloseTo(self, targetLocation):
+        distToLocation = self.distToTarget(targetLocation)
+
+        return (distToLocation <= self.nearObjTolerance)
+
+    def distToGoal(self):
+        dist = self.distToTarget(self.goalState)
+
+        return dist
+
+    def distToTarget(self, target):
+        (xDist, yDist) = vectorComponentDiff(target, self.currentState)
+        distToLocation = vectorMag([xDist, yDist])
+
+        return distToLocation
 
     def rotate(self, targetState):
 

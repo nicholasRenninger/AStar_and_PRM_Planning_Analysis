@@ -1,4 +1,3 @@
-import time
 
 
 #
@@ -57,7 +56,7 @@ class BugAlgorithm:
         # define multiplier on delta_t when robot motion simulation causes the
         # non-physical behavior of the robot colliding with an object
         self.delta_t = 0.1
-        self.scalingFactor = 0.95
+        self.scalingFactor = 0.8
 
     #
     # @brief      The main bug algorithm state machine controller
@@ -70,14 +69,12 @@ class BugAlgorithm:
 
         while not self.robot.isAtGoal():
 
+            print('------------')
             bugHitWall = self.moveUntilNewObstacle()
 
             if bugHitWall:
-
-                print('encountered new obstacle at: (',
-                      self.robot.currentState, ')')
                 self.followObstacle()
-                return True
+                print('------------')
 
     #
     # @brief      moves the robot in free workspace until the robot encounters
@@ -142,13 +139,10 @@ class BugAlgorithm:
     def followObstacle(self):
 
         print('following obstacle')
-
         delta_t = self.delta_t
-        counter = 0
         (newRobLoc, status) = self.robot.moveForward(self.robot.currentHeading,
                                                      delta_t)
-        while not self.robotShouldLeaveObstacle() and counter < 2000:
-            counter += 1
+        while not self.shouldLeaveObstacle():
             # hit the obstacle, rotate 180[deg], then turn left until the force
             # sensor collides with the wall, then rotate back right, then move
             # forwards again until you hit the wall again, repeat
@@ -178,9 +172,9 @@ class BugAlgorithm:
     # @return     returns True if the robot should leave the obstacle and head
     #             towards the goal, and False if not
     #
-    def robotShouldLeaveObstacle(self):
+    def shouldLeaveObstacle(self):
 
-        return False
+        raise NotImplementedError
 
 
 #
@@ -199,6 +193,54 @@ class Bug1(BugAlgorithm):
     def __init__(self, BugRobot):
 
         BugAlgorithm.__init__(self, BugRobot)
+        self.resetAlgorithm()
+
+    def shouldLeaveObstacle(self):
+
+        currLoc = self.robot.currentState
+        distToGoal = self.robot.distToGoal()
+
+        # robot just reached obstacle
+        if not all(self.coordsNearestGoal):
+            print('encountered new obstacle at:', currLoc)
+            self.coordsFirstEncounteredObstacle = currLoc
+            self.coordsNearestGoal = currLoc
+
+        # updating closest point on the obstacle to the goal
+        if distToGoal < self.shortestDistanceToGoalOnObst:
+            print('New coords on obstacle closest to goal: ', currLoc)
+            self.shortestDistanceToGoalOnObst = distToGoal
+            self.coordsNearestGoal = currLoc
+
+        startLoc = self.coordsFirstEncounteredObstacle
+        robotCloseToFirstLocOnObstacle = self.robot.isCloseTo(startLoc)
+
+        # robot has begun exploring obstacle
+        if not self.exploringObstacle and not robotCloseToFirstLocOnObstacle:
+            print('Robot now exploring obstacle')
+            self.exploringObstacle = True
+
+        # robot has explored the whole obstacle
+        elif self.exploringObstacle and robotCloseToFirstLocOnObstacle:
+            print('Robot has explored whole obstacle')
+            self.exploredWholeObstacle = True
+
+        # robot has explored whole object and has returned to the starting
+        # location, should signal state machine to transition to next state
+        closeLoc = self.coordsNearestGoal
+        if self.exploredWholeObstacle and self.robot.isCloseTo(closeLoc):
+            print('robot leaving obstacle from: ', currLoc)
+            self.resetAlgorithm()
+            return True
+        else:
+            return False
+
+    def resetAlgorithm(self):
+        self.coordsFirstEncounteredObstacle = [None, None]
+        self.coordsNearestGoal = [None, None]
+        self.exploredWholeObstacle = False
+        self.exploringObstacle = False
+        self.shortestDistanceToGoalOnObst = float('inf')
 
 
 #
