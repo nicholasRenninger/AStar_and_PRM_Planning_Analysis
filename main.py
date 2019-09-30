@@ -11,33 +11,64 @@ def main():
 
     OS_Calls.clear_screen()
 
-    bugAlgorithmsRunner(shouldSavePlots, basePlotDir)
+    simType = 'bug'
+    runner(shouldSavePlots, basePlotDir, simType)
+
+    simType = 'manipulator'
+    runner(shouldSavePlots, basePlotDir, simType)
 
 
-def bugAlgorithmsRunner(shouldSavePlots, basePlotDir):
+def runner(shouldSavePlots, basePlotDir, simType):
 
-    configDir = 'config'
-    fType = '.yaml'
-    configNames = ['scenario1', 'scenario2']
-    configFileNames = [os.path.join(configDir, fName) + fType
-                       for fName in configNames]
+    (configNames, configFileNames) = getConfigPaths(simType)
 
     for (file, configName) in zip(configFileNames, configNames):
         print('===============================')
         print(configName)
         print('===============================')
         baseSaveFName = os.path.join(basePlotDir, configName)
-        currWorkspace = Workspace.Workspace(configFileName=file,
-                                            shouldSavePlots=shouldSavePlots,
-                                            baseSaveFName=baseSaveFName)
 
-        algStr = 'bug1'
-        BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
-                          algorithmStr=algStr)
+        if simType == 'bug':
+            runBugAlgorithmComparison(file, shouldSavePlots,
+                                      baseSaveFName)
+        elif simType == 'manipulator':
+            runManipulatorComparison(file, shouldSavePlots,
+                                     baseSaveFName)
 
-        algStr = 'bug2'
-        BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
-                          algorithmStr=algStr)
+
+def runBugAlgorithmComparison(configFileName, shouldSavePlots, baseSaveFName):
+    currWorkspace = Workspace.Workspace(configFileName=configFileName,
+                                        shouldSavePlots=shouldSavePlots,
+                                        baseSaveFName=baseSaveFName)
+
+    algStr = 'bug1'
+    BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+                      algorithmStr=algStr)
+
+    algStr = 'bug2'
+    BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+                      algorithmStr=algStr)
+
+
+def runManipulatorComparison(configFileName, shouldSavePlots, baseSaveFName):
+    pass
+
+
+def getConfigPaths(simType):
+
+    if simType == 'bug':
+        configNames = ['scenario1', 'scenario2']
+    elif simType == 'manipulator':
+        configNames = ['scenario1']
+
+    fullConfigNames = list(map(lambda x: simType + '_' + x, configNames))
+
+    configDir = 'config'
+    fType = '.yaml'
+    configFileNames = [os.path.join(configDir, fName) + fType
+                       for fName in fullConfigNames]
+
+    return (fullConfigNames, configFileNames)
 
 
 if __name__ == '__main__':

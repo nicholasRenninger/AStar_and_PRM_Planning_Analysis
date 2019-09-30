@@ -21,15 +21,17 @@ In order to obtain all dependencies, you simply need to install anaconda for you
 
 To run the code:
 
-* Activate the `conda` environment you just created in the "Dependencies" section: `$(REPO_DIR_LOCATION) $ conda activate motionPlanning1`
+* Activate the `conda` environment you just created in the "Dependencies" section:
+`$(REPO_DIR_LOCATION) $ conda activate motionPlanning1`
 
-* Run the main python module to run both the bug algorithms and kinematics codes: `$(REPO_DIR_LOCATION) $ python main.py`
+* Run the main python module to run both the bug algorithms and kinematics codes:
+`$(REPO_DIR_LOCATION) $ python main.py`
 
 
 ### Configuring the Code
 
 **Bug Algorithm Configuration**
-To change the scenarios for the bug algorithm code, simply modify one of the `$(REPO_DIR_LOCATION)/config/scenarioX.yaml` files to create a new set of obstacles, or to change the location of the start points.
+To change the scenarios for the bug algorithm code, simply modify one of the `$(REPO_DIR_LOCATION)/config/scenarioX.yaml` files to create a new set of obstacles, or to change the location of the start / goal points.
 
 ---
 
