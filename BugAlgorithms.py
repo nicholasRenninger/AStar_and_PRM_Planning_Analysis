@@ -1,3 +1,4 @@
+import BugRobot
 
 
 #
@@ -164,7 +165,7 @@ class BugAlgorithm:
 
     #
     # @brief      A virtual function implementing the specific wall-leaving
-    #             behavior for the different self.algorithmType possiblities
+    #             behavior for the different self.algorithmType possibilities
     #
     # @param      self  The BugAlgorithm object
     #
@@ -202,7 +203,7 @@ class Bug1(BugAlgorithm):
     # used during obstacle following to determine where the best place would be
     # to start moving towards the goal again
     #
-    # @param      self  The object
+    # @param      self  The Bug1 object
     #
     # @return     True if the robot should leave the obstacle and continue to
     #             the goal, False, if it should continue exploring the obstacle
@@ -250,7 +251,7 @@ class Bug1(BugAlgorithm):
     #
     # @brief      resets all internal parameters unique to Bug1 to default
     #
-    # @param      self  The object
+    # @param      self  The Bug1 object
     #
     # @return     all unique Bug1 attributes are reset to default
     #
@@ -268,13 +269,90 @@ class Bug1(BugAlgorithm):
 class Bug2(BugAlgorithm):
 
     #
-    # @brief      Constructs the Bug1 object.
+    # @brief      Constructs the Bug2 object.
     #
-    # @param      self      The Bug1 object
+    # @param      self      The Bug2 object
     # @param      BugRobot  The owning BugRobot object
     #
-    # @return     The initialized Bug1 algorithm object instance
+    # @return     The initialized Bug2 algorithm object instance
     #
     def __init__(self, BugRobot):
 
         BugAlgorithm.__init__(self, BugRobot)
+        self.resetAlgorithm()
+
+    #
+    # @brief      computes whether or not the robot should leave the obstacle
+    #
+    # @note this function is what makes "bug2" unique from "bugXX"
+    #
+    # used during obstacle following to determine where the best place would be
+    # to start moving towards the goal again
+    #
+    # @param      self  The Bug2 object
+    #
+    # @return     True if the robot should leave the obstacle and continue to
+    #             the goal, False, if it should continue exploring the obstacle
+    #
+    def shouldLeaveObstacle(self):
+
+        currLoc = self.robot.currentState
+
+        # robot just reached obstacle
+        if not all(self.coordsFirstEncounteredObstacle):
+            print('encountered new obstacle at:', currLoc)
+            self.coordsFirstEncounteredObstacle = currLoc
+            self.distToGoalFromStart = self.robot.distToGoal()
+            return False
+
+        firstEncountered = self.coordsFirstEncounteredObstacle
+        currDist = self.robot.distToGoal()
+        currLocCloserToGoalThanStart = currDist < self.distToGoalFromStart
+
+        notAtStart = not self.robot.isCloseTo(firstEncountered)
+
+        if self.robotOnMLine() and currLocCloserToGoalThanStart and notAtStart:
+            print('robot leaving obstacle from: ', currLoc)
+            self.resetAlgorithm()
+            return True
+
+        return False
+
+    #
+    # @brief      determines if robot is currently on the m-line
+    #
+    # m-line is the straight line from the start to goal state
+    #
+    # @param      self  The Bug2 object
+    #
+    # @return     True if the robots current position is close to the position
+    #             it would be at if it were on the m-line, False otherwise
+    #
+    def robotOnMLine(self):
+
+        startLoc = self.robot.startState
+        goalLoc = self.robot.goalState
+        startLocY = startLoc[1]
+
+        headingToGoal = BugRobot.computeHeading(startLoc, goalLoc)
+        mLineSlope = headingToGoal[1] / headingToGoal[0]
+
+        robotX = self.robot.currentState[0]
+
+        mLineY = startLocY + robotX * mLineSlope
+        mLineX = robotX
+
+        mLinePosAtRobotX = [mLineX, mLineY]
+
+        return self.robot.isCloseTo(mLinePosAtRobotX)
+
+    #
+    # @brief      resets all internal parameters unique to Bug2 to default
+    #
+    # @param      self  The Bug2 object
+    #
+    # @return     all unique Bug1 attributes are reset to default
+    #
+    def resetAlgorithm(self):
+        self.coordsFirstEncounteredObstacle = [None, None]
+        self.distToGoalFromStart = float('inf')

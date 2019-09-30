@@ -11,10 +11,10 @@ def main():
 
     OS_Calls.clear_screen()
 
-    bugAlgorithmRunner(shouldSavePlots, basePlotDir)
+    bugAlgorithmsRunner(shouldSavePlots, basePlotDir)
 
 
-def bugAlgorithmRunner(shouldSavePlots, basePlotDir):
+def bugAlgorithmsRunner(shouldSavePlots, basePlotDir):
 
     configDir = 'config'
     fType = '.yaml'
@@ -32,16 +32,12 @@ def bugAlgorithmRunner(shouldSavePlots, basePlotDir):
                                             baseSaveFName=baseSaveFName)
 
         algStr = 'bug1'
-        print(algStr)
-        bug1Robot = BugRobot.BugRobot(configFileName=file,
-                                      workspace=currWorkspace,
-                                      algorithmStr=algStr)
-        bug1Robot.deploy()
-        currWorkspace.plot(robotPath=bug1Robot.stateHistory,
-                           startState=bug1Robot.startState,
-                           goalState=bug1Robot.goalState,
-                           plotTitle=algStr)
-        print('-------------------------------')
+        BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+                          algorithmStr=algStr)
+
+        algStr = 'bug2'
+        BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+                          algorithmStr=algStr)
 
 
 if __name__ == '__main__':

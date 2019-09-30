@@ -319,7 +319,32 @@ class BugRobot:
 
 
 #
-# @brief      calulates the component vector difference between vec2 and vec1
+# @brief      loads robot from a config file and runs it in a given workspace
+#
+# @param      configFileName  The configuration file name
+# @param      currWorkspace   The workspace object where the robot operates
+# @param      algorithmStr    The algorithm type string
+#
+# @return     motivates robot to move to its goal state in workspace,
+#             plots results
+#
+def runRobot(configFileName, currWorkspace, algorithmStr):
+
+    print('-------------------------------')
+    print(algorithmStr)
+    robot = BugRobot(configFileName=configFileName,
+                     workspace=currWorkspace,
+                     algorithmStr=algorithmStr)
+    robot.deploy()
+    currWorkspace.plot(robotPath=robot.stateHistory,
+                       startState=robot.startState,
+                       goalState=robot.goalState,
+                       plotTitle=algorithmStr)
+    print('-------------------------------')
+
+
+#
+# @brief      calculates the component vector difference between vec2 and vec1
 #
 # @param      vec1  The "start" vector
 # @param      vec2  The "end" vector
@@ -351,7 +376,7 @@ def vectorMag(vec):
 
 
 #
-# @brief      Calculates a unit vecor heading from currentPosition to
+# @brief      Calculates a unit vector heading from currentPosition to
 #             targetObjectPosition
 #
 # @param      currentPosition       The current position
@@ -374,7 +399,7 @@ def computeHeading(currentPosition, targetObjectPosition):
 #
 # @brief      makes a vector with x and y as its components unit length
 #
-# @note uses 2-norm for normilization
+# @note uses 2-norm for normalization
 #
 # @param      x     x-component of the vector to normalize
 # @param      y     y-component of the vector to normalize
