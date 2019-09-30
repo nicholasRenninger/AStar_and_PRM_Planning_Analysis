@@ -22,11 +22,11 @@ class BugAlgorithmFactory:
 
         if algorithmType == "bug1":
 
-            return Bug1(robot, algorithmType)
+            return Bug1(robot)
 
         elif algorithmType == "bug2":
 
-            return Bug2(robot, algorithmType)
+            return Bug2(robot)
 
         else:
             raise ValueError(algorithmType)
