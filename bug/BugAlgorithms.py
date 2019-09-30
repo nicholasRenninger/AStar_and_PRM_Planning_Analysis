@@ -1,4 +1,4 @@
-import BugRobot
+from . import BugRobot
 
 
 #
@@ -150,11 +150,11 @@ class BugAlgorithm:
 
             # robot tactile sensor has hit the wall
             while status != 'COLLISION':
-                status = self.robot.rotateLeft()
+                status = self.robot.rotateRight()
 
             # rotate back from the wall until its clear to go forward again
             while status != 'OK':
-                status = self.robot.rotateRight()
+                status = self.robot.rotateLeft()
 
             # go forward with the current heading as long as you can until the
             # tactile sensor once again bumps the wall

@@ -1,6 +1,6 @@
 import OS_Calls
-import Workspace
-import BugRobot
+import bug.BugRobot as BugRobot
+import bug.Workspace as Workspace
 import os.path
 
 

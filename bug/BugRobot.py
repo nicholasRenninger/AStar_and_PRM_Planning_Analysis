@@ -1,6 +1,6 @@
 import yaml
 import math
-from BugAlgorithms import factory
+from .BugAlgorithms import factory
 
 
 #
@@ -40,12 +40,12 @@ class BugRobot:
         self.velocityMag = 1
 
         # define the smallest angle [rad] the robot can rotate by
-        NUM_ROT_POSITIONS = 36
+        NUM_ROT_POSITIONS = 90
         self.turnAngleResolution = (2 * math.pi) / NUM_ROT_POSITIONS
 
         # 2-norm radius tolerance to be considered "near" an object in
         # workspace
-        self.nearObjTolerance = 0.2
+        self.nearObjTolerance = 0.1
 
         # define how far in front of the robot the bump sensor is
         # this is effectively the distance detection limit, and how far away
