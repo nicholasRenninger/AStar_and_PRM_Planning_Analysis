@@ -1,6 +1,7 @@
 import OS_Calls
 import bug.BugRobot as BugRobot
 import bug.Workspace as Workspace
+import kinematics.Manipulator as Manipulator
 import os.path
 
 
@@ -11,14 +12,14 @@ def main():
 
     OS_Calls.clear_screen()
 
-    simType = 'bug'
-    runner(shouldSavePlots, basePlotDir, simType)
+    # simType = 'bug'
+    # simRunner(shouldSavePlots, basePlotDir, simType)
 
     simType = 'manipulator'
-    runner(shouldSavePlots, basePlotDir, simType)
+    simRunner(shouldSavePlots, basePlotDir, simType)
 
 
-def runner(shouldSavePlots, basePlotDir, simType):
+def simRunner(shouldSavePlots, basePlotDir, simType):
 
     (configNames, configFileNames) = getConfigPaths(simType)
 
@@ -42,16 +43,20 @@ def runBugAlgorithmComparison(configFileName, shouldSavePlots, baseSaveFName):
                                         baseSaveFName=baseSaveFName)
 
     algStr = 'bug1'
-    BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+    BugRobot.runRobot(configFileName=configFileName,
+                      currWorkspace=currWorkspace,
                       algorithmStr=algStr)
 
     algStr = 'bug2'
-    BugRobot.runRobot(configFileName=file, currWorkspace=currWorkspace,
+    BugRobot.runRobot(configFileName=configFileName,
+                      currWorkspace=currWorkspace,
                       algorithmStr=algStr)
 
 
 def runManipulatorComparison(configFileName, shouldSavePlots, baseSaveFName):
-    pass
+    Manipulator.runManipulator(configFileName=configFileName,
+                               shouldSavePlots=shouldSavePlots,
+                               baseSaveFName=baseSaveFName)
 
 
 def getConfigPaths(simType):
