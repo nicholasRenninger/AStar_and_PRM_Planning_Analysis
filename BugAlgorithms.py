@@ -47,16 +47,11 @@ class BugAlgorithm:
     # @param      self           The BugAlgorithm object
     # @param      BugRobot       The BugRobot object instance using this
     #                            algorithm
-    # @param      algorithmType  The algorithm type string:
-    #                                - 'bug1'
-    #                                - 'bug2'
     #
     def __init__(self, BugRobot, algorithmType):
 
         self.robot = BugRobot
         self.workspace = BugRobot.workspace
-        self.algorithmType = algorithmType
-        print('hello')
 
     #
     # @brief      The main bug algorithm state machine controller
@@ -119,15 +114,37 @@ class BugAlgorithm:
         pass
 
 
+#
+# @brief      Class for the "bug 1" algorithm, subclassed from BugAlgorithm
+#
 class Bug1(BugAlgorithm):
 
-    def __init__(self, BugRobot, algorithmType):
+    #
+    # @brief      Constructs the Bug1 object.
+    #
+    # @param      self      The Bug1 object
+    # @param      BugRobot  The owning BugRobot object
+    #
+    # @return     The initialized Bug1 algorithm object instance
+    #
+    def __init__(self, BugRobot):
 
-        BugAlgorithm.__init__(self, BugRobot, algorithmType)
+        BugAlgorithm.__init__(self, BugRobot)
 
 
+#
+# @brief      Class for the "bug 2" algorithm, subclassed from BugAlgorithm
+#
 class Bug2(BugAlgorithm):
 
-    def __init__(self, BugRobot, algorithmType):
+    #
+    # @brief      Constructs the Bug1 object.
+    #
+    # @param      self      The Bug1 object
+    # @param      BugRobot  The owning BugRobot object
+    #
+    # @return     The initialized Bug1 algorithm object instance
+    #
+    def __init__(self, BugRobot):
 
-        BugAlgorithm.__init__(self, BugRobot, algorithmType)
+        BugAlgorithm.__init__(self, BugRobot)
