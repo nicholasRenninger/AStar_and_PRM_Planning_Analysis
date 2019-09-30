@@ -48,7 +48,7 @@ class BugAlgorithm:
     # @param      BugRobot       The BugRobot object instance using this
     #                            algorithm
     #
-    def __init__(self, BugRobot, algorithmType):
+    def __init__(self, BugRobot):
 
         self.robot = BugRobot
         self.workspace = BugRobot.workspace
