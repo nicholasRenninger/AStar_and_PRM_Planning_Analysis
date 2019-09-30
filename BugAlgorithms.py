@@ -44,9 +44,8 @@ class BugAlgorithm:
     #
     # @brief      Constructor for the BugAlgorithm object.
     #
-    # @param      self           The BugAlgorithm object
-    # @param      BugRobot       The BugRobot object instance using this
-    #                            algorithm
+    # @param      self      The BugAlgorithm object
+    # @param      BugRobot  The BugRobot object instance using this algorithm
     #
     def __init__(self, BugRobot):
 
@@ -195,6 +194,19 @@ class Bug1(BugAlgorithm):
         BugAlgorithm.__init__(self, BugRobot)
         self.resetAlgorithm()
 
+    #
+    # @brief      computes whether or not the robot should leave the obstacle
+    #
+    # @note this function is what makes "bug1" unique from "bugXX"
+    #
+    # used during obstacle following to determine where the best place would be
+    # to start moving towards the goal again
+    #
+    # @param      self  The object
+    #
+    # @return     True if the robot should leave the obstacle and continue to
+    #             the goal, False, if it should continue exploring the obstacle
+    #
     def shouldLeaveObstacle(self):
 
         currLoc = self.robot.currentState
@@ -235,6 +247,13 @@ class Bug1(BugAlgorithm):
         else:
             return False
 
+    #
+    # @brief      resets all internal parameters unique to Bug1 to default
+    #
+    # @param      self  The object
+    #
+    # @return     all unique Bug1 attributes are reset to default
+    #
     def resetAlgorithm(self):
         self.coordsFirstEncounteredObstacle = [None, None]
         self.coordsNearestGoal = [None, None]
