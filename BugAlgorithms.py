@@ -1,3 +1,4 @@
+import time
 
 
 #
@@ -53,6 +54,11 @@ class BugAlgorithm:
         self.robot = BugRobot
         self.workspace = BugRobot.workspace
 
+        # define multiplier on delta_t when robot motion simulation causes the
+        # non-physical behavior of the robot colliding with an object
+        self.delta_t = 0.1
+        self.scalingFactor = 0.95
+
     #
     # @brief      The main bug algorithm state machine controller
     #
@@ -65,13 +71,13 @@ class BugAlgorithm:
         while not self.robot.isAtGoal():
 
             bugHitWall = self.moveUntilNewObstacle()
-            return True
 
-            # if bugHitWall:
+            if bugHitWall:
 
-            #     print('encountered new obstacle at: (',
-            #           self.robot.currentState, ')')
-            #     self.followObstacle(self.robot)
+                print('encountered new obstacle at: (',
+                      self.robot.currentState, ')')
+                self.followObstacle()
+                return True
 
     #
     # @brief      moves the robot in free workspace until the robot encounters
@@ -84,15 +90,13 @@ class BugAlgorithm:
     #
     def moveUntilNewObstacle(self):
 
-        self.robot.rotateToGoal()
+        print('moving towards goal')
+        self.robot.rotate(targetState=self.robot.goalState)
 
-        delta_t = 0.01
+        delta_t = self.delta_t
+        scalingFactor = self.scalingFactor
 
-        # define multiplier on delta_t when robot motion simulation causes the
-        # non-physical behavior of the robot colliding with an object
-        scalingFactor = 0.9
-
-        currHeading = self.robot.currentHeading
+        currentHeading = self.robot.currentHeading
         currRobLoc = self.robot.currentState
 
         status = self.robot.getCollisionStatus(currRobLoc)
@@ -104,19 +108,21 @@ class BugAlgorithm:
 
             # now need to keep going forward until and actual collision
             # happens, where the robot tactile sensor collides with the wall,
-            # but not the robot. To accomplish this, adjust the delta_t until
+            # but not the robot. To accomplish this, decrease delta_t until
             # the robot just collides with the obstacle
-
-            (newX, newY) = self.robot.moveForward(currHeading,
-                                                  delta_t)
-            newRobLoc = [newX, newY]
-
-            status = self.robot.getCollisionStatus(newRobLoc)
+            (newRobLoc, status) = self.robot.moveForward(currentHeading,
+                                                         delta_t)
 
             if status == 'INSIDE_OBSTACLE':
                 delta_t *= scalingFactor
 
             elif status == 'OK':
+                currRobLoc = newRobLoc
+                self.robot.setRobotState(newRobLoc)
+                delta_t = self.delta_t
+
+            # need to save the state when it actually collides
+            elif status == 'COLLISION':
                 currRobLoc = newRobLoc
                 self.robot.setRobotState(newRobLoc)
 
@@ -135,7 +141,33 @@ class BugAlgorithm:
     #
     def followObstacle(self):
 
-        pass
+        print('following obstacle')
+
+        delta_t = self.delta_t
+        counter = 0
+        (newRobLoc, status) = self.robot.moveForward(self.robot.currentHeading,
+                                                     delta_t)
+        while not self.robotShouldLeaveObstacle() and counter < 2000:
+            counter += 1
+            # hit the obstacle, rotate 180[deg], then turn left until the force
+            # sensor collides with the wall, then rotate back right, then move
+            # forwards again until you hit the wall again, repeat
+            status = self.robot.turnAround()
+
+            # robot tactile sensor has hit the wall
+            while status != 'COLLISION':
+                status = self.robot.rotateLeft()
+
+            # rotate back from the wall until its clear to go forward again
+            while status != 'OK':
+                status = self.robot.rotateRight()
+
+            # go forward with the current heading as long as you can until the
+            # tactile sensor once again bumps the wall
+            currentHeading = self.robot.currentHeading
+            (newRobLoc, status) = self.robot.moveForward(currentHeading,
+                                                         delta_t)
+            self.robot.setRobotState(newRobLoc)
 
     #
     # @brief      A virtual function implementing the specific wall-leaving
@@ -148,7 +180,7 @@ class BugAlgorithm:
     #
     def robotShouldLeaveObstacle(self):
 
-        pass
+        return False
 
 
 #

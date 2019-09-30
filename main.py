@@ -23,13 +23,16 @@ def bugAlgorithmRunner(shouldSavePlots, basePlotDir):
                        for fName in configNames]
 
     for (file, configName) in zip(configFileNames, configNames):
-
+        print('===============================')
+        print(configName)
+        print('===============================')
         baseSaveFName = os.path.join(basePlotDir, configName)
         currWorkspace = Workspace.Workspace(configFileName=file,
                                             shouldSavePlots=shouldSavePlots,
                                             baseSaveFName=baseSaveFName)
 
         algStr = 'bug1'
+        print(algStr)
         bug1Robot = BugRobot.BugRobot(configFileName=file,
                                       workspace=currWorkspace,
                                       algorithmStr=algStr)
@@ -38,6 +41,7 @@ def bugAlgorithmRunner(shouldSavePlots, basePlotDir):
                            startState=bug1Robot.startState,
                            goalState=bug1Robot.goalState,
                            plotTitle=algStr)
+        print('-------------------------------')
 
 
 if __name__ == '__main__':

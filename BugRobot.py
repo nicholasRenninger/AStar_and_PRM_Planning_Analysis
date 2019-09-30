@@ -32,13 +32,15 @@ class BugRobot:
         self.currentState = self.startState
         self.stateHistory.append(self.currentState)
 
-        self.headingHistory = []
-        self.rotateToGoal()
+        self.rotate(targetState=self.goalState)
 
         self.timeStepHistory = []
 
         # defines the linear velocity of the robot when moving
-        self.velocityMag = 0.5
+        self.velocityMag = 1
+
+        # define the smallest angle [rad] the robot can rotate by
+        self.turnAngleResolution = (2 * math.pi) / 64
 
         # 2-norm radius tolerance to be considered "at the goal"
         self.atGoalTolerance = 0.1
@@ -93,21 +95,64 @@ class BugRobot:
 
         newXPos = self.currentState[0] + deltaX
         newYPos = self.currentState[1] + deltaY
+        newRobLoc = [newXPos, newYPos]
 
-        return (newXPos, newYPos)
+        status = self.getCollisionStatus(newRobLoc)
+
+        return (newRobLoc, status)
 
     def isAtGoal(self):
 
         (xDist, yDist) = vectorComponentDiff(self.goalState, self.currentState)
         distToGoal = vectorMag([xDist, yDist])
 
-        return (distToGoal <= self.atGoalTolerance)
+        closeToGoal = (distToGoal <= self.atGoalTolerance)
+        if closeToGoal:
+            print('reached goal at:', xDist, yDist)
 
-    def rotateToGoal(self):
+        return closeToGoal
 
-        goalHeading = computeHeading(self.currentState, self.goalState)
-        self.currentHeading = goalHeading
-        self.headingHistory.append(self.currentHeading)
+    def rotate(self, targetState):
+
+        targetHeading = computeHeading(self.currentState, targetState)
+        self.currentHeading = targetHeading
+
+    def rotateLeft(self):
+
+        angle = self.turnAngleResolution
+        self.rotateByAngle(angle)
+        status = self.getCollisionStatus(self.currentState)
+
+        return status
+
+    def rotateRight(self):
+
+        angle = -self.turnAngleResolution
+        self.rotateByAngle(angle)
+        status = self.getCollisionStatus(self.currentState)
+
+        return status
+
+    def rotateByAngle(self, angle):
+
+        currHeading = self.currentHeading
+        currHeadX = currHeading[0]
+        currHeadY = currHeading[1]
+
+        c = math.cos(angle)
+        s = math.sin(angle)
+
+        newHeadX = currHeadX * c - currHeadY * s
+        newHeadY = currHeadY * c + currHeadX * s
+
+        (newHeadX, newHeadY) = normailzeVec(newHeadX, newHeadY)
+        self.currentHeading = [newHeadX, newHeadY]
+
+    def turnAround(self):
+        self.rotateByAngle(math.pi)
+        status = self.getCollisionStatus(self.currentState)
+
+        return status
 
     def getCollisionStatus(self, robotLoc):
 
@@ -132,7 +177,6 @@ class BugRobot:
         return status
 
     def getSensorLocation(self, robotLoc):
-
         currHeading = self.currentHeading
         currHeadingX = currHeading[0]
         currHeadingY = currHeading[1]
@@ -174,8 +218,14 @@ def computeHeading(currentPosition, targetObjectPosition):
                                                targetObjectPosition)
 
     # need to normalize the heading to get a unit vector heading
-    headingMag = vectorMag([headingX, headingY])
-    headingX /= headingMag
-    headingY /= headingMag
+    (headingX, headingY) = normailzeVec(headingX, headingY)
 
     return [headingX, headingY]
+
+
+def normailzeVec(x, y):
+    mag = vectorMag([x, y])
+    newX = x / mag
+    newY = y / mag
+
+    return (newX, newY)
