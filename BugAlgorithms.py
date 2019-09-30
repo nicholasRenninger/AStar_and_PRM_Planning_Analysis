@@ -20,11 +20,11 @@ class BugAlgorithmFactory:
     #
     def get_BugAlgorithm(self, robot, algorithmType):
 
-        if algorithmType == "bug1":
+        if algorithmType == 'bug1':
 
             return Bug1(robot)
 
-        elif algorithmType == "bug2":
+        elif algorithmType == 'bug2':
 
             return Bug2(robot)
 
@@ -62,40 +62,78 @@ class BugAlgorithm:
     #
     def controlRobotToGoal(self):
 
-        while not self.robot.isAtGoal:
+        while not self.robot.isAtGoal():
 
-            bugHitWall = self.moveUntilNewObstacle(self.robot)
+            bugHitWall = self.moveUntilNewObstacle()
+            return True
 
-            if bugHitWall:
+            # if bugHitWall:
 
-                print('encountered new obstacle at: (',
-                      self.robot.currentState, ')')
-                self.followObstacle(self.robot)
+            #     print('encountered new obstacle at: (',
+            #           self.robot.currentState, ')')
+            #     self.followObstacle(self.robot)
 
     #
     # @brief      moves the robot in free workspace until the robot encounters
-    #             a new obstacle or reaches the goal
+    #             a new obstacle or reaches the goal
     #
-    # @param      self   The BugAlgorithm object
-    # @param      robot  An instance of the BugRobot class
+    # @param      self  The BugAlgorithm object
     #
-    # @return     returns True if the robot hits an obstacle and false if
-    #             it reaches the goal
+    # @return     returns True if the robot hits an obstacle and false if it
+    #             reaches the goal
     #
-    def moveUntilNewObstacle(self, robot):
+    def moveUntilNewObstacle(self):
 
-        pass
+        self.robot.rotateToGoal()
+
+        delta_t = 0.01
+
+        # define multiplier on delta_t when robot motion simulation causes the
+        # non-physical behavior of the robot colliding with an object
+        scalingFactor = 0.9
+
+        currHeading = self.robot.currentHeading
+        currRobLoc = self.robot.currentState
+
+        status = self.robot.getCollisionStatus(currRobLoc)
+
+        while status != 'COLLISION':
+
+            if self.robot.isAtGoal():
+                return False
+
+            # now need to keep going forward until and actual collision
+            # happens, where the robot tactile sensor collides with the wall,
+            # but not the robot. To accomplish this, adjust the delta_t until
+            # the robot just collides with the obstacle
+
+            (newX, newY) = self.robot.moveForward(currHeading,
+                                                  delta_t)
+            newRobLoc = [newX, newY]
+
+            status = self.robot.getCollisionStatus(newRobLoc)
+
+            if status == 'INSIDE_OBSTACLE':
+                delta_t *= scalingFactor
+
+            elif status == 'OK':
+                currRobLoc = newRobLoc
+                self.robot.setRobotState(newRobLoc)
+
+            elif status == 'UNKNOWN':
+                raise ValueError(status)
+
+        return True
 
     #
     # @brief      moves the robot along the obstacle until it decides to leave
     #             the obstacle or it reaches the goal
     #
-    # @param      self   The BugAlgorithm object
-    # @param      robot  An instance of the BugRobot class
+    # @param      self  The BugAlgorithm object
     #
     # @return     nothing
     #
-    def followObstacle(self, robot):
+    def followObstacle(self):
 
         pass
 
@@ -103,13 +141,12 @@ class BugAlgorithm:
     # @brief      A virtual function implementing the specific wall-leaving
     #             behavior for the different self.algorithmType possiblities
     #
-    # @param      self   The BugAlgorithm object
-    # @param      robot  An instance of the BugRobot class
+    # @param      self  The BugAlgorithm object
     #
     # @return     returns True if the robot should leave the obstacle and head
     #             towards the goal, and False if not
     #
-    def robotShouldLeaveObstacle(self, robot):
+    def robotShouldLeaveObstacle(self):
 
         pass
 

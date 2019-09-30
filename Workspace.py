@@ -46,7 +46,7 @@ class Workspace:
         return obstacles
 
     #
-    # @brief      Checks if the robot collides with any workspace obstacle
+    # @brief      Checks if the object collides with any workspace obstacle
     #
     # USES primative obstacle representation
     #
@@ -57,16 +57,15 @@ class Workspace:
     # obstacle_i = [bottomLeft, bottomRight, topRight, topLeft]
     # bottomLeft = [x, y]
     #
-    # @param      self      The Workspace object
-    # @param      robotLoc  The robot location coordinates as a list
+    # @param      self       The Workspace object
+    # @param      objectLoc  The object location coordinates as a list
     #
-    # @return     boolean returning whether or not the robot's location
-    #             collides with ANY workspace obstacle
+    # @return     True if objectLoc collides with ANY workspace obstacle
     #
-    def doesRobotCollideWithObstacle(self, robotLoc):
+    def objectCollides(self, objectLoc):
 
-        robX = robotLoc[0]
-        robY = robotLoc[1]
+        objX = objectLoc[0]
+        objY = objectLoc[1]
 
         # construct a set of primatives for each obstacle and check for
         # collision
@@ -78,10 +77,10 @@ class Workspace:
             top = obstacle[2][1]
             left = obstacle[3][0]
 
-            primative1 = (robY >= bottom)
-            primative2 = (robX <= right)
-            primative3 = (robY <= top)
-            primative4 = (robX >= left)
+            primative1 = (objY >= bottom)
+            primative2 = (objX <= right)
+            primative3 = (objY <= top)
+            primative4 = (objX >= left)
 
             insideObstacle = (primative1 and primative2 and
                               primative3 and primative4)
@@ -128,7 +127,8 @@ class Workspace:
 
         # plotting the robot's path
         x, y = zip(*robotPath)
-        plt.plot(x, y)
+        plt.plot(x, y, color='blue', linestyle='solid',
+                 linewidth=2, markersize=16)
 
         # plotting the start / end location of the robot
         plt.plot(startState[0], startState[1],
