@@ -31,6 +31,7 @@ class BugRobot:
         self.stateHistory = []
         self.currentState = self.startState
         self.stateHistory.append(self.currentState)
+        self.distTraveled = 0
 
         self.rotate(targetState=self.goalState)
 
@@ -80,12 +81,12 @@ class BugRobot:
     #
     # @param      self  The BugRobot object
     #
-    # @return     True if the robot reaches goalState, False if not
+    # @return     distance robot traveled
     #
     def deploy(self):
 
         self.bugAlgorithm.controlRobotToGoal()
-        return True
+        return self.distTraveled
 
     #
     # @brief      moves the robot in the direction of self.currentHeading
@@ -310,9 +311,13 @@ class BugRobot:
     # @param      self           The BugRobot object
     # @param      newRobotState  The new robot state
     #
-    # @return     { description_of_the_return_value }
+    # @return     updates self.currentState, self.stateHistory,
+    #             self.distTraveled
     #
     def setRobotState(self, newRobotState):
+
+        currDistTraveled = self.distToTarget(newRobotState)
+        self.distTraveled += currDistTraveled
 
         self.currentState = newRobotState
         self.stateHistory.append(newRobotState)
@@ -335,7 +340,8 @@ def runRobot(configFileName, currWorkspace, algorithmStr):
     robot = BugRobot(configFileName=configFileName,
                      workspace=currWorkspace,
                      algorithmStr=algorithmStr)
-    robot.deploy()
+    distTraveled = robot.deploy()
+    print('Robot Traveled:', distTraveled)
     currWorkspace.plot(robotPath=robot.stateHistory,
                        startState=robot.startState,
                        goalState=robot.goalState,
