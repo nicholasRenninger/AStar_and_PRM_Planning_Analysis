@@ -1,7 +1,43 @@
 
 
 #
-# @brief      High level class for a bug algorithm
+# @brief      Front-end to create bug algorithm objects with different
+#             algorithmTypes
+#
+class BugAlgorithmFactory:
+
+    #
+    # @brief      Return a concrete bug algorithm based on the algorithm type
+    #
+    # @param      self           The factory object
+    # @param      robot          The BugAlgorithm robot
+    # @param      algorithmType  The algorithm type string:
+    #                                - 'bug1'
+    #                                - 'bug2'
+    #
+    # @return     A concrete, specialized bug algorithm object based on
+    #             algorithmType
+    #
+    def get_BugAlgorithm(self, robot, algorithmType):
+
+        if algorithmType == "bug1":
+
+            return Bug1(robot, algorithmType)
+
+        elif algorithmType == "bug2":
+
+            return Bug2(robot, algorithmType)
+
+        else:
+            raise ValueError(algorithmType)
+
+
+# re-name the module-level class factory for brevity
+factory = BugAlgorithmFactory()
+
+
+#
+# @brief      High level class for a "bug" algorithm
 #
 class BugAlgorithm:
 
@@ -18,7 +54,9 @@ class BugAlgorithm:
     def __init__(self, BugRobot, algorithmType):
 
         self.robot = BugRobot
+        self.workspace = BugRobot.workspace
         self.algorithmType = algorithmType
+        print('hello')
 
     #
     # @brief      The main bug algorithm state machine controller
@@ -79,3 +117,17 @@ class BugAlgorithm:
     def robotShouldLeaveObstacle(self, robot):
 
         pass
+
+
+class Bug1(BugAlgorithm):
+
+    def __init__(self, BugRobot, algorithmType):
+
+        BugAlgorithm.__init__(self, BugRobot, algorithmType)
+
+
+class Bug2(BugAlgorithm):
+
+    def __init__(self, BugRobot, algorithmType):
+
+        BugAlgorithm.__init__(self, BugRobot, algorithmType)

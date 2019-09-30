@@ -1,5 +1,5 @@
 import yaml
-import BugAlgorithms
+from BugAlgorithms import factory
 
 
 #
@@ -14,12 +14,12 @@ class BugRobot:
     # @param      configFileName  The YAML configuration file name
     #                             which contains the start / goal state coords
     # @param      workspace       The workspace object the robot operates in
-    # @param      algorithm       A string containing name of the control
-    #                             / planning algorithm the robot uses:
+    # @param      algorithmStr    A string containing name of the control
+    #                             / planning algorithmStr the robot uses:
     #                                 - 'bug1'
     #                                 - 'bug2'
     #
-    def __init__(self, configFileName, workspace, algorithm):
+    def __init__(self, configFileName, workspace, algorithmStr):
 
         self.workspace = workspace
 
@@ -31,8 +31,9 @@ class BugRobot:
         self.currentState = self.startState
         self.stateHistory.append(self.currentState)
 
-        self.algorithm = BugAlgorithms.BugAlgorithm(self,
-                                                    algorithmType=algorithm)
+        bugAlgorithm = factory.get_BugAlgorithm(self,
+                                                algorithmType=algorithmStr)
+        self.bugAlgorithm = bugAlgorithm
 
     #
     # @brief      returns the start and goal location lists for the robot
