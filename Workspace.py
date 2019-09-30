@@ -5,8 +5,7 @@ from matplotlib.patches import Rectangle
 
 # @brief      Class for 2D robot workspace objects
 #
-#  Workspace can only be comprised of rectangular obstacles, a
-#  start location, and a goal location
+# Workspace can only be comprised of rectangular obstacles
 class Workspace:
 
     #
