@@ -12,8 +12,8 @@ def main():
 
     OS_Calls.clear_screen()
 
-    # simType = 'bug'
-    # simRunner(shouldSavePlots, basePlotDir, simType)
+    simType = 'bug'
+    simRunner(shouldSavePlots, basePlotDir, simType)
 
     simType = 'manipulator'
     simRunner(shouldSavePlots, basePlotDir, simType)
