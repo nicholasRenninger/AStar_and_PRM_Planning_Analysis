@@ -21,31 +21,30 @@ class Manipulator:
     def __init__(self, desEndEffectorLocation, desJointAngles, links,
                  shouldSavePlots, baseSaveFName):
 
+        self.shouldSavePlots = shouldSavePlots
+        self.baseSaveFName = baseSaveFName
+
         self.links = links
         self.numLinks = len(links)
+        self.IK_TOL = 1e-6
 
         # start manipulator with all joints fully extended
         self.jointAngles = [0, 0, 0]
+        self.endEffectorLocation = [0, 0]
 
         if desJointAngles is not None:
             self.desJointAngles = desJointAngles
+            self.setAnglesToDesired()
         else:
             self.desJointAngles = self.jointAngles
-
-        print(self.desJointAngles)
-        print(self.jointAngles)
-        self.setEffectorToDesired()
-        print(self.endEffectorLocation)
 
         # need to convert effector location to numpy arrays for easy
         # transformation
         if desEndEffectorLocation is not None:
             self.desEndEffectorLocation = np.array(desEndEffectorLocation)
+            self.setEffectorToDesired()
         else:
             self.desEndEffectorLocation = self.endEffectorLocation
-
-        self.shouldSavePlots = shouldSavePlots
-        self.baseSaveFName = baseSaveFName
 
     #
     # @brief      reads in Link and kinematics parameters from YAML config file
@@ -69,11 +68,14 @@ class Manipulator:
         return (linkLengths, jointOffset,
                 desJointAnglesSet, desEndEffectorLocations)
 
-    def setEffectorToDesired(self):
+    def setAnglesToDesired(self):
 
         desJA = self.desJointAngles
         (self.links,
          self.endEffectorLocation) = self.forwardKinematics(self.links, desJA)
+
+        print('joint angles: ', self.jointAngles)
+        print('effector at: ', self.endEffectorLocation)
 
     def forwardKinematics(self, links, desJointAngles):
 
@@ -117,6 +119,82 @@ class Manipulator:
                                         endEffectorLocationXYZ[1]])
 
         return (links, endEffectorLocation)
+
+    def setEffectorToDesired(self):
+
+        desEff = self.desEndEffectorLocation
+        print('desired end effector pos:', desEff)
+        (self.links,
+         self.jointAngles) = self.inverseKinematics(self.links, desEff)
+
+        print('joint angles: ', self.jointAngles)
+        print('effector at: ', self.endEffectorLocation)
+
+    def inverseKinematics(self, links, desEndEffectorLocation):
+
+        x = desEndEffectorLocation[0]
+        y = desEndEffectorLocation[1]
+
+        a1 = links[0].linkLength - 2 * links[0].jointOffset
+        a2 = links[1].linkLength - 2 * links[1].jointOffset
+        a3 = links[2].linkLength - 2 * links[2].jointOffset
+
+        possibleTheta2 = []
+        possibleTheta3 = []
+
+        possibleTheta1 = np.linspace(0, math.pi, num=4)
+
+        for theta1 in possibleTheta1:
+
+            # locking one link in place - theta1 in [0, pi]
+            link1Origin = [0, 0]
+            lx = link1Origin[0] + a1 * math.cos(theta1)
+            ly = link1Origin[1] + a1 * math.sin(theta1)
+            print(lx, ly)
+
+            # adjust x and y so the system is solved assuming the link 2 and 3
+            # start at the origin
+            x -= lx
+            y -= ly
+
+            # trying the rest of the angles
+            cosTheta3 = (1 / (2 * a2 * a3)) * ((x**2 + y**2) -
+                                               (a2**2 + a3**2))
+            sinTheta3_1 = math.sqrt(1 - cosTheta3**2)
+            sinTheta3_2 = -math.sqrt(1 - cosTheta3**2)
+
+            possibleTheta3.append(math.atan2(sinTheta3_1, cosTheta3))
+            possibleTheta3.append(math.atan2(sinTheta3_2, cosTheta3))
+
+            k = (a2 + a3 * cosTheta3)
+            xi = a3 * math.sqrt(1 - cosTheta3**2)
+            mexican = (1 / (x**2 + y**2))
+            cosTheta2_1 = mexican * (x * k + y * xi)
+            cosTheta2_2 = mexican * (x * k - y * xi)
+
+            sinTheta2_1 = mexican * (y * k - x * xi)
+            sinTheta2_2 = mexican * (y * k + x * xi)
+
+            possibleTheta2.append(math.atan2(sinTheta2_1, cosTheta2_1))
+            possibleTheta2.append(math.atan2(sinTheta2_1, cosTheta2_2))
+            possibleTheta2.append(math.atan2(sinTheta2_2, cosTheta2_1))
+            possibleTheta2.append(math.atan2(sinTheta2_2, cosTheta2_2))
+
+            for theta2 in possibleTheta2:
+                for theta3 in possibleTheta3:
+                    desJA = [theta1, theta2, theta3]
+                    print('trying: ', desJA)
+                    (ll, endEffLoc) = self.forwardKinematics(links, desJA)
+                    self.endEffectorLocation = endEffLoc
+                    print('effector pos:', endEffLoc)
+                    xSolve = self.endEffectorLocation[0]
+                    ySolve = self.endEffectorLocation[1]
+
+                    totalError = abs(x + lx - xSolve) + abs(y + ly - ySolve)
+                    if totalError < self.IK_TOL:
+                        return (links, desJA)
+
+        return (links, desJA)
 
     #
     # @brief      Plot all workspace objects and saves to self.baseSaveFName

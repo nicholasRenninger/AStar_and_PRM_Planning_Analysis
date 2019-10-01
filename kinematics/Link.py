@@ -9,19 +9,13 @@ class Link:
         self.linkLength = linkLength
         self.jointOffset = jointOffset
 
-        self.width = 2
-
+        self.width = 1
         self.bl = None
-        self.br = None
-        self.tl = None
-        self.tr = None
+        self.angle = None
 
         self.setOrigin(origin)
 
-        self.angle = None
-
     def setOrigin(self, origin):
-
         self.origin = origin
 
     def setAngle(self, angle):
@@ -29,14 +23,9 @@ class Link:
 
     def setEdgeVertices(self, TransfMat):
 
-        ox = self.origin[0]
-        oy = self.origin[1]
-        length = self.linkLength
         k = self.jointOffset
         w = self.width
 
         blLocal = np.array([[-k, w / 2, 1]]).T
-        tlLocal = np.array([[length + k, w / 2, 1]]).T
 
         self.bl = np.matmul(TransfMat, blLocal)
-        self.tl = np.matmul(TransfMat, tlLocal)
