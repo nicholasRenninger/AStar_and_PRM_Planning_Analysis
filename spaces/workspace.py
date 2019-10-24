@@ -1,4 +1,3 @@
-import yaml
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
@@ -12,7 +11,7 @@ class Workspace:
     # @brief      Workspace class constructor
     #
     # @param      self             The workspace object object
-    # @param      configFileName   The YAML configuration file name
+    # @param      configData       Configuration dictionary for the robot
     #                              containing the obstacle coords
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
@@ -20,29 +19,25 @@ class Workspace:
     #
     # @return     initialized workspace object
     #
-    def __init__(self, configFileName, shouldSavePlots, baseSaveFName):
+    def __init__(self, configData, shouldSavePlots, baseSaveFName):
 
-        obstacles = self.getEnvFromFile(configFileName)
+        obstacles = self.getObstacles(configData)
         self.obstacles = obstacles
 
         self.shouldSavePlots = shouldSavePlots
         self.baseSaveFName = baseSaveFName
 
     #
-    # @brief      Creates a list of obstacles from a YAML config file
+    # @brief      Creates a list of obstacles from config data
     #
-    # @param      configFileName  The YAML configuration file name
+    # @param      configData  configuration data dictionary for the robot
     #
     # @return     a list of workspace obstacle vertex coordinates for each
     #             obstacle
     #
-    @staticmethod
-    def getEnvFromFile(configFileName):
+    def getObstacles(self, configData):
 
-        with open(configFileName, 'r') as stream:
-            config_data = yaml.safe_load(stream)
-
-        obstacles = config_data['WO']
+        obstacles = configData['WO']
         return obstacles
 
     #

@@ -1,0 +1,23 @@
+# each list element is a list of tuples containing the coordinates of the
+# vertices of the convex polygonal obstacle in the workspace
+WO:
+  - [[0, 0], [0, 2], [1, 2]]
+
+# define the convex polygonal shape of the robot as (x, y) coords relative
+# to the robot origin, here it is the same as the workspace obstacle
+robotShape: [[0, 0], [0, 2], [1, 2]]
+
+# define which index of the robot shape list is the robot's origin for 
+robotOriginVertIdx: 0
+
+# define where the robot's origin is in workspace
+# [x, y]
+robotOriginLocInWokspace: [5, 5]
+
+# coordinates of the robot start state in state space
+# [x, y, theta]
+startState: [5, 5, 0]
+
+# coordinates of the robot goal state in the workspace
+# [x, y, theta]
+goalState: [0, 0, 0]

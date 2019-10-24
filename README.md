@@ -1,7 +1,7 @@
-# Motion Planning - Bug Algorithms and Kinematics
+# Motion Planning - Configuration Space Generation and Planning with Gradient Descent / WaveFront 
 *For optimal viewing of this document (and all `*.md` files), try opening it in a text editor that supports syntax highlighting for markdown `*.md` files (e.g. Sublime Text 2+).*
 
-Implementation of Bug Algorithms and Basic Forwards / Inverse Kinematics Equations.
+Implementation of a 2-D 2DoF manipulator configuration space generator, as well as implementations of a gradient descent and wavefront planner.
 
 [Nicholas Rennninger](https://github.com/nicholasRenninger)
 
@@ -22,7 +22,7 @@ In order to obtain all dependencies, you simply need to install anaconda for you
 To run the code:
 
 * Activate the `conda` environment you just created in the "Dependencies" section:
-`$(REPO_DIR_LOCATION) $ conda activate motionPlanning1`
+`$(REPO_DIR_LOCATION) $ conda activate motionPlanning2`
 
 * Run the main python module to run both the bug algorithms and kinematics codes:
 `$(REPO_DIR_LOCATION) $ python main.py`
