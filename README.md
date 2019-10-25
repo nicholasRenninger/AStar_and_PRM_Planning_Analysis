@@ -1,7 +1,7 @@
 # Motion Planning - Configuration Space Generation and Planning with Gradient Descent / WaveFront 
 *For optimal viewing of this document (and all `*.md` files), try opening it in a text editor that supports syntax highlighting for markdown `*.md` files (e.g. Sublime Text 2+).*
 
-Implementation of a 2-D 2DoF manipulator configuration space generator, as well as implementations of a gradient descent and wavefront planner.
+Implementation of a 2-D 2DoF manipulator configuration space visualizer, as well as implementations of a gradient descent and wavefront planner for this manipulator.
 
 [Nicholas Rennninger](https://github.com/nicholasRenninger)
 
@@ -24,14 +24,20 @@ To run the code:
 * Activate the `conda` environment you just created in the "Dependencies" section:
 `$(REPO_DIR_LOCATION) $ conda activate motionPlanning2`
 
-* Run the main python module to run both the bug algorithms and kinematics codes:
+* Run the main python module to run all of the simulations:
 `$(REPO_DIR_LOCATION) $ python main.py`
 
 
 ### Configuring the Code
 
-**Bug Algorithm Configuration**
-To change the scenarios for the bug algorithm code, simply modify one of the `$(REPO_DIR_LOCATION)/config/scenarioX.yaml` files to create a new set of obstacles, or to change the location of the start / goal points.
+## C-Space visualizer for a translating, rotating robot and obstacle
+To change the scenarios for the bug algorithm code, simply modify one of the `$(REPO_DIR_LOCATION)/config/cspace_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot.
+
+## Gradient descent planner
+
+## C-Space visualizer for a translating, rotating robot and obstacle
+
+## C-Space visualizer for a translating, rotating robot and obstacle
 
 ---
 

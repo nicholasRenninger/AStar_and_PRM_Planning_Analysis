@@ -1,11 +1,12 @@
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+# 3rd-party packages
+from spaces.robot_space import RobotSpace
+from factory.builder import Builder
 
 
 # @brief      Class for 2D robot workspace objects
 #
 # Workspace can only be comprised of rectangular obstacles
-class Workspace:
+class Workspace(RobotSpace):
 
     #
     # @brief      Workspace class constructor
@@ -40,107 +41,37 @@ class Workspace:
         obstacles = configData['WO']
         return obstacles
 
-    #
-    # @brief      Checks if the object collides with any workspace obstacle
-    #
-    # USES primative obstacle representation
-    #
-    # Assumes that the obstacles are given as 2D, rectangular blocks specified
-    # as lists of rectangle vertex lists in the following order:
-    #
-    # self.obstacles = [obstacle_1, obstacle_2, ..., obstacle_N]
-    # obstacle_i = [bottomLeft, bottomRight, topRight, topLeft]
-    # bottomLeft = [x, y]
-    #
-    # @param      self       The Workspace object
-    # @param      objectLoc  The object location coordinates as a list
-    #
-    # @return     True if objectLoc collides with ANY workspace obstacle
-    #
-    def objectCollides(self, objectLoc):
 
-        objX = objectLoc[0]
-        objY = objectLoc[1]
+#
+# @brief      Implements the generic builder class for the Workspace
+#
+class WorkspaceBuilder(Builder):
 
-        # construct a set of primatives for each obstacle and check for
-        # collision
-        for obstacle in self.obstacles:
-
-            # x, y coordinates of each vertex of the rectangular obstacle
-            bottom = obstacle[0][1]
-            right = obstacle[1][0]
-            top = obstacle[2][1]
-            left = obstacle[3][0]
-
-            primative1 = (objY >= bottom)
-            primative2 = (objX <= right)
-            primative3 = (objY <= top)
-            primative4 = (objX >= left)
-
-            insideObstacle = (primative1 and primative2 and
-                              primative3 and primative4)
-
-            if insideObstacle:
-                return True
-
-        # if the location triggers none of the primatives for any of the
-        # obstacles, it must not collide
-        return False
+    # need to call the super class constructor to gain its properties
+    #
+    def __init__(self):
+        Builder.__init__(self)
 
     #
-    # @brief      Plot all workspace objects and saves to self.baseSaveFName
+    # @brief      Implements the smart constructor for Workspace
+    # 
+    # Only reads the config data once, otherwise just returns the built object
+    # 
+    # @param      configFileName   The YAML configuration file name
+    # @param      shouldSavePlots  The should save plots
+    # @param      baseSaveFName    The base directory file name for output plot
     #
-    #             obstacles, the robot's path, the start location, and the goal
-    #             location
-    #
-    # @param      self        The Workspace object
-    # @param      robotPath   A list with workspace coordinates of the robot's
-    #                         path
-    # @param      startState  A list with the robot's start state coordinates
-    # @param      goalState   A list with the robot's goal state coordinates
-    # @param      plotTitle   The plot title string
-    #
-    # @return     a plot of the workspace in the self.baseSaveFName directory
-    #
-    def plot(self, robotPath, startState, goalState, plotTitle):
+    def __call__(self, configFileName, shouldSavePlots, baseSaveFName):
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        configNameHasChanged = (self._configName != configFileName)
+        noInstanceLoadedYet = (self._instance is None)
 
-        # plotting all the obstacles
-        for obstacle in self.obstacles:
-            bottomLeftVertex = obstacle[0]
-            bottomRightVertex = obstacle[1]
-            topRightVertex = obstacle[2]
+        if noInstanceLoadedYet or configNameHasChanged:
 
-            width = bottomRightVertex[0] - bottomLeftVertex[0]
-            height = topRightVertex[1] - bottomRightVertex[1]
-            xy = (bottomLeftVertex[0], bottomLeftVertex[1])
+            self._configName = configFileName
+            configData = self.loadConfigData(configFileName)
+            self._instance = Workspace(configData=configData,
+                                       shouldSavePlots=shouldSavePlots,
+                                       baseSaveFName=baseSaveFName)
 
-            p = Rectangle(xy, width, height, color='black')
-            ax.add_patch(p)
-
-        # plotting the robot's path
-        x, y = zip(*robotPath)
-        plt.plot(x, y, color='blue', linestyle='dashed',
-                 linewidth=4, markersize=16)
-
-        # plotting the start / end location of the robot
-        plt.plot(startState[0], startState[1],
-                 color='green', marker='o', linestyle='solid',
-                 linewidth=2, markersize=16)
-
-        plt.plot(goalState[0], goalState[1],
-                 color='red', marker='x', linestyle='solid',
-                 linewidth=4, markersize=16)
-
-        ax.set_axis_off()
-
-        if self.shouldSavePlots:
-            saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
-            fig = plt.gcf()
-            fig.canvas.manager.full_screen_toggle()
-            fig.show()
-            fig.set_size_inches((11, 8.5), forward=False)
-            plt.savefig(saveFName, dpi=500)
-            print('wrote figure to ', saveFName)
+        return self._instance

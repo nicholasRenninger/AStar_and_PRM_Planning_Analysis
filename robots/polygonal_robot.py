@@ -1,4 +1,6 @@
-from robot.robot import Robot
+# local packages
+from robots.robot import Robot
+from factory.builder import Builder
 
 
 # @brief      This class describes a robot with a workspace shape that can be
@@ -50,3 +52,39 @@ class PolygonalRobot(Robot):
         return (workspaceShapeVerts, robotOriginIdx)
 
 
+
+#
+# @brief      Implements the generic builder class for the PolygonalRobot
+#
+class PolygonalRobotBuilder(Builder):
+
+    # need to call the super class constructor to gain its properties
+    #
+    def __init__(self):
+        Builder.__init__(self)
+
+    #
+    # @brief      Implements the smart constructor for PolygonalRobot
+    # 
+    # Only reads the config data once, otherwise just returns the built object
+    # 
+    # @param      configFileName   The YAML configuration file name
+    # @param      workspace        The workspace
+    # @param      shouldSavePlots  The should save plots
+    # @param      baseSaveFName    The base directory file name for output plot
+    #
+    def __call__(self, configFileName, workspace, shouldSavePlots,
+                 baseSaveFName):
+
+        configNameHasChanged = (self._configName != configFileName)
+        noInstanceLoadedYet = (self._instance is None)
+
+        if noInstanceLoadedYet or configNameHasChanged:
+
+            configData = self.loadConfigData(configFileName)
+            self._instance = PolygonalRobot(configData=configData,
+                                            workspace=workspace,
+                                            shouldSavePlots=shouldSavePlots,
+                                            baseSaveFName=baseSaveFName)
+
+        return self._instance

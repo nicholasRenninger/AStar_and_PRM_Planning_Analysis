@@ -1,5 +1,8 @@
-from platform import system as system_name  # Returns the system/OS name
-from os import system as system_call        # Execute a shell command
+# Returns the system/OS name
+from platform import system as system_name 
+
+# Execute a shell command
+from os import system as system_call
 
 
 def clear_screen():

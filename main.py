@@ -1,8 +1,10 @@
+# 3rd-party packages
 import os.path
-import yaml
-import OS_Calls
-from spaces.workspace import Workspace
-from robot.factory import RobotFactory
+
+# local packages
+import os_calls
+from spaces.factory import activeSpaces
+from robots.factory import activeRobots
 
 
 def main():
@@ -10,12 +12,20 @@ def main():
     shouldSavePlots = True
     basePlotDir = 'figures'
 
-    OS_Calls.clear_screen()
+    os_calls.clear_screen()
 
     simType = 'cspace'
     simRunner(shouldSavePlots, basePlotDir, simType)
 
 
+#
+# @brief      Runs a set of simulations based on the simulation type and
+#             outputs the plots to the
+#
+# @param      shouldSavePlots  Boolean to turn on and off plot file writes
+# @param      basePlotDir      The relative path to the figures output dir
+# @param      simType          The simulation type @string
+#       
 def simRunner(shouldSavePlots, basePlotDir, simType):
 
     (configNames, configFileNames) = getConfigPaths(simType)
@@ -39,19 +49,19 @@ def simRunner(shouldSavePlots, basePlotDir, simType):
 #
 def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
     
-    # get the configuration data for the whole problem
-    configData = loadConfigData(configFileName)
-
     # the workspace doesn't change for this simulation
-    currWorkspace = Workspace(configData=configData,
-                                               shouldSavePlots=shouldSavePlots,
-                                               baseSaveFName=baseSaveFName)
+    currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
+                                            configFileName=configFileName,
+                                            shouldSavePlots=shouldSavePlots,
+                                            baseSaveFName=baseSaveFName)
 
     # this simulation is for a polygonal robot, so get that class from the
-    # factory
-    robotType = 'polygonalRobot'
-    currRobot = RobotFactory.getRobot(robotType, configData, currWorkspace,
-                                      shouldSavePlots, baseSaveFName)
+    # activeRobots factory interface
+    currRobot = activeRobots.get(robotType='POLYGONALROBOT',
+                                        configFileName=configFileName,
+                                        workspace=currWorkspace,
+                                        shouldSavePlots=shouldSavePlots,
+                                        baseSaveFName=baseSaveFName)
 
 
 #
@@ -74,21 +84,6 @@ def getConfigPaths(simType):
                        for fName in fullConfigNames]
 
     return (fullConfigNames, configFileNames)
-
-
-#
-# @brief      reads in the simulation parameters from a YAML config file
-#
-# @param      configFileName  The YAML configuration file name
-#
-# @return     configuration data dictionary for the simulation
-#
-def loadConfigData(configFileName):
-
-    with open(configFileName, 'r') as stream:
-        configData = yaml.load(stream, Loader=yaml.Loader)
-
-    return configData
 
 
 if __name__ == '__main__':
