@@ -19,10 +19,9 @@ class RobotWarehouse(ObjectFactory):
     # @return     the initialized instance to the robotType class
     #
     def get(self, robotType, **kwargs):
-
+        kwargs['robotType'] = robotType
         return self.create(robotType, **kwargs)
+
 
 activeRobots = RobotWarehouse()
 activeRobots.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())
-# activeRobots.register_builder('MANIPULATOR')
-# activeRobots.register_builder('POINTROBOT')

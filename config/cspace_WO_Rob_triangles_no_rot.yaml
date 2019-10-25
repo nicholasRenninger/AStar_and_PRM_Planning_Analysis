@@ -20,4 +20,4 @@ startState: [5, 5, 0]
 
 # coordinates of the robot goal state in the workspace
 # [x, y, theta]
-goalState: [0, 0, 0]
+goalState: [5, 5, 0]

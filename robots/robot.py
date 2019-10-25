@@ -1,5 +1,5 @@
 # 3rd-party packages
-import math
+import numpy as np
 
 
 #
@@ -10,30 +10,33 @@ class Robot:
     #
     # @brief      Robot class constructor
     #
-    # @param      self             The Robot object object
+    # @param      robotType        The robot type @string
     # @param      configData       Configuration dictionary for the robot
     # @param      workspace        The Workspace object the robot operates in
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
+    # @param      self  The Robot object object
     #
     # @return     initialized Robot object
     #
-    def __init__(self, configData, workspace,
+    def __init__(self, robotType, configData, workspace,
                  shouldSavePlots, baseSaveFName):
 
         self.workspace = workspace
+        self.cSpace = None
+        self.robotType = robotType
 
         # state refers to the robot's actual state vector
         (self.startState,
-         self.goalState) = self.initializeRobotState(configData)
+         self.goalState,
+         self.numStates) = self.initializeRobotState(configData)
 
         self.stateHistory = []
         self.currentState = self.startState
-        self.stateHistory.append(self.currentState)
-        self.distTraveled = 0
+        self.stateHistory.append(self.currentState[:])
 
-        self.timeStepHistory = []
+        self.distTraveled = 0
 
 
     #
@@ -45,10 +48,17 @@ class Robot:
     #
     def initializeRobotState(self, configData):
 
-        startState = configData['startState']
-        goalState = configData['goalState']
+        startStateList = configData['startState']
+        goalStateList = configData['goalState']
 
-        return (startState, goalState)
+        numStates = len(startStateList)
+
+        startState = np.array(startStateList,
+                              dtype='float64').reshape((numStates, 1))
+        goalState = np.array(goalStateList,
+                              dtype='float64').reshape((numStates, 1))
+
+        return (startState, goalState, numStates)
 
 
     #
@@ -64,22 +74,9 @@ class Robot:
 
 
     #
-    # @brief      Trys to move BugRobot from startState to goalState using
-    #             bugAlgorithm as a controller
-    #
-    # @param      self  The BugRobot object
-    #
-    # @return     distance robot traveled
-    #
-    def deploy(self):
-
-        self.bugAlgorithm.controlRobotToGoal()
-        return self.distTraveled
-
-    #
     # @brief      Determines if at goal.
     #
-    # @param      self  The BugRobot object
+    # @param      self  The Robot object
     #
     # @return     True if at goal, False otherwise.
     #
@@ -96,7 +93,7 @@ class Robot:
     #
     # @brief      Determines if robot is close to a given target location
     #
-    # @param      self            The BugRobot object
+    # @param      self            The Robot object
     # @param      targetLocation  The target location
     #
     # @return     True if robot is close to target, False otherwise.
@@ -110,7 +107,7 @@ class Robot:
     #
     # @brief      computes the distance to the goal state
     #
-    # @param      self  The BugRobot object
+    # @param      self  The Robot object
     #
     # @return     the distance to the goal state of the robot
     #
@@ -123,35 +120,32 @@ class Robot:
     #
     # @brief      computes the distance to the target
     #
-    # @param      self    The BugRobot object
     # @param      target  The target coordinates
+    # @param      self  The Robot object
     #
     # @return     the distance to the target object
     #
     def distToTarget(self, target):
-        (xDist, yDist) = vectorComponentDiff(target, self.currentState)
-        distToLocation = vectorMag([xDist, yDist])
+        distVec = target - self.currentState
+        distToLocation = np.linalg.norm(distVec)
 
         return distToLocation
 
 
     #
-    # @brief      Plot all workspace objects and saves to self.baseSaveFName
+    # @brief      Virtual member function to plot the robot in the workspace
     #
-    #             obstacles, the robot's path, the start location, and the goal
-    #             location
+    # @param      ax    the matplotlib.axes object to plot the robot's body in 
     #
-    # @param      self        The Workspace object
+    # @return     plots the robot's body on ax
     #
-    # @return     a plot of the manipulator in the self.baseSaveFName directory
-    #
-    def plot(self, plotTitle):
+    def plotInWorkspace(self, ax):
 
         raise NotImplementedError
 
 
     #
-    # @brief      virtual function for a robot instance to "run" itself
+    # @brief      virtual member function for a robot instance to "run" itself
     #
     # @param      planner          The Planners object containing the motion
     #                              planning algorithm to be used on the robot
@@ -165,72 +159,21 @@ class Robot:
         raise NotImplementedError
 
 
-#
-# @brief      calculates the component vector difference between vec2 and vec1
-#
-# @param      vec1  The "start" vector
-# @param      vec2  The "end" vector
-#
-# @return     tuple with (difference in X, difference in Y)
-#
-def vectorComponentDiff(vec1, vec2):
+    #
+    # @brief      Calculates a unit vector heading from currentPosition to
+    #             targetObjectPosition
+    #
+    # @param      currentPosition       The current position
+    # @param      targetObjectPosition  The target object position
+    #
+    # @return     The heading unit vector between currentPosition and
+    #             targetObjectPosition
+    #
+    def computeHeading(self, currentPosition, targetObjectPosition):
 
-    diffX = vec2[0] - vec1[0]
-    diffY = vec2[1] - vec1[1]
+        headingVecUnNorm = targetObjectPosition - currentPosition
 
-    return (diffX, diffY)
+        # need to normalize the heading to get a unit vector heading
+        headingVec = headingVecUnNorm / np.sqrt(np.sum(headingVecUnNorm ** 2))
 
-
-#
-# @brief      computes 2-norm vector magnitude of vec
-#
-# @param      vec   The vector
-#
-# @return     2-norm vector magnitude of vec
-#
-def vectorMag(vec):
-
-    x = vec[0]
-    y = vec[1]
-    magnitude = math.sqrt(x**2 + y**2)
-
-    return magnitude
-
-
-#
-# @brief      Calculates a unit vector heading from currentPosition to
-#             targetObjectPosition
-#
-# @param      currentPosition       The current position
-# @param      targetObjectPosition  The target object position
-#
-# @return     The heading unit vector between currentPosition and
-#             targetObjectPosition
-#
-def computeHeading(currentPosition, targetObjectPosition):
-
-    (headingX, headingY) = vectorComponentDiff(currentPosition,
-                                               targetObjectPosition)
-
-    # need to normalize the heading to get a unit vector heading
-    (headingX, headingY) = normailzeVec(headingX, headingY)
-
-    return [headingX, headingY]
-
-
-#
-# @brief      makes a vector with x and y as its components unit length
-#
-# @note uses 2-norm for normalization
-#
-# @param      x     x-component of the vector to normalize
-# @param      y     y-component of the vector to normalize
-#
-# @return     magnitude of the vector [x, y]
-#
-def normailzeVec(x, y):
-    mag = vectorMag([x, y])
-    newX = x / mag
-    newY = y / mag
-
-    return (newX, newY)
+        return headingVec

@@ -1,45 +1,125 @@
 # 3rd-party packages
+import matplotlib.pyplot as plt
+
+# local packages
 from spaces.robot_space import RobotSpace
 from factory.builder import Builder
 
 
-# @brief      Class for 2D robot workspace objects
+# @brief      Class for 2D robot Workspace objects
 #
-# Workspace can only be comprised of rectangular obstacles
+# @warning    Workspace can only be comprised of polygonal obstacles
 class Workspace(RobotSpace):
 
     #
     # @brief      Workspace class constructor
     #
-    # @param      self             The workspace object object
+    # @param      self             The Workspace object object
     # @param      configData       Configuration dictionary for the robot
     #                              containing the obstacle coords
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
     #
-    # @return     initialized workspace object
+    # @return     initialized Workspace object
     #
     def __init__(self, configData, shouldSavePlots, baseSaveFName):
+
+        # get inherited properties from superclass implementation
+        RobotSpace.__init__(self,
+                            shouldSavePlots=shouldSavePlots,
+                            baseSaveFName=baseSaveFName)
 
         obstacles = self.getObstacles(configData)
         self.obstacles = obstacles
 
-        self.shouldSavePlots = shouldSavePlots
-        self.baseSaveFName = baseSaveFName
 
     #
     # @brief      Creates a list of obstacles from config data
     #
     # @param      configData  configuration data dictionary for the robot
     #
-    # @return     a list of workspace obstacle vertex coordinates for each
+    # @return     a list of Workspace obstacle vertex coordinates for each
     #             obstacle
     #
     def getObstacles(self, configData):
 
         obstacles = configData['WO']
         return obstacles
+
+
+    #
+    # @brief      Plots all obstacles in the workspace to ax
+    #
+    # @param      ax    the matplotlib.axes object to plot the obstacles on
+    #
+    def plotObstacles(self, ax):
+
+        for obstacle in self.obstacles:
+            obstX, obstY = zip(*obstacle)
+            ax.fill(obstX, obstY,
+                    facecolor='black',
+                    edgecolor='black',
+                    linewidth=3)
+
+
+    #
+    # @brief      Plot all Workspace objects and saves to self.baseSaveFName
+    #
+    #             plots obstacles, the robot's path, the start location, and
+    #             the goal location
+    #
+    # @param      self        The Workspace object
+    # @param      robotPath   A list with spatial coordinates of the robot's
+    #                         path in the Workspace coordinate system
+    # @param      startState  A list with the robot's start coordinates in the
+    #                         Workspace coordinate system
+    # @param      goalState   A list with the robot's goal state coordinates in
+    #                         the Workspace coordinate system
+    # @param      plotTitle   The plot title string
+    #
+    # @return     a plot of the Workspace in the self.baseSaveFName directory
+    #
+    def plot(self, robot, startState, goalState, plotTitle):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        # plotting all the obstacles
+        self.plotObstacles(ax)
+
+        # plotting the robot's motion
+        if robot is not None:
+
+            robotPath = robot.stateHistory
+            
+            robot.plotPathInWorkspace(ax)
+
+            # plotting the robot origin's path through workspace
+            x = [state[0] for state in robotPath]
+            y = [state[1] for state in robotPath]
+            plt.plot(x, y, color='blue', linestyle='dashed',
+                     linewidth=4, markersize=16)
+
+        # plotting the start / end location of the robot
+        plt.plot(startState[0], startState[1],
+                 color='green', marker='o', linestyle='solid',
+                 linewidth=2, markersize=16)
+
+        plt.plot(goalState[0], goalState[1],
+                 color='red', marker='x', linestyle='solid',
+                 linewidth=4, markersize=16)
+
+        ax.set_axis_off()
+
+        if self.shouldSavePlots:
+            saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
+            fig = plt.gcf()
+            fig.canvas.manager.full_screen_toggle()
+            fig.show()
+            fig.set_size_inches((11, 8.5), forward=False)
+            plt.savefig(saveFName, dpi=500)
+            print('wrote figure to ', saveFName)
 
 
 #

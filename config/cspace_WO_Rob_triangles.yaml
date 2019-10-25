@@ -12,12 +12,12 @@ robotOriginVertIdx: 0
 
 # define where the robot's origin is in workspace
 # [x, y]
-robotOriginLocInWokspace: [5, 5]
+robotOriginLocInWokspace: [4, 5]
 
 # coordinates of the robot start state in state space
 # [x, y, theta]
-startState: [5, 5, 0]
+startState: [4, 5, 0]
 
 # coordinates of the robot goal state in the workspace
 # [x, y, theta]
-goalState: [0, 0, 0.2]
+goalState: [4, 5, 1.57]

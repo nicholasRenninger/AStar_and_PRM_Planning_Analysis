@@ -1,5 +1,6 @@
 # 3rd-party packages
 import os.path
+import matplotlib.pyplot as plt
 
 # local packages
 import os_calls
@@ -39,6 +40,8 @@ def simRunner(shouldSavePlots, basePlotDir, simType):
         if simType == 'cspace':
             runCspaceViz(file, shouldSavePlots, baseSaveFName)
 
+    plt.show()
+
 
 # @brief      A function to interface with the classes to visualize the c-space
 #             obstacle for worspace polygonal robot and obstacle
@@ -51,9 +54,9 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
     
     # the workspace doesn't change for this simulation
     currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
-                                            configFileName=configFileName,
-                                            shouldSavePlots=shouldSavePlots,
-                                            baseSaveFName=baseSaveFName)
+                                     configFileName=configFileName,
+                                     shouldSavePlots=shouldSavePlots,
+                                     baseSaveFName=baseSaveFName)
 
     # this simulation is for a polygonal robot, so get that class from the
     # activeRobots factory interface
@@ -62,6 +65,8 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
                                         workspace=currWorkspace,
                                         shouldSavePlots=shouldSavePlots,
                                         baseSaveFName=baseSaveFName)
+
+    currRobot.runAndPlot(planner=None, plotTitle='cspace_no_rot')
 
 
 #
