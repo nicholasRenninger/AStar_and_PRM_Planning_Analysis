@@ -8,11 +8,13 @@ from factory.builder import Builder
 from spaces.c_space import PolygonalRobotCSpace
 
 
-# @brief      This class describes a PolygonalRobot with a workspace shape that can be
-#             described as a set of polygonal vertices 
+#
+# @brief      This class describes a PolygonalRobot with a workspace shape that
+#             can be described as a set of polygonal vertices
+#
 class PolygonalRobot(Robot):
 
-	#
+    #
     # @brief      PolygonalRobot class constructor
     #
     # @param      robotType        The PolygonalRobot type @string
@@ -38,12 +40,9 @@ class PolygonalRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
-        
-        (startWorkspaceVertCoords, 
-         relativeShapeVerts, robotOriginIdx) = self.setRobotShape(configData)
+        (relativeShapeVerts, robotOriginIdx) = self.setRobotShape(configData)
 
         self.workspaceVertCoords = []
-        self.workspaceVertCoords.append(startWorkspaceVertCoords)
 
         # this is how the robot's vertices are the robot's verices in its
         # local coordinate system
@@ -56,7 +55,6 @@ class PolygonalRobot(Robot):
         self.cSpace = PolygonalRobotCSpace(robot=self,
                                            shouldSavePlots=shouldSavePlots,
                                            baseSaveFName=baseSaveFName)
-
 
     #
     # @brief      Extracts and formats the PolygonalRobot shape data from the
@@ -77,14 +75,7 @@ class PolygonalRobot(Robot):
                                dtype='float64')
         robotOrigin.shape = (2, 1)
 
-        # the initial set of workspace coordinates needs no rotation
-        workspaceVertCoords = self.getNewWorkspaceVertices(relativeShapeVerts,
-                                                           robotOriginIdx,
-                                                           robotOrigin,
-                                                           theta=0.0)
-
-        return (workspaceVertCoords, relativeShapeVerts, robotOriginIdx)
-
+        return (relativeShapeVerts, robotOriginIdx)
 
     #
     # @brief      Gets the workspace vertices of the robot given its new origin
@@ -115,12 +106,11 @@ class PolygonalRobot(Robot):
         # origin
         currRobotVertCoords = relativeShapeVerts + newOriginPos.T
 
-        # rotate the robot's vertices' coordinates about the origin by theta  
+        # rotate the robot's vertices' coordinates about the origin by theta
         newRobotVertCoords = self.rotateRobot(theta, currRobotVertCoords,
                                               robotOriginIdx)
 
         return newRobotVertCoords
-
 
     #
     # @brief      Puts the robot into the newState and updates appropriate data
@@ -129,10 +119,9 @@ class PolygonalRobot(Robot):
     #
     def updateRobotState(self, newState):
 
+        self.currentState = newState
         self.stateHistory.append(copy.deepcopy(newState))
         self.distTraveled += self.distToTarget(newState)
-
-        self.currentState = newState
 
         # need to compute the robot's pose after the change in state
         newOriginPos = newState[0:2, :]
@@ -143,7 +132,6 @@ class PolygonalRobot(Robot):
                                                     newOriginPos,
                                                     theta)
         self.workspaceVertCoords.append(newVertCoors)
-
 
     #
     # @brief      rotates all of the robot's workspace coordinates by theta
@@ -158,8 +146,8 @@ class PolygonalRobot(Robot):
     def rotateRobot(self, theta, robotVertCoords, robotOriginIdx):
 
         # define the rotate matrix about the origin
-        r = np.array(( (np.cos(theta), -np.sin(theta)),
-                       (np.sin(theta),  np.cos(theta)) ))
+        r = np.array(((np.cos(theta), -np.sin(theta)),
+                      (np.sin(theta), np.cos(theta))))
 
         # extract the location of the robot's origin vertex
         origin = robotVertCoords[robotOriginIdx:robotOriginIdx + 1, :].T
@@ -181,7 +169,6 @@ class PolygonalRobot(Robot):
 
         return vertsFinal
 
-
     #
     # @brief      Plots the robot in the workspace
     #
@@ -199,7 +186,6 @@ class PolygonalRobot(Robot):
                     edgecolor='orangered',
                     linewidth=3)
 
-
     #
     # @brief      Linearly evolves the robot's config state from its start to
     #             goal state
@@ -209,19 +195,23 @@ class PolygonalRobot(Robot):
     #             planner) as we are just testing c-space construction and
     #             visualization
     #
-    def linearlyEvolveState(self):
+    # @param      startState  The start state in C-Space
+    # @param      endState    The end state in C-Space
+    #
+    def linearlyEvolveState(self, startState, endState):
 
-        N = 10
+        N = 50
 
         # fuck python
-        currState = copy.deepcopy(self.startState)
-        x0, y0, theta0 = self.startState
-        xG, yG, thetaG = self.goalState
+        currState = copy.deepcopy(startState)
+        x0, y0, theta0 = startState
+        xG, yG, thetaG = endState
+        self.updateRobotState(currState)
 
         # calculate linear differentials
-        dx = (xG - x0) / N
-        dy = (yG - y0) / N
-        d_theta = (thetaG - theta0) / N
+        dx = float((xG - x0) / N)
+        dy = float((yG - y0) / N)
+        d_theta = float((thetaG - theta0) / N)
 
         for ii in range(0, N):
 
@@ -230,7 +220,6 @@ class PolygonalRobot(Robot):
             currState[2] += d_theta
 
             self.updateRobotState(currState)
-
 
     #
     # @brief      Function for PolygonalRobot instance to "run" itself
@@ -248,11 +237,15 @@ class PolygonalRobot(Robot):
     #
     def runAndPlot(self, planner, plotTitle):
 
-        self.linearlyEvolveState()
         self.workspace.plot(robot=self,
                             startState=self.startState,
                             goalState=self.goalState,
-                            plotTitle=plotTitle)
+                            plotTitle=plotTitle + 'workspace')
+
+        self.cSpace.plot(robot=self,
+                         startState=self.startState,
+                         goalState=self.goalState,
+                         plotTitle=plotTitle + 'cSpace')
 
 
 #
@@ -264,7 +257,6 @@ class PolygonalRobotBuilder(Builder):
     #
     def __init__(self):
         Builder.__init__(self)
-
 
     #
     # @brief      Implements the smart constructor for PolygonalRobot

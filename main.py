@@ -1,6 +1,5 @@
 # 3rd-party packages
 import os.path
-import matplotlib.pyplot as plt
 
 # local packages
 import os_calls
@@ -40,7 +39,6 @@ def simRunner(shouldSavePlots, basePlotDir, simType):
         if simType == 'cspace':
             runCspaceViz(file, shouldSavePlots, baseSaveFName)
 
-    plt.show()
 
 
 # @brief      A function to interface with the classes to visualize the c-space
@@ -66,7 +64,7 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
                                         shouldSavePlots=shouldSavePlots,
                                         baseSaveFName=baseSaveFName)
 
-    currRobot.runAndPlot(planner=None, plotTitle='cspace_no_rot')
+    currRobot.runAndPlot(planner=None, plotTitle='')
 
 
 #

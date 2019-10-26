@@ -2,7 +2,9 @@ name: motionPlanning2
 channels:
   - defaults
 dependencies:
-  - python=3
-  - pyyaml
   - matplotlib
+  - pyyaml
+  - python=3
+  - scipy
+prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning2
 

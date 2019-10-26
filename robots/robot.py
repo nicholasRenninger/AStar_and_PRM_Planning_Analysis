@@ -33,11 +33,9 @@ class Robot:
          self.numStates) = self.initializeRobotState(configData)
 
         self.stateHistory = []
-        self.currentState = self.startState
-        self.stateHistory.append(self.currentState[:])
+        self.currentState = None
 
         self.distTraveled = 0
-
 
     #
     # @brief      returns the start state and goal location lists for the robot
@@ -56,22 +54,20 @@ class Robot:
         startState = np.array(startStateList,
                               dtype='float64').reshape((numStates, 1))
         goalState = np.array(goalStateList,
-                              dtype='float64').reshape((numStates, 1))
+                             dtype='float64').reshape((numStates, 1))
 
         return (startState, goalState, numStates)
-
 
     #
     # @brief      abstract method to set the robot shape from the configData
     #
     # @param      configData  configuration data dictionary for the robot
     #
-    # @return     robot's shape data in the concrete class will be set 
+    # @return     robot's shape data in the concrete class will be set
     #
     def setRobotShape(self, configData):
 
         raise NotImplementedError
-
 
     #
     # @brief      Determines if at goal.
@@ -89,7 +85,6 @@ class Robot:
 
         return closeToGoal
 
-
     #
     # @brief      Determines if robot is close to a given target location
     #
@@ -103,7 +98,6 @@ class Robot:
 
         return (distToLocation <= self.nearObjTolerance)
 
-
     #
     # @brief      computes the distance to the goal state
     #
@@ -115,7 +109,6 @@ class Robot:
         dist = self.distToTarget(self.goalState)
 
         return dist
-
 
     #
     # @brief      computes the distance to the target
@@ -131,18 +124,16 @@ class Robot:
 
         return distToLocation
 
-
     #
     # @brief      Virtual member function to plot the robot in the workspace
     #
-    # @param      ax    the matplotlib.axes object to plot the robot's body in 
+    # @param      ax    the matplotlib.axes object to plot the robot's body in
     #
     # @return     plots the robot's body on ax
     #
     def plotInWorkspace(self, ax):
 
         raise NotImplementedError
-
 
     #
     # @brief      virtual member function for a robot instance to "run" itself
@@ -157,7 +148,6 @@ class Robot:
     def runAndPlot(self, planner, shouldSavePlots, baseSaveFName):
 
         raise NotImplementedError
-
 
     #
     # @brief      Calculates a unit vector heading from currentPosition to

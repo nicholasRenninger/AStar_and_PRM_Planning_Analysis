@@ -1,5 +1,6 @@
 # 3rd-party packages
 import matplotlib.pyplot as plt
+import numpy as np
 
 # local packages
 from spaces.robot_space import RobotSpace
@@ -33,7 +34,6 @@ class Workspace(RobotSpace):
         obstacles = self.getObstacles(configData)
         self.obstacles = obstacles
 
-
     #
     # @brief      Creates a list of obstacles from config data
     #
@@ -45,8 +45,7 @@ class Workspace(RobotSpace):
     def getObstacles(self, configData):
 
         obstacles = configData['WO']
-        return obstacles
-
+        return np.array(obstacles, dtype='float64')
 
     #
     # @brief      Plots all obstacles in the workspace to ax
@@ -62,16 +61,13 @@ class Workspace(RobotSpace):
                     edgecolor='black',
                     linewidth=3)
 
-
     #
     # @brief      Plot all Workspace objects and saves to self.baseSaveFName
     #
     #             plots obstacles, the robot's path, the start location, and
     #             the goal location
     #
-    # @param      self        The Workspace object
-    # @param      robotPath   A list with spatial coordinates of the robot's
-    #                         path in the Workspace coordinate system
+    # @param      robot       A Robot subclass object instance
     # @param      startState  A list with the robot's start coordinates in the
     #                         Workspace coordinate system
     # @param      goalState   A list with the robot's goal state coordinates in
@@ -85,6 +81,10 @@ class Workspace(RobotSpace):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
+        # plot grid lines BEHIND the fucking data
+        ax.set_axisbelow(True)
+        plt.grid()
+
         # plotting all the obstacles
         self.plotObstacles(ax)
 
@@ -92,13 +92,13 @@ class Workspace(RobotSpace):
         if robot is not None:
 
             robotPath = robot.stateHistory
-            
+
             robot.plotPathInWorkspace(ax)
 
             # plotting the robot origin's path through workspace
             x = [state[0] for state in robotPath]
             y = [state[1] for state in robotPath]
-            plt.plot(x, y, color='blue', linestyle='dashed',
+            plt.plot(x, y, color='blue', linestyle='solid',
                      linewidth=4, markersize=16)
 
         # plotting the start / end location of the robot
@@ -110,7 +110,9 @@ class Workspace(RobotSpace):
                  color='red', marker='x', linestyle='solid',
                  linewidth=4, markersize=16)
 
-        ax.set_axis_off()
+        # ax.set_axis_off()
+        ax.set_aspect('equal')
+        plt.title(plotTitle)
 
         if self.shouldSavePlots:
             saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
@@ -134,9 +136,9 @@ class WorkspaceBuilder(Builder):
 
     #
     # @brief      Implements the smart constructor for Workspace
-    # 
+    #
     # Only reads the config data once, otherwise just returns the built object
-    # 
+    #
     # @param      configFileName   The YAML configuration file name
     # @param      shouldSavePlots  The should save plots
     # @param      baseSaveFName    The base directory file name for output plot
