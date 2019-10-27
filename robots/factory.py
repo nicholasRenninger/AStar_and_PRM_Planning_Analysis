@@ -8,7 +8,7 @@ from robots.polygonal_robot import PolygonalRobotBuilder
 #
 class RobotWarehouse(ObjectFactory):
 
-    #
+    ##
     # @brief      allows for more readble creation / access to a concrete
     #             Robot object
     #

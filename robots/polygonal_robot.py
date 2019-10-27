@@ -5,16 +5,16 @@ import copy
 # local packages
 from robots.robot import Robot
 from factory.builder import Builder
-from spaces.c_space import PolygonalRobotCSpace
+from spaces.factory import activeSpaces
 
 
-#
+##
 # @brief      This class describes a PolygonalRobot with a workspace shape that
-#             can be described as a set of polygonal vertices
+# can be described as a set of polygonal vertices
 #
 class PolygonalRobot(Robot):
 
-    #
+    ##
     # @brief      PolygonalRobot class constructor
     #
     # @param      robotType        The PolygonalRobot type @string
@@ -51,12 +51,13 @@ class PolygonalRobot(Robot):
         # need to store which of the robot's vertices is its origin
         self.robotOriginIdx = robotOriginIdx
 
-        # need to Initialize the PolygonalRobot's C-space
-        self.cSpace = PolygonalRobotCSpace(robot=self,
-                                           shouldSavePlots=shouldSavePlots,
-                                           baseSaveFName=baseSaveFName)
+        # have the factory get make the PolygonalRobot's C-space
+        self.cSpace = activeSpaces.get(robotSpaceType='POLYGONALROBOTCSPACE',
+                                       robot=self,
+                                       shouldSavePlots=shouldSavePlots,
+                                       baseSaveFName=baseSaveFName)
 
-    #
+    ##
     # @brief      Extracts and formats the PolygonalRobot shape data from the
     #             configData
     #
@@ -77,7 +78,7 @@ class PolygonalRobot(Robot):
 
         return (relativeShapeVerts, robotOriginIdx)
 
-    #
+    ##
     # @brief      Gets the workspace vertices of the robot given its new origin
     #             and a rotation by theta
     #
@@ -112,7 +113,7 @@ class PolygonalRobot(Robot):
 
         return newRobotVertCoords
 
-    #
+    ##
     # @brief      Puts the robot into the newState and updates appropriate data
     #
     # @param      newState  The new state for the PolygonalRobot
@@ -133,7 +134,7 @@ class PolygonalRobot(Robot):
                                                     theta)
         self.workspaceVertCoords.append(newVertCoors)
 
-    #
+    ##
     # @brief      rotates all of the robot's workspace coordinates by theta
     #
     # @param      theta            The body frame orientation state vector
@@ -169,7 +170,7 @@ class PolygonalRobot(Robot):
 
         return vertsFinal
 
-    #
+    ##
     # @brief      Plots the robot in the workspace
     #
     # @param      ax    the matplotlib.axes object to plot the PolygonalRobot's
@@ -186,7 +187,7 @@ class PolygonalRobot(Robot):
                     edgecolor='orangered',
                     linewidth=3)
 
-    #
+    ##
     # @brief      Linearly evolves the robot's config state from its start to
     #             goal state
     #
@@ -200,7 +201,7 @@ class PolygonalRobot(Robot):
     #
     def linearlyEvolveState(self, startState, endState):
 
-        N = 50
+        N = 100
 
         # fuck python
         currState = copy.deepcopy(startState)
@@ -221,7 +222,7 @@ class PolygonalRobot(Robot):
 
             self.updateRobotState(currState)
 
-    #
+    ##
     # @brief      Function for PolygonalRobot instance to "run" itself
     #
     #             For the PolygonalRobot, we are just going to linearly evolve
@@ -248,7 +249,7 @@ class PolygonalRobot(Robot):
                          plotTitle=plotTitle + 'cSpace')
 
 
-#
+##
 # @brief      Implements the generic builder class for the PolygonalRobot
 #
 class PolygonalRobotBuilder(Builder):
@@ -258,7 +259,7 @@ class PolygonalRobotBuilder(Builder):
     def __init__(self):
         Builder.__init__(self)
 
-    #
+    ##
     # @brief      Implements the smart constructor for PolygonalRobot
     #
     #             Only reads the config data once, otherwise just returns the

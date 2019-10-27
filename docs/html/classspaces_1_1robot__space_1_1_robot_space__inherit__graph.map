@@ -1,0 +1,6 @@
+<map id="spaces.robot_space.RobotSpace" name="spaces.robot_space.RobotSpace">
+<area shape="rect" id="node1" title=" " alt="" coords="217,5,397,145"/>
+<area shape="rect" id="node2" href="$classspaces_1_1c__space_1_1_point_robot_c_space.html" title=" " alt="" coords="5,227,192,340"/>
+<area shape="rect" id="node3" href="$classspaces_1_1c__space_1_1_polygonal_robot_c_space.html" title=" " alt="" coords="216,193,398,373"/>
+<area shape="rect" id="node4" href="$classspaces_1_1workspace_1_1_workspace.html" title=" " alt="" coords="422,227,623,340"/>
+</map>

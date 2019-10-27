@@ -7,12 +7,13 @@ from spaces.robot_space import RobotSpace
 from factory.builder import Builder
 
 
+##
 # @brief      Class for 2D robot Workspace objects
 #
 # @warning    Workspace can only be comprised of polygonal obstacles
 class Workspace(RobotSpace):
 
-    #
+    ##
     # @brief      Workspace class constructor
     #
     # @param      self             The Workspace object object
@@ -34,7 +35,7 @@ class Workspace(RobotSpace):
         obstacles = self.getObstacles(configData)
         self.obstacles = obstacles
 
-    #
+    ##
     # @brief      Creates a list of obstacles from config data
     #
     # @param      configData  configuration data dictionary for the robot
@@ -47,7 +48,7 @@ class Workspace(RobotSpace):
         obstacles = configData['WO']
         return np.array(obstacles, dtype='float64')
 
-    #
+    ##
     # @brief      Plots all obstacles in the workspace to ax
     #
     # @param      ax    the matplotlib.axes object to plot the obstacles on
@@ -61,7 +62,7 @@ class Workspace(RobotSpace):
                     edgecolor='black',
                     linewidth=3)
 
-    #
+    ##
     # @brief      Plot all Workspace objects and saves to self.baseSaveFName
     #
     #             plots obstacles, the robot's path, the start location, and
@@ -124,7 +125,7 @@ class Workspace(RobotSpace):
             print('wrote figure to ', saveFName)
 
 
-#
+##
 # @brief      Implements the generic builder class for the Workspace
 #
 class WorkspaceBuilder(Builder):
@@ -134,7 +135,7 @@ class WorkspaceBuilder(Builder):
     def __init__(self):
         Builder.__init__(self)
 
-    #
+    ##
     # @brief      Implements the smart constructor for Workspace
     #
     # Only reads the config data once, otherwise just returns the built object

@@ -1,3 +1,5 @@
+
+
 # Generic class to implement a spatial representation of a robot or its
 # environment for robots with 2-D workspaces
 #
@@ -19,7 +21,6 @@ class RobotSpace:
         self.shouldSavePlots = shouldSavePlots
         self.baseSaveFName = baseSaveFName
 
-
     #
     # @brief      An abstract function to compute obstacles in the RobotSpace
     #
@@ -30,11 +31,10 @@ class RobotSpace:
 
         return NotImplementedError
 
-
     #
     # @brief      Abstract function ensuring that the subclass implements
-    #             its own plotter 
-    #       
+    #             its own plotter
+    #
     def plot(self):
 
         raise NotImplementedError

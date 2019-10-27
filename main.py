@@ -14,18 +14,18 @@ def main():
 
     os_calls.clear_screen()
 
-    simType = 'cspace'
-    simRunner(shouldSavePlots, basePlotDir, simType)
+    simRunner(shouldSavePlots, basePlotDir, simType='cspace')
+    # simRunner(shouldSavePlots, basePlotDir, simType='gradient')
 
 
-#
+##
 # @brief      Runs a set of simulations based on the simulation type and
 #             outputs the plots to the
 #
 # @param      shouldSavePlots  Boolean to turn on and off plot file writes
 # @param      basePlotDir      The relative path to the figures output dir
 # @param      simType          The simulation type @string
-#       
+#
 def simRunner(shouldSavePlots, basePlotDir, simType):
 
     (configNames, configFileNames) = getConfigPaths(simType)
@@ -38,9 +38,11 @@ def simRunner(shouldSavePlots, basePlotDir, simType):
 
         if simType == 'cspace':
             runCspaceViz(file, shouldSavePlots, baseSaveFName)
+        if simType == 'gradient':
+            runGradientPlanner(file, shouldSavePlots, baseSaveFName)
 
 
-
+##
 # @brief      A function to interface with the classes to visualize the c-space
 #             obstacle for worspace polygonal robot and obstacle
 #
@@ -49,7 +51,7 @@ def simRunner(shouldSavePlots, basePlotDir, simType):
 # @param      baseSaveFName    The base save file name for plots
 #
 def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
-    
+
     # the workspace doesn't change for this simulation
     currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
                                      configFileName=configFileName,
@@ -59,15 +61,45 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
     # this simulation is for a polygonal robot, so get that class from the
     # activeRobots factory interface
     currRobot = activeRobots.get(robotType='POLYGONALROBOT',
-                                        configFileName=configFileName,
-                                        workspace=currWorkspace,
-                                        shouldSavePlots=shouldSavePlots,
-                                        baseSaveFName=baseSaveFName)
+                                 configFileName=configFileName,
+                                 workspace=currWorkspace,
+                                 shouldSavePlots=shouldSavePlots,
+                                 baseSaveFName=baseSaveFName)
 
     currRobot.runAndPlot(planner=None, plotTitle='')
 
 
+##
+# @brief      A function to interface with the classes to run a gradient based
+#             planner on a variety of environments
 #
+# @param      configFileName   The configuration file name for the simulation
+# @param      shouldSavePlots  Boolean to turn on and off plot file writes
+# @param      baseSaveFName    The base save file name for plots
+#
+def runGradientPlanner(configFileName, shouldSavePlots, baseSaveFName):
+
+    # the workspace doesn't change for this simulation
+    currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
+                                     configFileName=configFileName,
+                                     shouldSavePlots=shouldSavePlots,
+                                     baseSaveFName=baseSaveFName)
+
+    currPlanner = None
+
+    # this simulation is for a polygonal robot, so get that class from the
+    # activeRobots factory interface
+    currRobot = activeRobots.get(robotType='POINTROBOT',
+                                 configFileName=configFileName,
+                                 workspace=currWorkspace,
+                                 planner=currPlanner,
+                                 shouldSavePlots=shouldSavePlots,
+                                 baseSaveFName=baseSaveFName)
+
+    currRobot.runAndPlot(planner=None, plotTitle='')
+
+
+##
 # @brief      Gets the configuration file paths for the given sim type
 #
 # @param      simType  The simulation type @string
@@ -78,6 +110,8 @@ def getConfigPaths(simType):
 
     if simType == 'cspace':
         configNames = ['WO_Rob_triangles', 'WO_Rob_triangles_no_rot']
+    if simType == 'gradient':
+        configNames = ['env2']
 
     fullConfigNames = list(map(lambda x: simType + '_' + x, configNames))
 

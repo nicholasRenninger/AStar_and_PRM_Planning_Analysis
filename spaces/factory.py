@@ -1,13 +1,16 @@
 # local packages
 from factory.object_factory import ObjectFactory
 from spaces.workspace import WorkspaceBuilder
+from spaces.polygonal_robot_c_space import PolygonalRobotCSpaceBuilder
 
-# registering the builders for the different types of space objects with a more
-# readable interface to our generic factory class
+
+##
+# @brief      registering the builders for the different types of space objects
+#             with a more readable interface to our generic factory class
 #
 class RobotSpaceCollection(ObjectFactory):
 
-    #
+    ##
     # @brief      allows for more readble creation / access to a concrete
     #             RobotSpace objects
     #
@@ -21,6 +24,8 @@ class RobotSpaceCollection(ObjectFactory):
 
         return self.create(robotSpaceType, **kwargs)
 
+
 activeSpaces = RobotSpaceCollection()
 activeSpaces.register_builder('WORKSPACE', WorkspaceBuilder())
-# activeSpaces.register_builder('CSPACE')
+activeSpaces.register_builder('POLYGONALROBOTCSPACE',
+                              PolygonalRobotCSpaceBuilder())

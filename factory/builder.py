@@ -2,11 +2,12 @@
 import yaml
 
 
-#
+##
 # @brief      Implements an abstract generic builder class to use with factory
 #
 class Builder:
 
+    ##
     # @brief      Builder constructor. Just sets the internal instance
     #             reference to None
     #
@@ -15,7 +16,7 @@ class Builder:
         self._instance = None
         self._configName = None
 
-    #
+    ##
     # @brief      Abstract implementation of the constructor for the object to
     #             be built.
     #
@@ -28,7 +29,7 @@ class Builder:
 
         return NotImplementedError
 
-    #
+    ##
     # @brief      reads in the simulation parameters from a YAML config file
     #
     # @param      configFileName  The YAML configuration file name

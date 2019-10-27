@@ -2,12 +2,12 @@
 import numpy as np
 
 
-#
+##
 # @brief      This (largely abstract) class describes a generic robot
 #
 class Robot:
 
-    #
+    ##
     # @brief      Robot class constructor
     #
     # @param      robotType        The robot type @string
@@ -37,7 +37,7 @@ class Robot:
 
         self.distTraveled = 0
 
-    #
+    ##
     # @brief      returns the start state and goal location lists for the robot
     #
     # @param      configData  configuration data dictionary for the robot
@@ -58,7 +58,7 @@ class Robot:
 
         return (startState, goalState, numStates)
 
-    #
+    ##
     # @brief      abstract method to set the robot shape from the configData
     #
     # @param      configData  configuration data dictionary for the robot
@@ -69,7 +69,7 @@ class Robot:
 
         raise NotImplementedError
 
-    #
+    ##
     # @brief      Determines if at goal.
     #
     # @param      self  The Robot object
@@ -85,7 +85,7 @@ class Robot:
 
         return closeToGoal
 
-    #
+    ##
     # @brief      Determines if robot is close to a given target location
     #
     # @param      self            The Robot object
@@ -98,7 +98,7 @@ class Robot:
 
         return (distToLocation <= self.nearObjTolerance)
 
-    #
+    ##
     # @brief      computes the distance to the goal state
     #
     # @param      self  The Robot object
@@ -110,7 +110,7 @@ class Robot:
 
         return dist
 
-    #
+    ##
     # @brief      computes the distance to the target
     #
     # @param      target  The target coordinates
@@ -124,7 +124,7 @@ class Robot:
 
         return distToLocation
 
-    #
+    ##
     # @brief      Virtual member function to plot the robot in the workspace
     #
     # @param      ax    the matplotlib.axes object to plot the robot's body in
@@ -135,7 +135,7 @@ class Robot:
 
         raise NotImplementedError
 
-    #
+    ##
     # @brief      virtual member function for a robot instance to "run" itself
     #
     # @param      planner          The Planners object containing the motion
@@ -149,7 +149,7 @@ class Robot:
 
         raise NotImplementedError
 
-    #
+    ##
     # @brief      Calculates a unit vector heading from currentPosition to
     #             targetObjectPosition
     #
