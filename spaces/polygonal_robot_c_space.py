@@ -313,6 +313,8 @@ class PolygonalRobotCSpaceBuilder(Builder):
     #
     def __init__(self):
         Builder.__init__(self)
+        self.robot = None
+        self.workspace = None
 
     ##
     # @brief      Implements the smart constructor for PolygonalRobotCSpace
@@ -329,9 +331,11 @@ class PolygonalRobotCSpaceBuilder(Builder):
     #
     def __call__(self, robot, shouldSavePlots, baseSaveFName):
 
+        robotHasChanged = (self.robot != robot)
+        workspaceHasChanged = (self.workspace != robot.workspace)
         noInstanceLoadedYet = (self._instance is None)
 
-        if noInstanceLoadedYet:
+        if noInstanceLoadedYet or robotHasChanged or workspaceHasChanged:
 
             self._instance = \
                 PolygonalRobotCSpace(robot=robot,

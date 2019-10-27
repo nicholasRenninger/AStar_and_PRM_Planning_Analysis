@@ -25,7 +25,6 @@ class PolygonalRobot(Robot):
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
-    # @param      self  The PolygonalRobot object object
     #
     # @return     initialized PolygonalRobot object
     #
@@ -178,7 +177,7 @@ class PolygonalRobot(Robot):
     #
     # @return     plots the PolygonalRobot's body on ax
     #
-    def plotPathInWorkspace(self, ax):
+    def plotBodyInWorkspace(self, ax):
 
         for vertCoords in self.workspaceVertCoords:
             ax.fill(vertCoords[:, 0], vertCoords[:, 1],

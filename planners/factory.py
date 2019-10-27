@@ -1,6 +1,6 @@
 # local packages
 from factory.object_factory import ObjectFactory
-from robots.gradient_planner import GradientPlannerBuilder
+from planners.gradient_planner import GradientPlannerBuilder
 
 
 # registering the builders for the different types of Robot objects with a more
@@ -23,8 +23,5 @@ class PlannerCreator(ObjectFactory):
         return self.create(plannerType, **kwargs)
 
 
-# meow
-plannerCollection = PlannerCreator()
-
-# hellow matey
-plannerCollection.register_builder('GRADIENT', GradientPlannerBuilder())
+availablePlanners = PlannerCreator()
+availablePlanners.register_builder('GRADIENT', GradientPlannerBuilder())

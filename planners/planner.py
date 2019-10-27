@@ -8,15 +8,19 @@ class Planner:
     ##
     # @brief      Planner class constructor
     #
-    # @param      plannerType  The planner type
-    # @param      cSpace       The configuration space of the robot space
-    # @param      workspace    The workspace object the robot operates in
-    # @param      robot        The Planner type string
-    # @param      configData   Configuration dictionary for the planner
+    # @param      plannerType      The planner type string
+    # @param      cSpace           The configuration space of the robot
+    # @param      workspace        The workspace object the robot operates in
+    # @param      robot            The Planner type string
+    # @param      configData       Configuration dictionary for the planner
+    # @param      shouldSavePlots  Boolean controlling whether or not the plt
+    #                              objs can be saved to the baseSaveName dir
+    # @param      baseSaveFName    The base directory file name for output plot
     #
     # @return     initialized Planner object
     #
-    def __init__(self, plannerType, cSpace, workspace, robot, configData):
+    def __init__(self, plannerType, cSpace, workspace, robot, configData,
+                 shouldSavePlots, baseSaveFName):
 
         self.plannerType = plannerType
         self.cSpace = cSpace
@@ -35,7 +39,3 @@ class Planner:
     def findPathToGoal(self):
 
         return NotImplementedError
-
-    def bitchImACow(self, meow):
-
-

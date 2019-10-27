@@ -70,6 +70,20 @@ class Robot:
         raise NotImplementedError
 
     ##
+    # @brief      abstract method to check if a state in Robot's config space
+    #             collides with a workspace obstacle
+    #
+    # Needs to be implemented for each specific type of robot / workspace combo
+    #
+    # @param      state  The robot configuration space state to check
+    #
+    # @return     Bool indicating whether the state is in collision
+    #
+    def checkCollision(self, state):
+
+        raise NotImplementedError
+
+    ##
     # @brief      Determines if at goal.
     #
     # @param      self  The Robot object

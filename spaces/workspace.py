@@ -1,6 +1,7 @@
 # 3rd-party packages
 import matplotlib.pyplot as plt
 import numpy as np
+from shapely.geometry import Polygon
 
 # local packages
 from spaces.robot_space import RobotSpace
@@ -32,21 +33,30 @@ class Workspace(RobotSpace):
                             shouldSavePlots=shouldSavePlots,
                             baseSaveFName=baseSaveFName)
 
-        obstacles = self.getObstacles(configData)
+        (obstacles, polygonObstacles) = self.getObstacles(configData)
         self.obstacles = obstacles
+        self.polygonObstacles = polygonObstacles
 
     ##
     # @brief      Creates a list of obstacles from config data
     #
     # @param      configData  configuration data dictionary for the robot
     #
-    # @return     a list of Workspace obstacle vertex coordinates for each
-    #             obstacle
+    # @return     (a list of Workspace obstacle vertex coordinates for each
+    #             obstacle,
+    #
+    #             a list of shapely.geometry.Polygon objects corresponding to
+    #             each set of vertices in the workspace)
     #
     def getObstacles(self, configData):
 
         obstacles = configData['WO']
-        return np.array(obstacles, dtype='float64')
+
+        polygonObstacles = []
+        for obstacle in obstacles:
+            polygonObstacles.append(Polygon(obstacle))
+
+        return (np.array(obstacles, dtype='float64'), polygonObstacles)
 
     ##
     # @brief      Plots all obstacles in the workspace to ax
@@ -94,7 +104,7 @@ class Workspace(RobotSpace):
 
             robotPath = robot.stateHistory
 
-            robot.plotPathInWorkspace(ax)
+            robot.plotBodyInWorkspace(ax)
 
             # plotting the robot origin's path through workspace
             x = [state[0] for state in robotPath]

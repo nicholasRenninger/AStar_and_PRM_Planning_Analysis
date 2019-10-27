@@ -4,7 +4,8 @@ import os.path
 # local packages
 import os_calls
 from spaces.factory import activeSpaces
-from robots.factory import RobotWarehouse
+from robots.factory import activeRobots
+from planners.factory import availablePlanners
 
 
 def main():
@@ -14,8 +15,8 @@ def main():
 
     os_calls.clear_screen()
 
-    simRunner(shouldSavePlots, basePlotDir, simType='cspace')
-    # simRunner(shouldSavePlots, basePlotDir, simType='gradient')
+    # simRunner(shouldSavePlots, basePlotDir, simType='cspace')
+    simRunner(shouldSavePlots, basePlotDir, simType='gradient')
 
 
 ##
@@ -60,7 +61,6 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
 
     # this simulation is for a polygonal robot, so get that class from the
     # activeRobots factory interface
-    activeRobots = RobotWarehouse()
     currRobot = activeRobots.get(robotType='POLYGONALROBOT',
                                  configFileName=configFileName,
                                  workspace=currWorkspace,
@@ -86,16 +86,21 @@ def runGradientPlanner(configFileName, shouldSavePlots, baseSaveFName):
                                      shouldSavePlots=shouldSavePlots,
                                      baseSaveFName=baseSaveFName)
 
-    currPlanner = None
-
     # this simulation is for a polygonal robot, so get that class from the
     # activeRobots factory interface
     currRobot = activeRobots.get(robotType='POINTROBOT',
                                  configFileName=configFileName,
                                  workspace=currWorkspace,
-                                 planner=currPlanner,
                                  shouldSavePlots=shouldSavePlots,
                                  baseSaveFName=baseSaveFName)
+
+    currPlanner = availablePlanners.get(plannerType='GRADIENT',
+                                        cSpace=currRobot.cSpace,
+                                        workspace=currWorkspace,
+                                        robot=currRobot,
+                                        configFileName=configFileName,
+                                        shouldSavePlots=shouldSavePlots,
+                                        baseSaveFName=baseSaveFName)
 
     currRobot.runAndPlot(planner=None, plotTitle='')
 

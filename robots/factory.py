@@ -1,19 +1,13 @@
 # local packages
 from factory.object_factory import ObjectFactory
 from robots.polygonal_robot import PolygonalRobotBuilder
+from robots.point_robot import PointRobotBuilder
 
 
 # registering the builders for the different types of Robot objects with a more
 # readable interface to our generic factory class
 #
 class RobotWarehouse(ObjectFactory):
-
-    ##
-    # @brief      Constructs a new instance.
-    #
-    def __init__(self):
-        RobotWarehouse.__init__(self)
-        self.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())
 
     ##
     # @brief      allows for more readble creation / access to a concrete
@@ -28,3 +22,8 @@ class RobotWarehouse(ObjectFactory):
     def get(self, robotType, **kwargs):
         kwargs['robotType'] = robotType
         return self.create(robotType, **kwargs)
+
+
+activeRobots = RobotWarehouse()
+activeRobots.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())
+activeRobots.register_builder('POINTROBOT', PointRobotBuilder())
