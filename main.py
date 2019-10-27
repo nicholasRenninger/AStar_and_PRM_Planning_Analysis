@@ -4,7 +4,7 @@ import os.path
 # local packages
 import os_calls
 from spaces.factory import activeSpaces
-from robots.factory import activeRobots
+from robots.factory import RobotWarehouse
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
 #
 # @param      shouldSavePlots  Boolean to turn on and off plot file writes
 # @param      basePlotDir      The relative path to the figures output dir
-# @param      simType          The simulation type @string
+# @param      simType          The simulation type string
 #
 def simRunner(shouldSavePlots, basePlotDir, simType):
 
@@ -60,6 +60,7 @@ def runCspaceViz(configFileName, shouldSavePlots, baseSaveFName):
 
     # this simulation is for a polygonal robot, so get that class from the
     # activeRobots factory interface
+    activeRobots = RobotWarehouse()
     currRobot = activeRobots.get(robotType='POLYGONALROBOT',
                                  configFileName=configFileName,
                                  workspace=currWorkspace,
@@ -102,9 +103,9 @@ def runGradientPlanner(configFileName, shouldSavePlots, baseSaveFName):
 ##
 # @brief      Gets the configuration file paths for the given sim type
 #
-# @param      simType  The simulation type @string
+# @param      simType  The simulation type string
 #
-# @return     The configuration path strings in a @list
+# @return     The configuration path strings in a list
 #
 def getConfigPaths(simType):
 

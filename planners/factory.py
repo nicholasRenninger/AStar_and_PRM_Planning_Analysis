@@ -12,7 +12,7 @@ class PlannerCreator(ObjectFactory):
     # @brief      allows for more readble creation / access to a concrete
     #             Planner object
     #
-    # @param      plannerType  The Planner type @string
+    # @param      plannerType  The Planner type string
     # @param      kwargs       The keywords arguments to pass to the specific
     #                          robot constructor
     #
@@ -23,5 +23,8 @@ class PlannerCreator(ObjectFactory):
         return self.create(plannerType, **kwargs)
 
 
+# meow
 plannerCollection = PlannerCreator()
+
+# hellow matey
 plannerCollection.register_builder('GRADIENT', GradientPlannerBuilder())

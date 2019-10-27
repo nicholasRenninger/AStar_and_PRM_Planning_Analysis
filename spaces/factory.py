@@ -14,7 +14,7 @@ class RobotSpaceCollection(ObjectFactory):
     # @brief      allows for more readble creation / access to a concrete
     #             RobotSpace objects
     #
-    # @param      robotSpaceType  The RobotSpace type @string
+    # @param      robotSpaceType  The RobotSpace type string
     # @param      kwargs          The keywords arguments to pass to the
     #                             specific robot constructor
     #

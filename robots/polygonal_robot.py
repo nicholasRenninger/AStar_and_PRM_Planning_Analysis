@@ -17,7 +17,7 @@ class PolygonalRobot(Robot):
     ##
     # @brief      PolygonalRobot class constructor
     #
-    # @param      robotType        The PolygonalRobot type @string
+    # @param      robotType        The PolygonalRobot type string
     # @param      configData       Configuration dictionary for the
     #                              PolygonalRobot
     # @param      workspace        The Workspace object the PolygonalRobot
@@ -175,7 +175,6 @@ class PolygonalRobot(Robot):
     #
     # @param      ax    the matplotlib.axes object to plot the PolygonalRobot's
     #                   body in its Workspace
-    # @param      robotState  The robot's state
     #
     # @return     plots the PolygonalRobot's body on ax
     #
@@ -232,7 +231,7 @@ class PolygonalRobot(Robot):
     #
     # @param      planner    The planner object containing the motion planning
     #                        algorithm to be used on the robot
-    # @param      plotTitle   The plot title @string
+    # @param      plotTitle   The plot title string
     #
     # @return     runs robot, then plots results of running the robot
     #
@@ -254,7 +253,8 @@ class PolygonalRobot(Robot):
 #
 class PolygonalRobotBuilder(Builder):
 
-    # need to call the super class constructor to gain its properties
+    ##
+    # @brief need to call the super class constructor to gain its properties
     #
     def __init__(self):
         Builder.__init__(self)
@@ -265,7 +265,7 @@ class PolygonalRobotBuilder(Builder):
     #             Only reads the config data once, otherwise just returns the
     #             built object
     #
-    # @param      robotType        The PolygonalRobot type @string
+    # @param      robotType        The PolygonalRobot type string
     # @param      configFileName   The configuration file name
     # @param      workspace        The Workspace object the PolygonalRobot
     #                              operates in

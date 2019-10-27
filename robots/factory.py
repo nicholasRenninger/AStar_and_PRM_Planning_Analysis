@@ -9,10 +9,17 @@ from robots.polygonal_robot import PolygonalRobotBuilder
 class RobotWarehouse(ObjectFactory):
 
     ##
+    # @brief      Constructs a new instance.
+    #
+    def __init__(self):
+        RobotWarehouse.__init__(self)
+        self.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())
+
+    ##
     # @brief      allows for more readble creation / access to a concrete
     #             Robot object
     #
-    # @param      robotType  The robot type @string
+    # @param      robotType  The robot type string
     # @param      kwargs     The keywords arguments to pass to the specific
     #                        robot constructor
     #
@@ -21,7 +28,3 @@ class RobotWarehouse(ObjectFactory):
     def get(self, robotType, **kwargs):
         kwargs['robotType'] = robotType
         return self.create(robotType, **kwargs)
-
-
-activeRobots = RobotWarehouse()
-activeRobots.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())

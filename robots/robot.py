@@ -10,7 +10,7 @@ class Robot:
     ##
     # @brief      Robot class constructor
     #
-    # @param      robotType        The robot type @string
+    # @param      robotType        The robot type string
     # @param      configData       Configuration dictionary for the robot
     # @param      workspace        The Workspace object the robot operates in
     # @param      shouldSavePlots  Boolean controlling whether or not the plt

@@ -16,7 +16,7 @@ class ObjectFactory:
     ##
     # @brief      adds the builder object to the internal builder dictionary
     #
-    # @param      key      The @string key reffering to the builder
+    # @param      key      The string key reffering to the builder
     # @param      builder  The builder object
     #                      This can be any function, class or object
     #                      implementing the .__call__() method
@@ -32,7 +32,7 @@ class ObjectFactory:
     #             by key and the concrete constructor arguements needed as
     #             kwargs
     #
-    # @param      key       The @string key specifying the builder to use
+    # @param      key       The string key specifying the builder to use
     # @param      **kwargs  The keywords arguments needed by the builder
     #                       specified by key
     #

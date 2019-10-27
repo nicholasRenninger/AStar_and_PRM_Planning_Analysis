@@ -1,5 +1,3 @@
-
-
 # local packages
 from spaces.robot_space import RobotSpace
 
@@ -13,7 +11,6 @@ class PointRobotCSpace(RobotSpace):
     # @brief      PointRobotCSpace class constructor
     #
     # @param      robot            The PointRobot instance
-    # @param      workspace        The PointRobot's workspace
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot

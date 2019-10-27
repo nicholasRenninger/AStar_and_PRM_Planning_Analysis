@@ -11,7 +11,7 @@ class Planner:
     # @param      plannerType  The planner type
     # @param      cSpace       The configuration space of the robot space
     # @param      workspace    The workspace object the robot operates in
-    # @param      robot        The Planner type @string
+    # @param      robot        The Planner type string
     # @param      configData   Configuration dictionary for the planner
     #
     # @return     initialized Planner object
@@ -37,5 +37,5 @@ class Planner:
         return NotImplementedError
 
     def bitchImACow(self, meow):
-    
+
 

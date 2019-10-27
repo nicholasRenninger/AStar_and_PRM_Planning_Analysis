@@ -23,7 +23,6 @@ class PolygonalRobotCSpace(RobotSpace):
     # @brief      PolygonalRobotCSpace class constructor
     #
     # @param      robot            The PolygonalRobot instance
-    # @param      workspace        The PolygonalRobot's workspace
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
@@ -166,8 +165,8 @@ class PolygonalRobotCSpace(RobotSpace):
     # @brief      Calculates the angle of each surface normal from the facet
     #             defined by neighbor vertices of a polygon
     #
-    # @param      vertices  A list of vertices to copute surface normal
-    #                             angles for
+    # @param      vertices  A list of vertices to copute surface normal angles
+    #                       for
     #
     # @return     A dictionary of angles indexed by a key of the two vertices
     #             used to compute the angle value
@@ -210,11 +209,13 @@ class PolygonalRobotCSpace(RobotSpace):
     #             each set of coordinates being the first vertex in the list of
     #             CCW vertices
     #
-    # @param      robotAngles     The robot's surface normal angles dictionary
-    # @param      robotVerts      The robot's workspace vertices
     # @param      obstacleAngles  The obstacle's surface normal angles
     #                             dictionary
     # @param      obstacleVerts   The obstacle's workspace vertices
+    # @param      robotAngles     The robot's surface normal angles dictionary
+    # @param      robotVerts      The robot's workspace vertices
+    #
+    # @return     The minkowski sum.
     #
     def computeMinkowskiSum(self, obstacleAngles, obstacleVerts,
                             robotAngles, robotVerts):
@@ -259,7 +260,7 @@ class PolygonalRobotCSpace(RobotSpace):
     #                         CSpace coordinate system
     # @param      goalState   A list with the robot's goal state coordinates in
     #                         the CSpace coordinate system
-    # @param      plotTitle   The plot title @string
+    # @param      plotTitle   The plot title string
     #
     # @return     a plot of the CSpace in the self.baseSaveFName directory
     #
@@ -319,9 +320,7 @@ class PolygonalRobotCSpaceBuilder(Builder):
     #             Only reads the config data once, otherwise just returns the
     #             built object
     #
-    # @param      robotType        The PolygonalRobotCSpace type @string
-    # @param      workspace        The Workspace object the
-    #                              PolygonalRobotCSpace operates in
+    # @param      robot            The PolygonalRobotCSpace type string
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
