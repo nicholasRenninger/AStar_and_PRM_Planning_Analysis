@@ -15,3 +15,5 @@ startState: [0, 0]
 # [x, y, theta]
 goalState: [10, 10]
 
+# determines N such that CSpace is discretized into an NxN grid
+linearDiscretizationDensity: 10

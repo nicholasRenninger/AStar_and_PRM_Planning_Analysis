@@ -33,6 +33,12 @@ class Workspace(RobotSpace):
                             shouldSavePlots=shouldSavePlots,
                             baseSaveFName=baseSaveFName)
 
+        # initialize the obstacle bounding box nicely for later ;)
+        self.minXObst = np.inf
+        self.maxXObst = -np.inf
+        self.minYObst = np.inf
+        self.maxYObst = -np.inf
+
         (obstacles, polygonObstacles) = self.getObstacles(configData)
         self.obstacles = obstacles
         self.polygonObstacles = polygonObstacles
@@ -54,7 +60,16 @@ class Workspace(RobotSpace):
 
         polygonObstacles = []
         for obstacle in obstacles:
-            polygonObstacles.append(Polygon(obstacle))
+            currObstacle = Polygon(obstacle)
+            polygonObstacles.append(currObstacle)
+
+            # we need to compute a bounding box in workspace for all of the
+            # obstacles for planning algorithms
+            (minx, miny, maxx, maxy) = currObstacle.bounds
+            self.minXObst = min(minx, self.minXObst)
+            self.maxXObst = max(maxx, self.maxXObst)
+            self.minYObst = min(miny, self.minYObst)
+            self.maxYObst = max(maxy, self.maxYObst)
 
         return (np.array(obstacles, dtype='float64'), polygonObstacles)
 

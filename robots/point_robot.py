@@ -1,5 +1,4 @@
 # 3rd-party packages
-import numpy as np
 import copy
 from shapely.geometry import Point
 
@@ -40,9 +39,12 @@ class PointRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
-        # have the factory get make the PointRobot's C-space
+        linearDiscretizationDensity = configData['linearDiscretizationDensity']
+
+        # have the factory make the PointRobot's C-space
         self.cSpace = activeSpaces.get(robotSpaceType='POINTROBOTCSPACE',
                                        robot=self,
+                                       N=linearDiscretizationDensity,
                                        shouldSavePlots=shouldSavePlots,
                                        baseSaveFName=baseSaveFName)
 
