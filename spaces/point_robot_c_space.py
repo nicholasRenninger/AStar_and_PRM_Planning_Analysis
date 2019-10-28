@@ -2,10 +2,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Polygon
-from descartes.patch import PolygonPatch
 import copy
 from collections import deque as deque
-
+from scipy import spatial
+import pyresample
+import math
 
 # local packages
 from factory.builder import Builder
@@ -53,9 +54,12 @@ class PointRobotCSpace(RobotSpace):
                                                       robot.goalState,
                                                       workspace)
 
+        # need to discretize the cspace for the brushfire algorithm
         (pCells,
          (nXCells, nYCells),
-         distCells) = self.discretizeCSpace(N=linearDiscretizationDensity)
+         distCells,
+         self.gridSize) = self.discretizeCSpace(N=linearDiscretizationDensity)
+
         self.polygonGridCells = pCells
         self.numericGridCells = (nXCells, nYCells)
         self.linearDiscretizationDensity = linearDiscretizationDensity
@@ -65,7 +69,23 @@ class PointRobotCSpace(RobotSpace):
         (self.distanceCells,
          self.maxManhattanDist) = self.brushFireDistanceComputation(distCells,
                                                                     pCells)
-        print(np.flipud(self.distanceCells))
+        print(self.distanceCells[self.getGridCoordsFromState([0, 0])])
+        print(self.distanceCells[self.getGridCoordsFromState([3, 0])])
+        print(self.distanceCells[self.getGridCoordsFromState([8, 0])])
+        print(self.distanceCells[self.getGridCoordsFromState([14, 0])])
+        print(self.distanceCells[self.getGridCoordsFromState([0, 4])])
+        print(self.distanceCells[self.getGridCoordsFromState([3, 4])])
+        print(self.distanceCells[self.getGridCoordsFromState([8, 4])])
+        print(self.distanceCells[self.getGridCoordsFromState([14, 4])])
+        print(self.distanceCells[self.getGridCoordsFromState([0, 8])])
+        print(self.distanceCells[self.getGridCoordsFromState([3, 8])])
+        print(self.distanceCells[self.getGridCoordsFromState([8, 8])])
+        print(self.distanceCells[self.getGridCoordsFromState([14, 8])])
+        print(self.distanceCells[self.getGridCoordsFromState([0, 14])])
+        print(self.distanceCells[self.getGridCoordsFromState([3, 14])])
+        print(self.distanceCells[self.getGridCoordsFromState([8, 14])])
+        print(self.distanceCells[self.getGridCoordsFromState([14, 14])])
+        print('Built CSpace with grid cells of size ', self.gridSize)
 
     ##
     # @brief      Plots all obstacles in the cspace to ax
@@ -134,7 +154,7 @@ class PointRobotCSpace(RobotSpace):
         return (float(minGridX), float(maxGridX),
                 float(minGridY), float(maxGridY))
 
-    #
+    ##
     # @brief      Appropriately scales a grid coordinate depending on its sign
     #             and whether it's a maximum grid coordinate
     #
@@ -178,14 +198,17 @@ class PointRobotCSpace(RobotSpace):
     #
     # @param      N     number of grid points in each CSpace dimension
     #
-    # @return     (a list of polygon objects - one for each grid cell,
-    #              a numpy meshgrid representing the grid coordinates,
-    #              a 2D numpy array of zeros used  brushfire algorithms)
+    # @return     (a list of polygon objects - one for each grid cell, a numpy
+    #             meshgrid representing the grid coordinates, a 2D numpy array
+    #             of zeros used  brushfire algorithms, the size of each grid
+    #             cell)
     #
     def discretizeCSpace(self, N):
 
         xCoords = np.linspace(self.minGridX, self.maxGridX, N + 1)
         yCoords = np.linspace(self.minGridY, self.maxGridY, N + 1)
+
+        gridSize = abs(xCoords[1] - xCoords[0])
 
         xMesh, yMesh = np.meshgrid(yCoords, xCoords)
         emptyDistanceCells = np.zeros((N, N))
@@ -211,7 +234,7 @@ class PointRobotCSpace(RobotSpace):
                 cellPolygon = Polygon(cell)
                 polygonGridCells[(j, i)] = copy.deepcopy(cellPolygon)
 
-        return (polygonGridCells, (xMesh, yMesh), emptyDistanceCells)
+        return (polygonGridCells, (xMesh, yMesh), emptyDistanceCells, gridSize)
 
     ##
     # @brief      Implements the brushfire algorithm
@@ -339,7 +362,7 @@ class PointRobotCSpace(RobotSpace):
     # @param      N     number of rows / cols
     # @param      dist  The distance that the previous neighbor was at
     #
-    # @return     The neighbors.
+    # @return     a list of all possible valid neighbor coordinates
     #
     def calcNeighbors(self, i, j, N, dist):
 
@@ -383,6 +406,28 @@ class PointRobotCSpace(RobotSpace):
         return neighbors
 
     ##
+    # @brief      Gets the grid coordinates in the discretized cspace from
+    #             state
+    #
+    # @param      state  The queried state coordinate
+    #
+    # @return     (row of self.distanceCells corresponding to the state,
+    #              column of self.distanceCells corresponding to the state)
+    #
+    def getGridCoordsFromState(self, state):
+
+        # need to convert numpy array for state into list of coordinates
+        # stateCoords = np.concatenate(state, axis=0)
+        stateCoords = state
+        qX = stateCoords[0]
+        qY = stateCoords[1]
+
+        col = math.floor((qX - self.maxGridX) / self.gridSize)
+        row = math.floor((qY - self.minGridY) / self.gridSize)
+
+        return (row, col)
+
+    ##
     # @brief      Plots each of the polygon object grid cells onto ax
     #
     # @param      ax    matplotlib Axes to plot the grid cells on
@@ -392,10 +437,10 @@ class PointRobotCSpace(RobotSpace):
     def plotGrid(self, ax, fig, grid):
 
         newDist = np.flipud(self.distanceCells)
-        (x, y) = np.fliplr(self.numericGridCells)
+        x, y = np.fliplr(self.numericGridCells)
 
         c = ax.pcolor(x, y, newDist,
-                      edgecolors='k', linewidths=0,
+                      edgecolors='k', linewidths=2,
                       cmap='hot', alpha=0.6)
         cbar = fig.colorbar(c, ax=ax)
         cbar.ax.set_ylabel('manhattan distance from obstacle')

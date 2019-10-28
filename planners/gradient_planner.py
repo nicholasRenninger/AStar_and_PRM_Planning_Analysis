@@ -40,6 +40,11 @@ class GradientPlanner(Planner):
                          shouldSavePlots=shouldSavePlots,
                          baseSaveFName=baseSaveFName)
 
+        # list of potential values for each
+        # self.q_star = 
+        # self.d_star_goal = 
+        # self.goal_epsilon = 
+
     ##
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
@@ -49,6 +54,10 @@ class GradientPlanner(Planner):
     def findPathToGoal(self):
 
         return NotImplementedError
+
+    def gradientDescent(self):
+
+        pass
 
 
 ##
