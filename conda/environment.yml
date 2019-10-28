@@ -1,7 +1,6 @@
 name: motionPlanning2
 channels:
   - defaults
-  - conda-forge
 dependencies:
   - matplotlib
   - pyyaml
@@ -9,6 +8,5 @@ dependencies:
   - scipy
   - shapely
   - geopandas
-  - pyresample
 prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning2
 

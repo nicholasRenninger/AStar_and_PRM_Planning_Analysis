@@ -254,17 +254,25 @@ class PolygonalRobotCSpace(RobotSpace):
     #             plots obstacles, the robot's path, the start location, and
     #             the goal location
     #
-    # @param      robot       A list with spatial coordinates of the robot's
-    #                         path in the CSpace coordinate system
-    # @param      startState  A list with the robot's start coordinates in the
-    #                         CSpace coordinate system
-    # @param      goalState   A list with the robot's goal state coordinates in
-    #                         the CSpace coordinate system
-    # @param      plotTitle   The plot title string
+    # @param      robot           A list with spatial coordinates of the
+    #                             robot's path in the CSpace coordinate system
+    # @param      startState      A list with the robot's start coordinates in
+    #                             the CSpace coordinate system
+    # @param      goalState       A list with the robot's goal state
+    #                             coordinates in the CSpace coordinate system
+    # @param      plotConfigData  The plot configuration data dictionary:
+    #                             - plotTitle  The plot title string
+    #                             - xlabel     xlabel string
+    #                             - ylabel     ylabel string
     #
     # @return     a plot of the CSpace in the self.baseSaveFName directory
     #
-    def plot(self, robot, startState, goalState, plotTitle):
+    def plot(self, robot, startState, goalState, plotConfigData):
+
+        # unpack dictionary
+        plotTitle = plotConfigData['plotTitle']
+        xlabel = plotConfigData['xlabel']
+        ylabel = plotConfigData['ylabel']
 
         fig = plt.figure()
         ax = fig.gca(projection='3d')
@@ -287,6 +295,8 @@ class PolygonalRobotCSpace(RobotSpace):
             ax.add_collection3d(obstaclePolygon)
 
         pl.title(plotTitle)
+        pl.xlabel(xlabel)
+        pl.ylabel(ylabel)
 
         ax.set_xlim3d(2, 8)
         ax.set_ylim3d(2, 8)

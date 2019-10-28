@@ -1,5 +1,5 @@
 # 3rd-party packages
-
+import numpy as np
 
 # local packages
 from planners.planner import Planner
@@ -40,10 +40,17 @@ class GradientPlanner(Planner):
                          shouldSavePlots=shouldSavePlots,
                          baseSaveFName=baseSaveFName)
 
-        # list of potential values for each
-        # self.q_star = 
-        # self.d_star_goal = 
-        # self.goal_epsilon = 
+        # list of critical potential values for each obstacle
+        self.qStars = configData['qStars']
+
+        # threshold distance from goal for attractive potential
+        self.dStarGoal = configData['dStarGoal']
+
+        # goal region
+        self.goalEpsilon = configData['goalEpsilon']
+
+        # attractive potential scaling factor
+        self.attPotScaleFactor = configData['attractivePotentialScalingFactor']
 
     ##
     # @brief      Computes a viable path in robot's cSpace to the goalState
@@ -53,11 +60,93 @@ class GradientPlanner(Planner):
     #
     def findPathToGoal(self):
 
-        return NotImplementedError
+        return self.gradientDescent()
 
+    ##
+    # @brief      Gets the distance to the closest obstacle from a given state
+    #
+    # @param      state  The robot configuration state
+    #
+    # @return     the manhattan distance to the closest obstacle
+    #
+    def getClosestObstacleDist(self, state):
+
+        row, col = self.cSpace.getGridCoordsFromState(state)
+        distance = self.cSpace.distanceCells[row, col]
+
+        return distance
+
+    ##
+    # @brief      defines the attractive potential field value at a given
+    #             configuration state
+    #
+    # @param      state  The configuration state of the robot
+    #
+    # @return     the attractive potential field value at state
+    #
+    def attractivePotential(self, state):
+
+        robot = self.robot
+        distToGoal = robot.distToGoal()
+
+        # unroll for speed
+        attPotScaleFactor = self.attPotScaleFactor
+        dStarGoal = self.dStarGoal
+
+        if distToGoal <= dStarGoal:
+
+            U_att = 0.5 * attPotScaleFactor * distToGoal ** 2
+
+        else:
+
+            U_att = dStarGoal * attPotScaleFactor * distToGoal - \
+                0.5 * attPotScaleFactor * dStarGoal ** 2
+
+        return U_att
+
+    ##
+    # @brief      defines the repulsive potential field value at a given
+    #             configuration state
+    #
+    # @param      state  The configuration state state
+    #
+    # @return     the repulsive potential field value at state
+    #
+    def repulsivePotential(self, state):
+
+        obstacles = self.robot.cSpace.obstacles
+
+        for obstacle in obstacles:
+            pass
+
+    ##
+    # @brief      Defines the total potential field value at a given state
+    #
+    # @param      state  The state
+    #
+    # @return     the potential field value at state
+    #
+    def potential(self, state):
+
+        return self.attractivePotential(state) + self.repulsivePotential(state)
+
+    ##
+    # @brief      runs the gradient descent algorithm to get a path in cspace
+    #             from the robot's start to goal states
+    #
     def gradientDescent(self):
 
         pass
+
+    #
+    # @brief      plots the potential field overlaid on the cspace
+    #
+    def plotPotentialField(self, plotTitle):
+
+        ax = self.cSpace.plot(robot=self.robot,
+                              startState=self.startState,
+                              goalState=self.goalState,
+                              plotTitle=plotTitle + 'potentialField')
 
 
 ##

@@ -100,9 +100,19 @@ class Workspace(RobotSpace):
     #                         the Workspace coordinate system
     # @param      plotTitle   The plot title string
     #
-    # @return     a plot of the Workspace in the self.baseSaveFName directory
+    # @param      plotConfigData  The plot configuration data dictionary:
+    #                             - plotTitle  The plot title string
+    #                             - xlabel     xlabel string
+    #                             - ylabel     ylabel string
     #
-    def plot(self, robot, startState, goalState, plotTitle):
+    # @return     matplotlib Axes object for the generated plot
+    #
+    def plot(self, robot, startState, goalState, plotConfigData):
+
+        # unpack dictionary
+        plotTitle = plotConfigData['plotTitle']
+        xlabel = plotConfigData['xlabel']
+        ylabel = plotConfigData['ylabel']
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -121,24 +131,30 @@ class Workspace(RobotSpace):
 
             robot.plotBodyInWorkspace(ax)
 
-            # plotting the robot origin's path through workspace
+            # plotting the robot origin's path through cspace
             x = [state[0] for state in robotPath]
             y = [state[1] for state in robotPath]
             plt.plot(x, y, color='blue', linestyle='solid',
-                     linewidth=4, markersize=16)
+                     linewidth=4, markersize=16,
+                     label='Robot path')
 
         # plotting the start / end location of the robot
         plt.plot(startState[0], startState[1],
-                 color='green', marker='o', linestyle='solid',
-                 linewidth=2, markersize=16)
+                 color='green', marker='o', linestyle='none',
+                 linewidth=2, markersize=16,
+                 label='Starting State')
 
         plt.plot(goalState[0], goalState[1],
-                 color='red', marker='x', linestyle='solid',
-                 linewidth=4, markersize=16)
+                 color='blue', marker='x', linestyle='none',
+                 linewidth=4, markersize=16,
+                 label='Goal State')
 
         # ax.set_axis_off()
         ax.set_aspect('equal')
         plt.title(plotTitle)
+        ax.legend()
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
 
         if self.shouldSavePlots:
             saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
@@ -148,6 +164,8 @@ class Workspace(RobotSpace):
             fig.set_size_inches((11, 8.5), forward=False)
             plt.savefig(saveFName, dpi=500)
             print('wrote figure to ', saveFName)
+
+        return ax
 
 
 ##

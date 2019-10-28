@@ -120,6 +120,7 @@ class Robot:
     # @return     the distance to the goal state of the robot
     #
     def distToGoal(self):
+
         dist = self.distToTarget(self.goalState)
 
         return dist

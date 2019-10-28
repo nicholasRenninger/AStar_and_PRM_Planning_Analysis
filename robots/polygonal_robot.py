@@ -236,15 +236,22 @@ class PolygonalRobot(Robot):
     #
     def runAndPlot(self, planner, plotTitle):
 
+        plotConfigData = {'plotTitle': plotTitle + 'workspace',
+                          'xlabel': 'x',
+                          'ylabel': 'y'}
         self.workspace.plot(robot=self,
                             startState=self.startState,
                             goalState=self.goalState,
-                            plotTitle=plotTitle + 'workspace')
+                            plotConfigData=plotConfigData)
 
+        plotConfigData = {'plotTitle': plotTitle + 'cSpace',
+                          'xlabel': 'x',
+                          'ylabel': 'y',
+                          'zlabel': 'z'}
         self.cSpace.plot(robot=self,
                          startState=self.startState,
                          goalState=self.goalState,
-                         plotTitle=plotTitle + 'cSpace')
+                         plotConfigData=plotConfigData)
 
 
 ##

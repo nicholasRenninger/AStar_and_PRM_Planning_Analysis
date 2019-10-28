@@ -16,4 +16,21 @@ startState: [0, 0]
 goalState: [10, 10]
 
 # determines N such that CSpace is discretized into an NxN grid
-linearDiscretizationDensity: 5
+linearDiscretizationDensity: 50
+
+# need a list of critical potential values for each obstacle
+qStars:
+  - 0.5
+  - 0.5
+  - 0.5
+  - 0.5
+  - 0.5
+
+# threshold distance from goal for attractive potential
+dStarGoal: 2
+
+# goal region threshold
+goalEpsilon: 0.25
+
+# parameter to scale the attractive force
+attractivePotentialScalingFactor: 0.5

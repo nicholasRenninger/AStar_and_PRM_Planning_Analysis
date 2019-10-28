@@ -15,7 +15,7 @@ def main():
 
     os_calls.clear_screen()
 
-    # simRunner(shouldSavePlots, basePlotDir, simType='cspace')
+    simRunner(shouldSavePlots, basePlotDir, simType='cspace')
     simRunner(shouldSavePlots, basePlotDir, simType='gradient')
 
 
