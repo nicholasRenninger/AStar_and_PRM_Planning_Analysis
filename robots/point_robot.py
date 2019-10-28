@@ -49,19 +49,36 @@ class PointRobot(Robot):
                                        baseSaveFName=baseSaveFName)
 
     ##
+    # @brief      Returns whether the given Shapely object collides with any
+    #             workspace obstacles
+    #
+    # @param      shapelyObject  The shapely object to check for collision
+    #
+    # @return     True if the hapely object collides with any obstacle, False
+    #             otherwise
+    #
+    def checkCollision(self, shapelyObject):
+
+        obstacles = self.workspace.polygonObstacles
+        for obstacle in obstacles:
+            if obstacle.intersects(shapelyObject):
+                return True
+
+        return False
+
+    ##
     # @brief      Returns whether the CSpace state collides with any workspace
     #             obstacles
     #
     # @param      state  The configuration space state as a numpy list
     #
-    def checkCollision(self, state):
+    # @return     True if the CSpace state collides with any obstacle, False
+    #             otherwise
+    #
+    def checkCollisionWithState(self, state):
 
         pointToCheck = Point(state)
-
-        obstacles = self.workspace.polygonObstacles
-        for obstacle in obstacles:
-            if obstacle.intersects(pointToCheck):
-                return True
+        self.checkCollision(pointToCheck)
 
         return False
 
@@ -114,8 +131,6 @@ class PointRobot(Robot):
                          startState=self.startState,
                          goalState=self.goalState,
                          plotTitle=plotTitle + 'cSpace')
-
-        self.checkCollision(self.startState)
 
 
 ##
