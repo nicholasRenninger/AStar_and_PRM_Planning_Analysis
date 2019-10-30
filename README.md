@@ -6,6 +6,19 @@ Implementation of a 2-D 2DoF manipulator configuration space visualizer, as well
 [Nicholas Rennninger](https://github.com/nicholasRenninger)
 
 ---
+## SLOC Stats for nerds
+```bash
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                          23            730           1582           1635
+YAML                            11             80            209            148
+Markdown                         1             21              0             28
+-------------------------------------------------------------------------------
+SUM:                            35            831           1791           1811
+-------------------------------------------------------------------------------
+```
+---
 
 ## How to Run the Code
 
@@ -51,19 +64,19 @@ To change the scenarios for the manipulator simulation, simply modify one of the
 #### Environment 1
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-workspace.gif"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-wavefrontPlannerwavefront.png"/>
-<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env1-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-cSpace.png"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-workspace.png"/>
 
 #### Environment 2
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-workspace.gif"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-wavefrontPlannerwavefront.png"/>
-<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env2-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-cSpace.png"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-workspace.png"/>
 
 #### Environment 3
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-workspace.gif"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-wavefrontPlannerwavefront.png"/>
-<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env3-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-cSpace.png"/>
 <img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-workspace.png"/>
 
 
