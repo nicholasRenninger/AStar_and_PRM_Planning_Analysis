@@ -1,5 +1,5 @@
 # each list element is a list of tuples containing the coordinatesof the
-# vertices of the rectangular obstacles in the workspace
+# vertices of the polygonal obstacles in the workspace
 # 
 # these coords are in CCW order to make sure its a square yo
 WO:

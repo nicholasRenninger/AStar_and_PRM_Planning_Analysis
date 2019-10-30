@@ -47,7 +47,7 @@ class PointRobotCSpace(CSpace_2D):
                                                       robot.goalState,
                                                       workspace, makeSquare)
 
-        # need to discretize the cspace for the brushfire algorithm
+        # need to discretize the cspace for the brushfire / wavefront algorithm
         (self.polygonGridCells,
          self.numericGridCells,
          self.numericCoordArrays,
@@ -179,6 +179,22 @@ class PointRobotCSpace(CSpace_2D):
 
         return gridCoord
 
+    ##
+    # @brief      Plots all obstacles in the cspace to ax
+    #
+    # @param      ax    the matplotlib.axes object to plot the obstacles on
+    # @param      fig   matplotlib Figure to plot the grid cells on
+    #                   (not used for pointRobot)
+    #
+    def plotObstacles(self, ax, fig):
+
+        for obstacle in self.obstacles:
+            obstX, obstY = zip(*obstacle)
+            ax.fill(obstX, obstY,
+                    facecolor='black',
+                    edgecolor='black',
+                    linewidth=1)
+
 
 ##
 # @brief      Implements the generic builder class for the PointRobotCSpace
@@ -207,7 +223,6 @@ class PointRobotCSpaceBuilder(Builder):
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
-    # @param      workspace  The CSpace object the PointRobot operates in
     #
     # @return     instance of an initialized PointRobotCSpace object
     #

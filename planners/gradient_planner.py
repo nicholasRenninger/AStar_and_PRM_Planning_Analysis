@@ -79,11 +79,13 @@ class GradientPlanner(Planner):
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
     #
-    # @param      plotTitle  The plot title string
+    # @param      startState  The start config state
+    # @param      goalState   The goal config state
+    # @param      plotTitle   The plot title string
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
-    def findPathToGoal(self, plotTitle):
+    def findPathToGoal(self, startState, goalState, plotConfigData):
 
         U, points = self.calcPotentialField()
 
@@ -91,7 +93,9 @@ class GradientPlanner(Planner):
               self.distanceMeasurement)
 
         foundPath = self.gradientDescent(U, points)
-        self.plotPotentialField(U=U, plotTitle=plotTitle)
+
+        plotConfigData['plotTitle'] += 'gradientPlanner'
+        self.plotPotentialField(U=U, plotConfigData=plotConfigData)
 
         return foundPath
 
@@ -344,7 +348,7 @@ class GradientPlanner(Planner):
     # @param      U          the potential field 2d array
     # @param      plotTitle  The plot title string
     #
-    def plotPotentialField(self, U, plotTitle):
+    def plotPotentialField(self, U, plotConfigData):
 
         potField = U
 
@@ -365,10 +369,6 @@ class GradientPlanner(Planner):
         cbar = fig.colorbar(cs, ax=ax, orientation="vertical")
         cbar.ax.set_ylabel('potential function value')
 
-        plotConfigData = {'plotTitle': plotTitle + 'gradientPlanner',
-                          'xlabel': 'x',
-                          'ylabel': 'y',
-                          'plotGrid': False}
         self.cSpace.plot(robot=self.robot,
                          startState=self.robot.startState,
                          goalState=self.robot.goalState,

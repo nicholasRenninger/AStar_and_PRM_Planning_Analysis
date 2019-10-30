@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Polygon
+import imageio
 
 # local packages
 from spaces.robot_space import RobotSpace
@@ -60,6 +61,7 @@ class Workspace(RobotSpace):
 
         polygonObstacles = []
         for obstacle in obstacles:
+
             currObstacle = Polygon(obstacle)
             polygonObstacles.append(currObstacle)
 
@@ -70,7 +72,7 @@ class Workspace(RobotSpace):
             self.maxXObst = max(maxx, self.maxXObst)
             self.minYObst = min(miny, self.minYObst)
             self.maxYObst = max(maxy, self.maxYObst)
-
+        print(obstacles)
         return (np.array(obstacles, dtype='float64'), polygonObstacles)
 
     ##
@@ -124,20 +126,6 @@ class Workspace(RobotSpace):
         # plotting all the obstacles
         self.plotObstacles(ax)
 
-        # plotting the robot's motion
-        if robot is not None:
-
-            robotPath = robot.stateHistory
-
-            robot.plotBodyInWorkspace(ax)
-
-            # plotting the robot origin's path through cspace
-            x = [state[0] for state in robotPath]
-            y = [state[1] for state in robotPath]
-            plt.plot(x, y, color='red', linestyle='solid',
-                     linewidth=4, markersize=16,
-                     label='Robot path')
-
         # plotting the start / end location of the robot
         plt.plot(startState[0], startState[1],
                  color='green', marker='o', linestyle='none',
@@ -149,7 +137,20 @@ class Workspace(RobotSpace):
                  linewidth=4, markersize=16,
                  label='Goal State')
 
-        # ax.set_axis_off()
+        # plotting the robot's motion
+        if robot is not None:
+
+            robotPath = robot.stateHistory
+
+            images = robot.plotBodyInWorkspace(ax, fig)
+
+            # plotting the robot origin's path through workspace
+            x = [state[0] for state in robotPath]
+            y = [state[1] for state in robotPath]
+            plt.plot(x, y, color='red', linestyle='solid',
+                     linewidth=4, markersize=16,
+                     label='Robot path')
+
         ax.set_aspect('equal')
         plt.title(plotTitle)
         fig.legend()
@@ -157,6 +158,7 @@ class Workspace(RobotSpace):
         plt.ylabel(ylabel)
 
         if self.shouldSavePlots:
+
             saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
             fig = plt.gcf()
             fig.canvas.manager.full_screen_toggle()
@@ -164,6 +166,11 @@ class Workspace(RobotSpace):
             fig.set_size_inches((11, 8.5), forward=False)
             plt.savefig(saveFName, dpi=500)
             print('wrote figure to: ', saveFName)
+
+            if images is not None:
+                gifSaveFName = self.baseSaveFName + '-' + plotTitle + '.gif'
+                imageio.mimsave(gifSaveFName, images, fps=20)
+                print('wrote figure to: ', gifSaveFName)
 
         return ax
 

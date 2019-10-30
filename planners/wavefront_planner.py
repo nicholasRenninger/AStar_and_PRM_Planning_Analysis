@@ -51,41 +51,47 @@ class WavefrontPlanner(Planner):
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
     #
-    # @param      plotTitle  The plot title
+    # @param      startState      The start config state
+    # @param      goalState       The goal config state
+    # @param      plotConfigData  The plot config dictionary
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
-    def findPathToGoal(self, plotTitle):
+    def findPathToGoal(self, startState, goalState, plotConfigData):
 
         print('Starting wavefront planner')
 
         (distCells,
-         foundPath) = self.computeWavefront(self.distCells,
+         foundPath) = self.computeWavefront(startState, goalState,
+                                            self.distCells,
                                             self.cSpace.polygonGridCells)
 
         # plot the resulting path over the wavefront computation
-        self.plot(distCells, plotTitle)
+        plotConfigData['plotTitle'] += 'wavefront'
+        self.plot(distCells, startState, goalState, plotConfigData)
 
         return foundPath
 
     ##
     # @brief      Implements the wavefront path finding algorithm
     #
+    # @param      startState        The start config state
+    # @param      goalState         The goal config state
     # @param      distCells         The uninitialized distance cells
     # @param      polygonGridCells  The polygon grid cells
     #
     # @return     (each cell in distCells is labeled with its mimum manhattan
-    #              distance from an obstacle,
-    #              maximum distance from an obstacle)
+    #             distance from an obstacle, maximum distance from an obstacle)
     #
-    def computeWavefront(self, distCells, polygonGridCells):
+    def computeWavefront(self, startState, goalState, distCells,
+                         polygonGridCells):
 
         N = self.cSpace.N
 
         (neighbors,
          distCells,
          (goalRow, goalCol),
-         goalCell) = self.initializeWavefront(polygonGridCells,
+         goalCell) = self.initializeWavefront(goalState, polygonGridCells,
                                               distCells, N)
 
         # need to keep a dictionary of neighbors so we can look them up in
@@ -93,8 +99,7 @@ class WavefrontPlanner(Planner):
         allNeighbors = {}
         allNeighbors[(goalRow, goalCol)] = goalCell
 
-        start = self.robot.startState
-        (startRow, startCol) = self.cSpace.getGridCoordsFromState(start)
+        (startRow, startCol) = self.cSpace.getGridCoordsFromState(startState)
 
         foundPath = ((startRow == goalRow) and (startCol == goalCol))
         while neighbors:
@@ -160,6 +165,7 @@ class WavefrontPlanner(Planner):
                 # check for goal, as goal has no previous coords
                 atGoal = currentCell[3] is None
                 if atGoal:
+                    self.robot.updateRobotState(goalState)
                     break
                 else:
                     prevCellIndices = currentCell[3]
@@ -171,6 +177,7 @@ class WavefrontPlanner(Planner):
     # @brief      Initializes the wavefront algorithm with a distanceCell
     #             object and a set of neighbors in a queue to begin searching
     #
+    # @param      goalState         The goal config state
     # @param      polygonGridCells  a list of polygon objects - one for each
     #                               grid cell
     # @param      distCells         a 0s 2D numpy array corresponding to the
@@ -183,7 +190,7 @@ class WavefrontPlanner(Planner):
     #             of the goal state, a "neighbors" element at the goal for
     #             backtracking)
     #
-    def initializeWavefront(self, polygonGridCells, distCells, N):
+    def initializeWavefront(self, goalState, polygonGridCells, distCells, N):
 
         # start by computing the set of obstacle cells and their neighbors
         (_,
@@ -192,11 +199,11 @@ class WavefrontPlanner(Planner):
 
         # start the brushfire algorithm from the goal cell with a distance of 2
         currDist = 2
-        goal = self.robot.goalState
-        (goalRow, goalCol) = self.cSpace.getGridCoordsFromState(goal)
+        (goalRow, goalCol) = self.cSpace.getGridCoordsFromState(goalState)
         distCells[goalRow, goalCol] = currDist
 
-        # need to initialize a "neighbors" element at the goal for backtracking
+        # need to initialize a "neighbors" element at the goalState for
+        # backtracking
         goalCell = []
         goalCell.append(goalRow)
         goalCell.append(goalCol)
@@ -221,11 +228,13 @@ class WavefrontPlanner(Planner):
     # @brief      plots the wavefront distance computation overlaid on the
     #             cspace plot
     #
-    # @param      distCells  The distance cells with wavefront distance
-    #                        computed
-    # @param      plotTitle  The plot title string
+    # @param      distCells       The distance cells with wavefront distance
+    #                             computed
+    # @param      startState      The start config state
+    # @param      goalState       The goal config state
+    # @param      plotConfigData  The plot configuration data
     #
-    def plot(self, distCells, plotTitle):
+    def plot(self, distCells, startState, goalState, plotConfigData):
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -235,13 +244,9 @@ class WavefrontPlanner(Planner):
         self.cSpace.plotGrid(ax, fig, self.cSpace.polygonGridCells, distCells,
                              x, y, cBarLabel, colormap='viridis')
 
-        plotConfigData = {'plotTitle': plotTitle + 'wavefrontPlanner',
-                          'xlabel': 'x',
-                          'ylabel': 'y',
-                          'plotGrid': False}
         self.cSpace.plot(robot=self.robot,
-                         startState=self.robot.startState,
-                         goalState=self.robot.goalState,
+                         startState=startState,
+                         goalState=goalState,
                          plotConfigData=plotConfigData,
                          ax=ax, fig=fig)
 

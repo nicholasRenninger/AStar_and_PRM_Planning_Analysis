@@ -39,6 +39,12 @@ class PointRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
+        # need to maintain a separate history for c states and workspace states
+        # however, for a point robot, they are the same
+        self.cStateHistory = []
+        self.startCState = self.startState
+        self.goalCState = self.goalState
+
         self.currentState = self.startState
         self.updateRobotState(self.startState)
 
@@ -58,11 +64,13 @@ class PointRobot(Robot):
     #             workspace obstacles
     #
     # @param      shapelyObject  The shapely object to check for collision
+    # @param      gridIndices    The grid indices of the shapely object
+    #                            (not used here)
     #
-    # @return     True if the hapely object collides with any obstacle, False
+    # @return     True if the shapely object collides with any obstacle, False
     #             otherwise
     #
-    def checkCollision(self, shapelyObject):
+    def checkCollision(self, shapelyObject, gridIndices):
 
         obstacles = self.workspace.polygonObstacles
 
@@ -97,6 +105,7 @@ class PointRobot(Robot):
     def updateRobotState(self, newState):
 
         self.stateHistory.append(copy.deepcopy(newState))
+        self.cStateHistory.append(copy.deepcopy(newState))
         self.distTraveled += self.distToTarget(self.currentState, newState)
         self.currentState = newState
 
@@ -107,11 +116,12 @@ class PointRobot(Robot):
     #
     # @param      ax    the matplotlib.axes object to plot the PointRobot's
     #                   body's path in its Workspace
+    # @param      fig   The matplotlib fig object to plot on
     #
     # @return     plots the PointRobot's body's path on ax
     #
-    def plotBodyInWorkspace(self, ax):
-        pass
+    def plotBodyInWorkspace(self, ax, fig):
+        return None
 
     ##
     # @brief      Function for PointRobot instance to "run" itself
@@ -127,7 +137,14 @@ class PointRobot(Robot):
     #
     def runAndPlot(self, planner, plotTitle):
 
-        foundPath = planner.findPathToGoal(plotTitle=plotTitle)
+        plotConfigData = {'plotTitle': plotTitle,
+                          'xlabel': 'x',
+                          'ylabel': 'y',
+                          'plotObstacles': True,
+                          'plotGrid': False}
+        foundPath = planner.findPathToGoal(startState=self.startCState,
+                                           goalState=self.goalCState,
+                                           plotConfigData=plotConfigData)
 
         if foundPath:
             print('Reached goal at:', self.stateHistory[-1])
@@ -146,6 +163,7 @@ class PointRobot(Robot):
         plotConfigData = {'plotTitle': plotTitle + 'cSpace',
                           'xlabel': 'x',
                           'ylabel': 'y',
+                          'plotObstacles': True,
                           'plotGrid': True}
         self.cSpace.plot(robot=self,
                          startState=self.startState,

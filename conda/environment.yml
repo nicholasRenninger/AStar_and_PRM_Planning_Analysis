@@ -9,5 +9,6 @@ dependencies:
   - shapely
   - geopandas
   - plotly
+  - imageio
 prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning2
 

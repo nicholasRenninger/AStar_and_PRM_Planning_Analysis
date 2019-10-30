@@ -44,6 +44,9 @@ class Simulation:
             if simType == 'wavefront':
                 self.runWavefrontPlanner(file, self.shouldSavePlots,
                                          baseSaveFName)
+            if simType == 'manipulator':
+                self.runManipulator(file, self.shouldSavePlots,
+                                    baseSaveFName)
 
     ##
     # @brief      A function to interface with the classes to visualize the
@@ -90,8 +93,6 @@ class Simulation:
                                          shouldSavePlots=shouldSavePlots,
                                          baseSaveFName=baseSaveFName)
 
-        # this simulation is for a polygonal robot, so get that class from the
-        # activeRobots factory interface
         currRobot = activeRobots.get(robotType='POINTROBOT',
                                      configFileName=configFileName,
                                      workspace=currWorkspace,
@@ -126,9 +127,42 @@ class Simulation:
                                          shouldSavePlots=shouldSavePlots,
                                          baseSaveFName=baseSaveFName)
 
-        # this simulation is for a polygonal robot, so get that class from the
-        # activeRobots factory interface
         currRobot = activeRobots.get(robotType='POINTROBOT',
+                                     configFileName=configFileName,
+                                     workspace=currWorkspace,
+                                     shouldSavePlots=shouldSavePlots,
+                                     baseSaveFName=baseSaveFName)
+
+        currPlanner = availablePlanners.get(plannerType='WAVEFRONT',
+                                            cSpace=currRobot.cSpace,
+                                            workspace=currWorkspace,
+                                            robot=currRobot,
+                                            configFileName=configFileName,
+                                            shouldSavePlots=shouldSavePlots,
+                                            baseSaveFName=baseSaveFName)
+
+        currRobot.runAndPlot(planner=currPlanner, plotTitle='')
+
+    ##
+    # @brief      A function to interface with the classes to run a manipulator
+    #             robot on a variety of environments
+    #
+    # @param      configFileName   The configuration file name for the
+    #                              simulation
+    # @param      shouldSavePlots  Boolean to turn on and off plot file writes
+    # @param      baseSaveFName    The base save file name for plots
+    #
+    def runManipulator(self, configFileName, shouldSavePlots, baseSaveFName):
+
+        # the workspace doesn't change for this simulation
+        currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
+                                         configFileName=configFileName,
+                                         shouldSavePlots=shouldSavePlots,
+                                         baseSaveFName=baseSaveFName)
+
+        # this simulation is for a manipulator robot, so get that class from
+        # the activeRobots factory interface
+        currRobot = activeRobots.get(robotType='MANIPULATOR',
                                      configFileName=configFileName,
                                      workspace=currWorkspace,
                                      shouldSavePlots=shouldSavePlots,
@@ -161,6 +195,9 @@ class Simulation:
 
         if simType == 'wavefront':
             configNames = ['env2', 'env3']
+
+        if simType == 'manipulator':
+            configNames = ['env1', 'env2', 'env3']
 
         fullConfigNames = list(map(lambda x: simType + '_' + x, configNames))
 

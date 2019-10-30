@@ -1,5 +1,5 @@
 # each list element is a list of tuples containing the coordinates of the
-# vertices of the rectangular obstacles in the workspace
+# vertices of the polygonal obstacles in the workspace
 WO:
   - [[1, 1], [2, 1], [2, 5], [1, 5]]
   - [[3, 4], [4, 4], [4, 12], [3, 12]]

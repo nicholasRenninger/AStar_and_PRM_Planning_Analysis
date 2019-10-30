@@ -3,6 +3,7 @@ from factory.object_factory import ObjectFactory
 from spaces.workspace import WorkspaceBuilder
 from spaces.polygonal_robot_c_space import PolygonalRobotCSpaceBuilder
 from spaces.point_robot_c_space import PointRobotCSpaceBuilder
+from spaces.manipulator_robot_c_space import ManipulatorRobotCSpaceBuilder
 
 
 ##
@@ -32,3 +33,5 @@ activeSpaces.register_builder('POLYGONALROBOTCSPACE',
                               PolygonalRobotCSpaceBuilder())
 activeSpaces.register_builder('POINTROBOTCSPACE',
                               PointRobotCSpaceBuilder())
+activeSpaces.register_builder('MANIPULATORROBOTCSPACE',
+                              ManipulatorRobotCSpaceBuilder())

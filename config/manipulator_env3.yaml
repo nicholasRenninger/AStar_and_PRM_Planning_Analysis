@@ -1,0 +1,30 @@
+# each list element is a list of tuples containing the coordinates of the
+# vertices of the rectangular obstacles in the workspace
+WO:
+  - [[-0.25, 1.1], [-0.25, 2], [0.25, 2], [0.25, 1.1]]
+  - [[-2, -0.5], [-2, -0.3], [2, -0.3], [2, -0.5]]
+
+
+## Robot Configuration
+
+# coordinates of the robot start state in the workspace
+# [x, y]
+startState: [2, 0]
+
+# coordinates of the robot goal state in the workspace
+# [x, y]
+goalState: [-2, 0]
+
+# list of lengths of each link
+# NOTE: this robot assumes only two links
+linkLengths:
+  - 1
+  - 1
+
+# specify how far in from the end of each link the joint is
+jointOffset: 0.00
+
+## Planner configuration
+
+# determines N such that CSpace is discretized into an NxN grid
+linearDiscretizationDensity: 150

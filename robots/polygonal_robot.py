@@ -175,16 +175,19 @@ class PolygonalRobot(Robot):
     #
     # @param      ax    the matplotlib.axes object to plot the PolygonalRobot's
     #                   body in its Workspace
+    # @param      fig   The matplotlib fig object to plot the body on
     #
     # @return     plots the PolygonalRobot's body on ax
     #
-    def plotBodyInWorkspace(self, ax):
+    def plotBodyInWorkspace(self, ax, fig):
 
         for vertCoords in self.workspaceVertCoords:
             ax.fill(vertCoords[:, 0], vertCoords[:, 1],
                     facecolor='lightsalmon',
                     edgecolor='orangered',
                     linewidth=3)
+
+        return None
 
     ##
     # @brief      Linearly evolves the robot's config state from its start to

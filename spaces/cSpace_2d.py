@@ -36,6 +36,8 @@ class CSpace_2D(RobotSpace):
         self.workspace = robot.workspace
         self.robot = robot
 
+        self.cStateHistory = []
+
         self.obstacles = None
         self.polygonObstacles = None
 
@@ -112,7 +114,7 @@ class CSpace_2D(RobotSpace):
             for j in range(N):
 
                 currCell = polygonGridCells[(i, j)]
-                obstacleInCell = self.robot.checkCollision(currCell)
+                obstacleInCell = self.robot.checkCollision(currCell, (i, j))
 
                 if obstacleInCell:
                     obstacleLocations.append((i, j))
@@ -138,6 +140,9 @@ class CSpace_2D(RobotSpace):
     #             Stores the distance to its "parent" cell, and the parent
     #             cell's indices themselves
     #
+    #             manipulator's cspace is a torus, so it wraps around the
+    #             bounds
+    #
     # @param      i     row index
     # @param      j     column index
     # @param      N     number of rows / cols
@@ -151,37 +156,65 @@ class CSpace_2D(RobotSpace):
             # bottom left corner
             neighbors = [(i + 1, j, dist, (i, j)), (i, j + 1, dist, (i, j))]
 
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.extend([(i - 1, j, dist, (i, j)),
+                                  (i, j - 1, dist, (i, j))])
+
         elif i == 0 and j == N - 1:
             # bottom right corner
             neighbors = [(i + 1, j, dist, (i, j)), (i, j - 1, dist, (i, j))]
+
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.extend([(i - 1, j, dist, (i, j)),
+                                  (i, 0, dist, (i, j))])
 
         elif i == N - 1 and j == 0:
             # top left corner
             neighbors = [(i - 1, j, dist, (i, j)), (i, j + 1, dist, (i, j))]
 
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.extend([(0, j, dist, (i, j)),
+                                  (i, j - 1, dist, (i, j))])
+
         elif i == N - 1 and j == N - 1:
             # top right corner
             neighbors = [(i - 1, j, dist, (i, j)), (i, j - 1, dist, (i, j))]
+
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.extend([(0, j, dist, (i, j)),
+                                  (i, 0, dist, (i, j))])
 
         elif i == 0:
             # bottom edge
             neighbors = [(i, j + 1, dist, (i, j)), (i, j - 1, dist, (i, j)),
                          (i + 1, j, dist, (i, j))]
 
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.append((i - 1, j, dist, (i, j)))
+
         elif i == N - 1:
             # top edge
             neighbors = [(i, j + 1, dist, (i, j)), (i, j - 1, dist, (i, j)),
                          (i - 1, j, dist, (i, j))]
+
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.append((0, j, dist, (i, j)))
 
         elif j == 0:
             # left edge
             neighbors = [(i + 1, j, dist, (i, j)), (i - 1, j, dist, (i, j)),
                          (i, j + 1, dist, (i, j))]
 
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.append((i, j - 1, dist, (i, j)))
+
         elif j == N - 1:
-            # top edge
+            # right edge
             neighbors = [(i + 1, j, dist, (i, j)), (i - 1, j, dist, (i, j)),
                          (i, j - 1, dist, (i, j))]
+
+            if self.robot.robotType == 'MANIPULATOR':
+                neighbors.append((i, 0, dist, (i, j)))
 
         else:
             # center
@@ -300,7 +333,7 @@ class CSpace_2D(RobotSpace):
 
         return (row, col)
 
-    #
+    ##
     # @brief      Gets the cspace states of grid vertices given the grid
     #             coordinates (indices)
     #
@@ -322,7 +355,7 @@ class CSpace_2D(RobotSpace):
 
         return statesOfVertices
 
-    #
+    ##
     # @brief      returns the cpsace centroid coordinates of the grid cell at
     #             the given grid indices
     #
@@ -351,18 +384,14 @@ class CSpace_2D(RobotSpace):
         return np.array(centroid, dtype='float64').reshape((2, 1))
 
     ##
-    # @brief      Plots all obstacles in the cspace to ax
+    # @brief      Abstract function to plot all obstacles in the cspace to ax
     #
     # @param      ax    the matplotlib.axes object to plot the obstacles on
+    # @param      fig   The fig
     #
-    def plotObstacles(self, ax):
+    def plotObstacles(self, ax, fig):
 
-        for obstacle in self.obstacles:
-            obstX, obstY = zip(*obstacle)
-            ax.fill(obstX, obstY,
-                    facecolor='black',
-                    edgecolor='black',
-                    linewidth=1)
+        pass
 
     ##
     # @brief      Plots each of the polygon object grid cells onto ax
@@ -370,7 +399,7 @@ class CSpace_2D(RobotSpace):
     # @warning    overrides method in superclass
     #
     # @param      ax             matplotlib Axes to plot the grid cells on
-    # @param      fig            The fig
+    # @param      fig            matplotlib Figure to plot the grid cells on
     # @param      grid           a list of shapely.Polygon objects representing
     #                            each gridcell
     # @param      distanceCells  The 2D distance cells holding distance from
@@ -408,7 +437,7 @@ class CSpace_2D(RobotSpace):
     #                             - xlabel     xlabel string
     #                             - ylabel     ylabel string
     #                             - plotGrid   bool to turn on/off the grid
-    # @param      fig             matplotlib fig to plot on
+    # @param      fig             matplotlib Figure to plot the grid cells on
     # @param      ax              matplotlib Axes corresponding to fig to plot
     #                             the data on
     #
@@ -422,6 +451,7 @@ class CSpace_2D(RobotSpace):
         xlabel = plotConfigData['xlabel']
         ylabel = plotConfigData['ylabel']
         shouldPlotGrid = plotConfigData['plotGrid']
+        shouldPlotObstacles = plotConfigData['plotObstacles']
 
         if not ax or not fig:
             fig = plt.figure()
@@ -438,12 +468,13 @@ class CSpace_2D(RobotSpace):
                           x, y, cBarLabel, colormap='hot')
 
         # plotting all the obstacles
-        self.plotObstacles(ax)
+        if shouldPlotObstacles:
+            self.plotObstacles(ax, fig)
 
         # plotting the robot's motion
         if robot is not None:
 
-            robotPath = robot.stateHistory
+            robotPath = robot.cStateHistory
 
             # plotting the robot origin's path through cspace
             x = [state[0] for state in robotPath]

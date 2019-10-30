@@ -5,16 +5,18 @@ from simulation import Simulation
 
 def main():
 
-    shouldSavePlots = True
-    basePlotDir = 'figures'
-
+    # clear the screen of the previous output
     os_calls.clear_screen()
 
-    sim = Simulation(shouldSavePlots, basePlotDir)
+    # create an instance of the simulation class
+    sim = Simulation(shouldSavePlots=True, basePlotDir='figures')
 
-    # sim.run(simType='cspace')
-    # sim.run(simType='gradient')
+    # simulation runner handles all of the class interfaces for each type of
+    # sim
+    sim.run(simType='cspace')
+    sim.run(simType='gradient')
     sim.run(simType='wavefront')
+    sim.run(simType='manipulator')
 
 
 if __name__ == '__main__':

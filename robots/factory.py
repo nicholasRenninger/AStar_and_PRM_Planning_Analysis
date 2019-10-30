@@ -2,6 +2,7 @@
 from factory.object_factory import ObjectFactory
 from robots.polygonal_robot import PolygonalRobotBuilder
 from robots.point_robot import PointRobotBuilder
+from robots.manipulator_robot import ManipulatorRobotBuilder
 
 
 # registering the builders for the different types of Robot objects with a more
@@ -27,3 +28,4 @@ class RobotWarehouse(ObjectFactory):
 activeRobots = RobotWarehouse()
 activeRobots.register_builder('POLYGONALROBOT', PolygonalRobotBuilder())
 activeRobots.register_builder('POINTROBOT', PointRobotBuilder())
+activeRobots.register_builder('MANIPULATOR', ManipulatorRobotBuilder())
