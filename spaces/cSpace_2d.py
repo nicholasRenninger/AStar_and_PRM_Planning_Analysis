@@ -4,7 +4,6 @@ import numpy as np
 from shapely.geometry import Polygon
 import copy
 from collections import deque as deque
-from descartes.patch import PolygonPatch
 import math
 
 # local packages
@@ -41,8 +40,8 @@ class CSpace_2D(RobotSpace):
         self.workspace = robot.workspace
         self.robot = robot
 
-        # as the robot is a point robot, its obstacles are just
-        self.obstacles = robot.workspace.obstacles
+        self.obstacles = None
+        self.polygonObstacles = None
 
         # need a bounding box for the discretization of CSpace
         self.minGridX = None
@@ -53,43 +52,30 @@ class CSpace_2D(RobotSpace):
         self.linearDiscretizationDensity = linearDiscretizationDensity
 
     ##
-    # @brief      Plots all obstacles in the cspace to ax
-    #
-    # @param      ax    the matplotlib.axes object to plot the obstacles on
-    #
-    def plotObstacles(self, ax):
-
-        for obstacle in self.obstacles:
-            obstX, obstY = zip(*obstacle)
-            ax.fill(obstX, obstY,
-                    facecolor='black',
-                    edgecolor='black',
-                    linewidth=1)
-
-    ##
     # @brief      discretizes CSpace into an NxN grid, based on the bounding
     #             box for CSpace
     #
     # @param      N     number of grid points in each CSpace dimension
     #
     # @return     (a list of polygon objects - one for each grid cell, a numpy
-    #             meshgrid representing the grid coordinates, a 2D numpy array
-    #             of zeros used  brushfire algorithms, the size of each grid
-    #             cell)
+    #             meshgrid representing the grid coordinates, a tuple with the
+    #             numpy array of the raw grid coordinates of both the x and y
+    #             axes, a 2D numpy array of zeros used  brushfire algorithms,
+    #             the size of each grid cell)
     #
     def discretizeCSpace(self, N):
 
         xCoords = np.linspace(self.minGridX, self.maxGridX, N + 1)
         yCoords = np.linspace(self.minGridY, self.maxGridY, N + 1)
 
-        gridSize = abs(xCoords[1] - xCoords[0])
+        xGridSize = abs(xCoords[1] - xCoords[0])
+        yGridSize = abs(yCoords[1] - yCoords[0])
 
-        xMesh, yMesh = np.meshgrid(yCoords, xCoords)
+        xMesh, yMesh = np.meshgrid(xCoords, yCoords)
         emptyDistanceCells = np.zeros((N, N))
 
         # need to store the grid as an indexed set of cells for brushfire need
-        # to use a dictionary, lists of lists are reference traps e.g.
-        # FUUUUUUUCCCCCKKKKKKKKK PYYTTTHHHOON
+        # to use a dictionary, lists of lists are reference traps
         #
         # Here, we want the i index to
         # refer to the row of the cell, and j to correspond to the column of
@@ -100,15 +86,16 @@ class CSpace_2D(RobotSpace):
         for i in range(N):
             for j in range(N):
 
-                cell = [(xMesh[j][i], yMesh[j][i]),
-                        (xMesh[j][i + 1], yMesh[j][i + 1]),
-                        (xMesh[j + 1][i + 1], yMesh[j + 1][i + 1]),
-                        (xMesh[j + 1][i], yMesh[j + 1][i])]
+                cell = [(xMesh[i][j], yMesh[i][j]),
+                        (xMesh[i][j + 1], yMesh[i][j + 1]),
+                        (xMesh[i + 1][j + 1], yMesh[i + 1][j + 1]),
+                        (xMesh[i + 1][j], yMesh[i + 1][j])]
 
                 cellPolygon = Polygon(cell)
-                polygonGridCells[(j, i)] = copy.deepcopy(cellPolygon)
+                polygonGridCells[(i, j)] = copy.deepcopy(cellPolygon)
 
-        return (polygonGridCells, (xMesh, yMesh), emptyDistanceCells, gridSize)
+        return (polygonGridCells, (xMesh, yMesh), (xCoords, yCoords),
+                emptyDistanceCells, (xGridSize, yGridSize))
 
     ##
     # @brief      labeling all cells intersecting with obstacles as having
@@ -203,13 +190,91 @@ class CSpace_2D(RobotSpace):
         return neighbors
 
     ##
+    # @brief      Implements the brushfire algorithm
+    #
+    # @param      distCells         The distance cells
+    # @param      polygonGridCells  The polygon grid cells
+    #
+    # @return     (each cell in distCells is labeled with its mimum manhattan
+    #              distance from an obstacle,
+    #              maximum distance from an obstacle)
+    #
+    def brushFireDistanceComputation(self, distCells,
+                                     polygonGridCells):
+
+        N = self.linearDiscretizationDensity
+
+        # start by computing the set of obstacle cells and their neighbors
+        (neighborsOfCellsWithObstacles,
+         distCells,
+         _) = self.labelObstacleCells(polygonGridCells, distCells, N)
+        currDist = 1
+
+        neighbors = copy.deepcopy(neighborsOfCellsWithObstacles)
+
+        while neighbors:
+
+            neighbor = neighbors.popleft()
+
+            # update distance for all current neighbors
+            neighborRow = neighbor[0]
+            neighborCol = neighbor[1]
+            prevDist = neighbor[2]
+            currDist = prevDist + 1
+            distCells[neighborRow, neighborCol] = currDist
+
+            possibleNewNeighbors = self.calcNeighbors(neighborRow,
+                                                      neighborCol,
+                                                      N,
+                                                      dist=currDist)
+
+            neighbors = self.updateNeighborCells(distCells,
+                                                 possibleNewNeighbors,
+                                                 neighbors)
+
+        return (distCells, currDist)
+
+    ##
+    # @brief      updates newNeighbors with a list of unvisited neighbors with
+    #             the list of given possible new neighbors
+    #
+    # @param      distanceCells         The distanceCells to update the
+    #                                   distance measure in
+    # @param      possibleNewNeighbors  The possible new neighbors index list
+    # @param      newNeighbors          The neighboring cell index list to add
+    #                                   valid neighbors to
+    #
+    # @return     newNeighbors has unvisited neighbor cells appended
+    #
+    def updateNeighborCells(self, distanceCells,
+                            possibleNewNeighbors, newNeighbors):
+
+        for possibleNewNeighbor in possibleNewNeighbors:
+
+            neighborRow = possibleNewNeighbor[0]
+            neighborCol = possibleNewNeighbor[1]
+            haveNotVisted = (distanceCells[neighborRow, neighborCol] == 0)
+
+            # the third element of the array is distance, so only compare
+            # indices
+            isUnique = True
+            for newNeighbor in newNeighbors:
+                if possibleNewNeighbor[0:2] == newNeighbor[0:2]:
+                    isUnique = False
+
+            if haveNotVisted and isUnique:
+                newNeighbors.append(copy.deepcopy(possibleNewNeighbor))
+
+        return newNeighbors
+
+    ##
     # @brief      Gets the grid coordinates in the discretized cspace from
     #             state
     #
     # @param      state  The queried state coordinate
     #
-    # @return     (row of self.distanceCells corresponding to the state,
-    #              column of self.distanceCells corresponding to the state)
+    # @return     (row of self.distanceCells corresponding to the state, column
+    #             of self.distanceCells corresponding to the state)
     #
     def getGridCoordsFromState(self, state):
 
@@ -219,13 +284,40 @@ class CSpace_2D(RobotSpace):
         qX = stateCoords[0]
         qY = stateCoords[1]
 
-        col = math.floor((qX - self.maxGridX) / self.gridSize)
-        row = math.floor((qY - self.minGridY) / self.gridSize)
+        # these produce wrong indices when the point is right on a maxima of
+        # the grid
+        # print('-----------')
+        # print(state)
+        gridShrinkScale = 10
+        if qX == self.maxGridX:
+            qX -= self.xGridSize / gridShrinkScale
 
+        if qY == self.maxGridY:
+            qY -= self.yGridSize / gridShrinkScale
+        # print(self.minGridX, self.maxGridX, self.minGridX, self.maxGridX)
+        col = math.floor((qX - self.minGridX) / self.xGridSize)
+        row = math.floor((qY - self.minGridY) / self.yGridSize)
+        # print(row, col)
         return (row, col)
 
     ##
+    # @brief      Plots all obstacles in the cspace to ax
+    #
+    # @param      ax    the matplotlib.axes object to plot the obstacles on
+    #
+    def plotObstacles(self, ax):
+
+        for obstacle in self.obstacles:
+            obstX, obstY = zip(*obstacle)
+            ax.fill(obstX, obstY,
+                    facecolor='black',
+                    edgecolor='black',
+                    linewidth=1)
+
+    ##
     # @brief      Plots each of the polygon object grid cells onto ax
+    #
+    # @warning overrides method in superclass
     #
     # @param      ax    matplotlib Axes to plot the grid cells on
     # @param      grid  a list of shapely.Polygon objects representing each
@@ -233,12 +325,14 @@ class CSpace_2D(RobotSpace):
     #
     def plotGrid(self, ax, fig, grid):
 
-        for _, gridCell in grid.items():
-                patch = PolygonPatch(gridCell,
-                                     edgecolor='#6699cc',
-                                     facecolor='none',
-                                     alpha=0.8)
-                ax.add_patch(patch)
+        newDist = self.distanceCells
+        x, y = self.numericGridCells
+
+        c = ax.pcolor(x, y, newDist,
+                      edgecolors='k', linewidths=0,
+                      cmap='hot', alpha=0.6)
+        cbar = fig.colorbar(c, ax=ax, orientation="vertical")
+        cbar.ax.set_ylabel('manhattan distance from obstacle')
 
     ##
     # @brief      Plot all CSpace objects and saves to self.baseSaveFName
@@ -257,22 +351,31 @@ class CSpace_2D(RobotSpace):
     #                             - plotTitle  The plot title string
     #                             - xlabel     xlabel string
     #                             - ylabel     ylabel string
+    #                             - plotGrid   bool to turn on/off the grid
+    # @param      fig             matplotlib fig to plot on
+    # @param      ax              matplotlib Axes corresponding to fig to plot
+    #                             the data on
     #
     # @return     matplotlib Axes object for the generated plot
     #
-    def plot(self, robot, startState, goalState, plotConfigData):
+    def plot(self, robot, startState, goalState, plotConfigData,
+             fig=None, ax=None):
 
         # unpack dictionary
         plotTitle = plotConfigData['plotTitle']
         xlabel = plotConfigData['xlabel']
         ylabel = plotConfigData['ylabel']
+        shouldPlotGrid = plotConfigData['plotGrid']
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        if not ax or not fig:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
-        # plot grid lines BEHIND the fucking data
+        # plot grid lines BEHIND the data
         ax.set_axisbelow(True)
-        self.plotGrid(ax, fig, self.polygonGridCells)
+
+        if shouldPlotGrid:
+            self.plotGrid(ax, fig, self.polygonGridCells)
 
         # plotting all the obstacles
         self.plotObstacles(ax)
@@ -285,7 +388,7 @@ class CSpace_2D(RobotSpace):
             # plotting the robot origin's path through cspace
             x = [state[0] for state in robotPath]
             y = [state[1] for state in robotPath]
-            plt.plot(x, y, color='blue', linestyle='solid',
+            plt.plot(x, y, color='red', linestyle='solid',
                      linewidth=4, markersize=16,
                      label='Robot path')
 
@@ -296,7 +399,7 @@ class CSpace_2D(RobotSpace):
                  label='Starting State')
 
         plt.plot(goalState[0], goalState[1],
-                 color='blue', marker='x', linestyle='none',
+                 color='red', marker='x', linestyle='none',
                  linewidth=4, markersize=16,
                  label='Goal State')
 
@@ -307,7 +410,7 @@ class CSpace_2D(RobotSpace):
         plt.ylabel(ylabel)
         ax.set_xlim(self.minGridX, self.maxGridX)
         ax.set_ylim(self.minGridY, self.maxGridY)
-        ax.legend()
+        fig.legend()
 
         if self.shouldSavePlots:
             saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
@@ -316,6 +419,6 @@ class CSpace_2D(RobotSpace):
             fig.show()
             fig.set_size_inches((11, 8.5), forward=False)
             plt.savefig(saveFName, dpi=500)
-            print('wrote figure to ', saveFName)
+            print('wrote figure to: ', saveFName)
 
         return ax

@@ -309,7 +309,7 @@ class PolygonalRobotCSpace(RobotSpace):
             fig.show()
             fig.set_size_inches((11, 8.5), forward=False)
             pl.savefig(saveFName, dpi=500)
-            print('wrote figure to ', saveFName)
+            print('wrote figure to: ', saveFName)
 
         return None
 

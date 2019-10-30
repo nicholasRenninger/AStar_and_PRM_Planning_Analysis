@@ -84,35 +84,6 @@ class Robot:
         raise NotImplementedError
 
     ##
-    # @brief      Determines if at goal.
-    #
-    # @param      self  The Robot object
-    #
-    # @return     True if at goal, False otherwise.
-    #
-    def isAtGoal(self):
-
-        closeToGoal = self.isCloseTo(self.goalState)
-
-        if closeToGoal:
-            print('reached goal at:', self.goalState)
-
-        return closeToGoal
-
-    ##
-    # @brief      Determines if robot is close to a given target location
-    #
-    # @param      self            The Robot object
-    # @param      targetLocation  The target location
-    #
-    # @return     True if robot is close to target, False otherwise.
-    #
-    def isCloseTo(self, targetLocation):
-        distToLocation = self.distToTarget(targetLocation)
-
-        return (distToLocation <= self.nearObjTolerance)
-
-    ##
     # @brief      computes the distance to the goal state
     #
     # @param      self  The Robot object
@@ -133,8 +104,9 @@ class Robot:
     #
     # @return     the distance to the target object
     #
-    def distToTarget(self, target):
-        distVec = target - self.currentState
+    def distToTarget(self, currentState, target):
+
+        distVec = target - currentState
         distToLocation = np.linalg.norm(distVec)
 
         return distToLocation

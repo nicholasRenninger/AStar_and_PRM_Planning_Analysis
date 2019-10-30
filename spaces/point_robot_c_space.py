@@ -1,5 +1,4 @@
 # 3rd-party packages
-import numpy as np
 import copy
 
 # local packages
@@ -35,6 +34,11 @@ class PointRobotCSpace(CSpace_2D):
         CSpace_2D.__init__(self, robot, workspace, linearDiscretizationDensity,
                            shouldSavePlots, baseSaveFName)
 
+        # as the robot is a point robot, its obstacles are just the workspace
+        # obstacles
+        self.obstacles = workspace.obstacles
+        self.polygonObstacles = workspace.polygonObstacles
+
         # need a bounding box for the discretization of CSpace
         (self.minGridX,
          self.maxGridX,
@@ -46,8 +50,10 @@ class PointRobotCSpace(CSpace_2D):
         # need to discretize the cspace for the brushfire algorithm
         (self.polygonGridCells,
          self.numericGridCells,
+         self.numericCoordArrays,
          self.distanceCells,
-         self.gridSize) = self.discretizeCSpace(N=linearDiscretizationDensity)
+         (self.xGridSize,
+          self.yGridSize)) = self.discretizeCSpace(linearDiscretizationDensity)
 
         # compute the distance to an obstacle from any cell using the brushfire
         # algorithm
@@ -56,7 +62,8 @@ class PointRobotCSpace(CSpace_2D):
             self.brushFireDistanceComputation(self.distanceCells,
                                               self.polygonGridCells)
 
-        print('Built CSpace with grid cells of size ', self.gridSize)
+        print('Built CSpace with grid cells of size :',
+              self.xGridSize, ' x ', self.yGridSize)
 
     ##
     # @brief      Determines an enlarged spatial bounding box for CSpace
@@ -71,7 +78,7 @@ class PointRobotCSpace(CSpace_2D):
     def determineSpatialBounds(self, robotStartState, robotGoalState,
                                workspace):
 
-        # once again, fuck python
+        # once again, (0_0) python
         robStartX = copy.deepcopy(robotStartState[0])
         robStartY = copy.deepcopy(robotStartState[1])
         robGoalX = copy.deepcopy(robotGoalState[0])
@@ -107,6 +114,19 @@ class PointRobotCSpace(CSpace_2D):
                                        maxGridCoord=maxGridCoord,
                                        scale=scale,
                                        coordType='max')
+
+        length = abs(maxGridX - minGridX)
+        height = abs(maxGridY - minGridY)
+
+        if length > height:
+            nonSquareness = (length - height) / 2
+            maxGridY += nonSquareness
+            minGridY -= nonSquareness
+
+        elif length < height:
+            nonSquareness = (height - length) / 2
+            maxGridX += nonSquareness
+            minGridX -= nonSquareness
 
         return (float(minGridX), float(maxGridX),
                 float(minGridY), float(maxGridY))
@@ -148,103 +168,6 @@ class PointRobotCSpace(CSpace_2D):
             raise ValueError(coordType)
 
         return gridCoord
-
-    ##
-    # @brief      Implements the brushfire algorithm
-    #
-    # @param      distCells         The distance cells
-    # @param      polygonGridCells  The polygon grid cells
-    #
-    # @return     (each cell in distCells is labeled with its mimum manhattan
-    #              distance from an obstacle,
-    #              maximum distance from an obstacle)
-    #
-    def brushFireDistanceComputation(self, distCells,
-                                     polygonGridCells):
-
-        N = self.linearDiscretizationDensity
-
-        # start by computing the set of obstacle cells and their neighbors
-        (neighborsOfCellsWithObstacles,
-         distCells,
-         _) = self.labelObstacleCells(polygonGridCells, distCells, N)
-
-        neighbors = copy.deepcopy(neighborsOfCellsWithObstacles)
-
-        while neighbors:
-
-            neighbor = neighbors.popleft()
-
-            # update distance for all current neighbors
-            neighborRow = neighbor[0]
-            neighborCol = neighbor[1]
-            prevDist = neighbor[2]
-            currDist = prevDist + 1
-            distCells[neighborRow, neighborCol] = currDist
-
-            possibleNewNeighbors = self.calcNeighbors(neighborRow,
-                                                      neighborCol,
-                                                      N,
-                                                      dist=currDist)
-
-            neighbors = self.updateNeighborCells(distCells,
-                                                 possibleNewNeighbors,
-                                                 neighbors)
-
-        return (distCells, currDist)
-
-    ##
-    # @brief      updates newNeighbors with a list of unvisited neighbors with
-    #             the list of given possible new neighbors
-    #
-    # @param      distanceCells         The distanceCells to update the
-    #                                   distance measure in
-    # @param      possibleNewNeighbors  The possible new neighbors index list
-    # @param      newNeighbors          The neighboring cell index list to add
-    #                                   valid neighbors to
-    #
-    # @return     newNeighbors has unvisited neighbor cells appended
-    #
-    def updateNeighborCells(self, distanceCells,
-                            possibleNewNeighbors, newNeighbors):
-
-        for possibleNewNeighbor in possibleNewNeighbors:
-
-            neighborRow = possibleNewNeighbor[0]
-            neighborCol = possibleNewNeighbor[1]
-            haveNotVisted = (distanceCells[neighborRow, neighborCol] == 0)
-
-            # the third element of the array is distance, so only compare
-            # indices
-            isUnique = True
-            for newNeighbor in newNeighbors:
-                if possibleNewNeighbor[0:2] == newNeighbor[0:2]:
-                    isUnique = False
-
-            if haveNotVisted and isUnique:
-                newNeighbors.append(copy.deepcopy(possibleNewNeighbor))
-
-        return newNeighbors
-
-    ##
-    # @brief      Plots each of the polygon object grid cells onto ax
-    #
-    # @warning overrides method in superclass
-    #
-    # @param      ax    matplotlib Axes to plot the grid cells on
-    # @param      grid  a list of shapely.Polygon objects representing each
-    #                   gridcell
-    #
-    def plotGrid(self, ax, fig, grid):
-
-        newDist = np.flipud(self.distanceCells)
-        x, y = np.fliplr(self.numericGridCells)
-
-        c = ax.pcolor(x, y, newDist,
-                      edgecolors='k', linewidths=0,
-                      cmap='hot', alpha=0.6)
-        cbar = fig.colorbar(c, ax=ax)
-        cbar.ax.set_ylabel('manhattan distance from obstacle')
 
 
 ##

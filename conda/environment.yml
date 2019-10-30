@@ -8,5 +8,6 @@ dependencies:
   - scipy
   - shapely
   - geopandas
+  - plotly
 prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning2
 

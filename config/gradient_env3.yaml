@@ -1,11 +1,15 @@
-# each list element is a list of tuples containing the coordinates of the
+# each list element is a list of tuples containing the coordinatesof the
 # vertices of the rectangular obstacles in the workspace
 WO:
-  - [[1, 1], [2, 1], [2, 5], [1, 5]]
-  - [[3, 4], [4, 4], [4, 12], [3, 12]]
-  - [[3, 12], [12, 12], [12, 13], [3, 13]]
-  - [[12, 5], [13, 5], [13, 13], [12, 13]]
-  - [[6, 5], [12, 5], [12, 6], [6, 6]]
+  - [[-6, -6], [25, -6], [25, -5], [-6, -5]]
+  - [[-6, 5], [30, 5], [30, 6], [-6, 6]]
+  - [[-6, -5], [-5, -5], [-5, 5], [-6, 5]]
+  - [[4, -5], [5, -5], [5, 1], [4, 1]]
+  - [[9, 0], [10, 0], [10, 5], [9, 5]]
+  - [[14, -5], [15, -5], [15, 1], [14, 1]]
+  - [[19, 0], [20, 0], [20, 5], [19, 5]]
+  - [[24, -5], [25, -5], [25, 1], [24, 1]]
+  - [[29, 0], [30, 0], [30, 5], [29, 5]]
 
 # coordinates of the robot start state in state space
 # [x, y]
@@ -13,10 +17,10 @@ startState: [0, 0]
 
 # coordinates of the robot goal state in the workspace
 # [x, y]
-goalState: [10, 10]
+goalState: [35, 0]
 
 # determines N such that CSpace is discretized into an NxN grid
-linearDiscretizationDensity: 50
+linearDiscretizationDensity: 40
 
 ##
 ## setup gradient descent params
@@ -34,23 +38,31 @@ distanceMeasurement: 'perObstacle'
 
 # need a list of critical potential values for each obstacle
 # perObstacle:
-#     - 0.1
-#     - 0.8
-#     - 0.8
-#     - 0.8
-#     - 1.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
+# - 0.4
 # minObstacleDist: 8
 qStars:
-  - 0.1
-  - 0.8
-  - 0.8
-  - 0.8
-  - 1.8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
+  - 8
 
 # threshold distance from goal for attractive potential
 # perObstacle: 3
 # minObstacleDist: 8
-dStarGoal: 3
+dStarGoal: 12
 
 # goal region threshold
 goalEpsilon: 0.25
@@ -58,14 +70,14 @@ goalEpsilon: 0.25
 # parameter to scale the attractive force
 # perObstacle: 8
 # minObstacleDist: 4
-attractivePotentialGain: 8
+attractivePotentialGain: 1
 
 # parameter to scale the attractive force
-# perObstacle: 0.32
+# perObstacle: 0.3
 # minObstacleDist: 83
-repulsivePotentialGain: 0.32
+repulsivePotentialGain: 0.5
 
 # determine step size of the gradient descent algorithm
 # perObstacle: 0.01
 # minObstacleDist: 0.001
-stepSize: 0.002
+stepSize: 0.005

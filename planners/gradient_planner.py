@@ -1,5 +1,9 @@
 # 3rd-party packages
 import numpy as np
+from shapely.geometry import Point
+import copy
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 
 # local packages
 from planners.planner import Planner
@@ -40,6 +44,19 @@ class GradientPlanner(Planner):
                          shouldSavePlots=shouldSavePlots,
                          baseSaveFName=baseSaveFName)
 
+        # define the coordinates using CSpace discretization
+        self.xCoords, self.yCoords = self.cSpace.numericCoordArrays
+
+        # determines how distance to obstacles should be incorporated:
+        #
+        # 'perObstacle'
+        # calculate minimum distance to each obstacle
+        #
+        # 'minObstacleDist'
+        # use the brushfire algorithm to compute minimum distance to ANY
+        # obstacle from each state
+        self.distanceMeasurement = configData['distanceMeasurement']
+
         # list of critical potential values for each obstacle
         self.qStars = configData['qStars']
 
@@ -49,18 +66,30 @@ class GradientPlanner(Planner):
         # goal region
         self.goalEpsilon = configData['goalEpsilon']
 
-        # attractive potential scaling factor
-        self.attPotScaleFactor = configData['attractivePotentialScalingFactor']
+        # attractive potential gain
+        self.attPotGain = configData['attractivePotentialGain']
+
+        # repulsive potential gain
+        self.repPotGain = configData['repulsivePotentialGain']
+
+        # determine step size of the gradient descent algorithm
+        self.stepSize = configData['stepSize']
 
     ##
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
     #
+    # @param      U       the potential field over the discretized grid
+    # @param      points  The point the potential is evaluated at
+    #
     # @return     a viable set of cSpace states from startState to goalState
     #
-    def findPathToGoal(self):
+    def findPathToGoal(self, U, points):
 
-        return self.gradientDescent()
+        print('Starting gradient descent planner using distance measure: ',
+              self.distanceMeasurement)
+
+        return self.gradientDescent(U, points)
 
     ##
     # @brief      Gets the distance to the closest obstacle from a given state
@@ -87,20 +116,20 @@ class GradientPlanner(Planner):
     def attractivePotential(self, state):
 
         robot = self.robot
-        distToGoal = robot.distToGoal()
+        distToGoal = robot.distToTarget(state, robot.goalState.flatten())
 
         # unroll for speed
-        attPotScaleFactor = self.attPotScaleFactor
+        gain = self.attPotGain
         dStarGoal = self.dStarGoal
 
         if distToGoal <= dStarGoal:
 
-            U_att = 0.5 * attPotScaleFactor * distToGoal ** 2
+            U_att = 0.5 * gain * distToGoal ** 2
 
         else:
 
-            U_att = dStarGoal * attPotScaleFactor * distToGoal - \
-                0.5 * attPotScaleFactor * dStarGoal ** 2
+            U_att = dStarGoal * gain * distToGoal - \
+                0.5 * gain * dStarGoal ** 2
 
         return U_att
 
@@ -108,16 +137,63 @@ class GradientPlanner(Planner):
     # @brief      defines the repulsive potential field value at a given
     #             configuration state
     #
-    # @param      state  The configuration state state
+    # @param      state                The configuration state state
+    # @param      distanceMeasurement  determines how distance to obstacles
+    #                                  should be incorporated:
+    #                                  - perObstacle  calculate minimum
+    #                                    distance to each obstacle
+    #                                  - minObstacleDist   use the brushfire
+    #                                    algorithm to compute minimum distance
+    #                                    to ANY obstacle from each state
     #
     # @return     the repulsive potential field value at state
     #
-    def repulsivePotential(self, state):
+    def repulsivePotential(self, state, distanceMeasurement='perObstacle'):
 
-        obstacles = self.robot.cSpace.obstacles
+        gain = self.repPotGain
 
-        for obstacle in obstacles:
-            pass
+        if distanceMeasurement == 'perObstacle':
+
+            obstacles = self.cSpace.polygonObstacles
+
+            # repulsive potential is the sum of repulsive potential
+            # contributions from each obstacle
+            U_rep = 0
+
+            for (obstacle, qStar) in zip(obstacles, self.qStars):
+
+                distToObst = abs(obstacle.exterior.distance(Point(state)))
+
+                # return nan, as we collided with the obstacle
+                if distToObst == 0:
+                    distToObst = np.nan
+
+                if distToObst <= qStar:
+                    U_rep += 0.5 * gain * (1 / distToObst - 1 / qStar) ** 2
+                else:
+                    U_rep += 0
+
+        elif distanceMeasurement == 'minObstacleDist':
+
+            (row, col) = self.cSpace.getGridCoordsFromState(state)
+
+            minDistToObst = self.cSpace.distanceCells[row, col]
+            qStar = self.qStars[0]
+
+            # return nan, as we collided with the obstacle
+            if minDistToObst < 1:
+                return np.nan
+
+            if minDistToObst <= qStar:
+                U_rep = 0.5 * gain * (1 / qStar - 1 / minDistToObst) ** 2
+            else:
+                U_rep = 0
+
+        else:
+
+            raise ValueError(distanceMeasurement)
+
+        return U_rep
 
     ##
     # @brief      Defines the total potential field value at a given state
@@ -128,25 +204,172 @@ class GradientPlanner(Planner):
     #
     def potential(self, state):
 
-        return self.attractivePotential(state) + self.repulsivePotential(state)
+        return (self.attractivePotential(state) +
+                self.repulsivePotential(state, self.distanceMeasurement))
+
+    ##
+    # @brief      Calculates the potential field over CSpace
+    #
+    # @return     The potential field 2D array
+    #
+    def calcPotentialField(self):
+
+        xCoords = self.xCoords
+        yCoords = self.yCoords
+
+        shape = xCoords.shape
+        nCoordsX = shape[0]
+        shape = yCoords.shape
+        nCoordsY = shape[0]
+        U = np.zeros((nCoordsY, nCoordsX))
+        points = []
+
+        for i_x, x in enumerate(xCoords):
+            for i_y, y in enumerate(yCoords):
+
+                state = copy.deepcopy(np.array([x, y]))
+                potential = self.potential(state)
+                U[i_y, i_x] = potential
+
+                points.append((x, y))
+
+        return U, points
+
+    ##
+    # @brief      Determines if robot is at goal.
+    #
+    # @return     True if at goal, False otherwise.
+    #
+    def isAtGoal(self):
+
+        closeToGoal = self.isCloseTo(self.goalState, self.goalEpsilon)
+
+        return closeToGoal
+
+    ##
+    # @brief      Determines if the robot is close to a given target location
+    #
+    # @param      targetLocation  The target location
+    # @param      epsilon         The location matchin epsilon radius
+    #
+    # @return     True if the robot is close to target, False otherwise.
+    #
+    def isCloseTo(self, targetLocation, epsilon):
+
+        distToLocation = self.robot.distToTarget(self.robot.currentState,
+                                                 targetLocation)
+
+        return (distToLocation <= epsilon)
 
     ##
     # @brief      runs the gradient descent algorithm to get a path in cspace
     #             from the robot's start to goal states
     #
-    def gradientDescent(self):
+    # @param      U       the potential field over the discretized grid
+    # @param      points  a list of x-y coordinate tuples for each elem of U
+    #
+    # @return     the viable sequence of states to goal
+    #
+    def gradientDescent(self, U, points):
 
-        pass
+        # define gradient magnitude tolerance for being at a local minima
+        minimaTol = 1e-4
+
+        # define maximum iterations to try
+        nIter = 500
+
+        robot = self.robot
+
+        states = []
+        state = copy.deepcopy(self.robot.startState)
+        robot.updateRobotState(copy.deepcopy(state))
+        states.append(copy.deepcopy(state))
+
+        # calculate the gradient on the CSpace grid fist
+        dy, dx = np.gradient(U, self.cSpace.yGridSize, self.cSpace.xGridSize)
+
+        # Making your own gradient interpolater is SUPER fun :)))
+        # have to flatten in column order (order='C' for row order lol wtf)
+        dx_values = dx.flatten(order='F')
+        dy_values = dy.flatten(order='F')
+
+        iterCount = 0
+        updateRate = 20
+        while not self.isAtGoal():
+
+            interp_gradient = np.zeros((2, 1))
+            currX, currY = state
+
+            # at each new query point, interpolate the gradient smoothly
+            interp_dx = griddata(points, dx_values, (currX, currY),
+                                 method='cubic')
+            interp_dy = griddata(points, dy_values, (currX, currY),
+                                 method='cubic')
+            interp_gradient[0] = self.stepSize * interp_dx
+            interp_gradient[1] = self.stepSize * interp_dy
+
+            # give user status of solution
+            shouldPrint = (iterCount % updateRate == 0)
+            if shouldPrint:
+                print('state: ', state, 'dx: ', interp_dx, 'dy:', interp_dy)
+
+            iterCount += 1
+
+            state -= interp_gradient
+            robot.updateRobotState(copy.deepcopy(state))
+            states.append(copy.deepcopy(state))
+
+            # if the descent reached nans, it went out of bounds of the
+            # original bounded cspace region -> planner settings failed
+            #
+            # if derivatives are super small, it failed
+            hitObstacle = any([np.isnan(stateCoord[0])
+                               for stateCoord in state])
+            atLocalMinima = ((np.linalg.norm(interp_gradient) < minimaTol) and
+                             not self.isAtGoal())
+            outOfIterations = iterCount >= nIter
+
+            if hitObstacle or atLocalMinima or outOfIterations:
+                return False
+
+        return True
 
     #
-    # @brief      plots the potential field overlaid on the cspace
+    # @brief      plots the potential field overlaid on the cspace plot
     #
-    def plotPotentialField(self, plotTitle):
+    # @param      U          the potential field 2d array
+    # @param      plotTitle  The plot title
+    #
+    def plotPotentialField(self, U, plotTitle):
 
-        ax = self.cSpace.plot(robot=self.robot,
-                              startState=self.startState,
-                              goalState=self.goalState,
-                              plotTitle=plotTitle + 'potentialField')
+        potField = U
+
+        xGrid, yGrid = self.cSpace.numericGridCells
+
+        x = xGrid
+        y = yGrid
+        dy, dx = np.gradient(potField, self.cSpace.yGridSize,
+                             self.cSpace.xGridSize)
+
+        N = self.cSpace.linearDiscretizationDensity
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        cs = ax.contourf(x, y, potField, N, alpha=0.7)
+        plt.quiver(x, y, dx, dy, units='width')
+        cbar = fig.colorbar(cs, ax=ax, orientation="vertical")
+        cbar.ax.set_ylabel('potential function value')
+
+        plotConfigData = {'plotTitle': plotTitle + 'gradientPlanner',
+                          'xlabel': 'x',
+                          'ylabel': 'y',
+                          'plotGrid': False}
+        self.cSpace.plot(robot=self.robot,
+                         startState=self.robot.startState,
+                         goalState=self.robot.goalState,
+                         plotConfigData=plotConfigData,
+                         ax=ax, fig=fig)
 
 
 ##
@@ -155,7 +378,8 @@ class GradientPlanner(Planner):
 class GradientPlannerBuilder(Builder):
 
     ##
-    # @brief need to call the super class constructor to gain its properties
+    # @brief      need to call the super class constructor to gain its
+    #             properties
     #
     def __init__(self):
         Builder.__init__(self)

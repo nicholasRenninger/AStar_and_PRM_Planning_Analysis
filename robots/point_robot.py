@@ -39,6 +39,9 @@ class PointRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
+        self.currentState = self.startState
+        self.updateRobotState(self.startState)
+
         linearDiscretizationDensity = configData['linearDiscretizationDensity']
 
         # have the factory make the PointRobot's C-space
@@ -60,7 +63,9 @@ class PointRobot(Robot):
     def checkCollision(self, shapelyObject):
 
         obstacles = self.workspace.polygonObstacles
+
         for obstacle in obstacles:
+
             if obstacle.intersects(shapelyObject):
                 return True
 
@@ -89,9 +94,9 @@ class PointRobot(Robot):
     #
     def updateRobotState(self, newState):
 
-        self.currentState = newState
         self.stateHistory.append(copy.deepcopy(newState))
-        self.distTraveled += self.distToTarget(newState)
+        self.distTraveled += self.distToTarget(self.currentState, newState)
+        self.currentState = newState
 
     ##
     # @brief      Plots the robot's body's path in the workspace
@@ -122,6 +127,18 @@ class PointRobot(Robot):
     #
     def runAndPlot(self, planner, plotTitle):
 
+        U, points = planner.calcPotentialField()
+        foundPath = planner.findPathToGoal(U, points)
+
+        if foundPath:
+            print('Reached goal at:', self.stateHistory[-1])
+            print('Path length: ', self.distTraveled)
+        else:
+            print('No valid path found with current planner:', planner)
+            # self.stateHistory = [copy.deepcopy(self.startState)]
+
+        planner.plotPotentialField(U=U, plotTitle=plotTitle)
+
         plotConfigData = {'plotTitle': plotTitle + 'workspace',
                           'xlabel': 'x',
                           'ylabel': 'y'}
@@ -132,7 +149,8 @@ class PointRobot(Robot):
 
         plotConfigData = {'plotTitle': plotTitle + 'cSpace',
                           'xlabel': 'x',
-                          'ylabel': 'y'}
+                          'ylabel': 'y',
+                          'plotGrid': True}
         self.cSpace.plot(robot=self,
                          startState=self.startState,
                          goalState=self.goalState,

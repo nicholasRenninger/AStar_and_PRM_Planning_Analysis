@@ -39,6 +39,7 @@ class PolygonalRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
+        self.currentState = self.startState
         (relativeShapeVerts, robotOriginIdx) = self.setRobotShape(configData)
 
         self.workspaceVertCoords = []
@@ -119,9 +120,9 @@ class PolygonalRobot(Robot):
     #
     def updateRobotState(self, newState):
 
-        self.currentState = newState
         self.stateHistory.append(copy.deepcopy(newState))
-        self.distTraveled += self.distToTarget(newState)
+        self.distTraveled += self.distToTarget(self.currentState, newState)
+        self.currentState = newState
 
         # need to compute the robot's pose after the change in state
         newOriginPos = newState[0:2, :]
@@ -201,7 +202,7 @@ class PolygonalRobot(Robot):
 
         N = 100
 
-        # fuck python
+        # deep state copy as python is annoying
         currState = copy.deepcopy(startState)
         x0, y0, theta0 = startState
         xG, yG, thetaG = endState

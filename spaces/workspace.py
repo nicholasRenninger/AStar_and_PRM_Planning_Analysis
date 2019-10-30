@@ -134,7 +134,7 @@ class Workspace(RobotSpace):
             # plotting the robot origin's path through cspace
             x = [state[0] for state in robotPath]
             y = [state[1] for state in robotPath]
-            plt.plot(x, y, color='blue', linestyle='solid',
+            plt.plot(x, y, color='red', linestyle='solid',
                      linewidth=4, markersize=16,
                      label='Robot path')
 
@@ -145,14 +145,14 @@ class Workspace(RobotSpace):
                  label='Starting State')
 
         plt.plot(goalState[0], goalState[1],
-                 color='blue', marker='x', linestyle='none',
+                 color='red', marker='x', linestyle='none',
                  linewidth=4, markersize=16,
                  label='Goal State')
 
         # ax.set_axis_off()
         ax.set_aspect('equal')
         plt.title(plotTitle)
-        ax.legend()
+        fig.legend()
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
@@ -163,7 +163,7 @@ class Workspace(RobotSpace):
             fig.show()
             fig.set_size_inches((11, 8.5), forward=False)
             plt.savefig(saveFName, dpi=500)
-            print('wrote figure to ', saveFName)
+            print('wrote figure to: ', saveFName)
 
         return ax
 
