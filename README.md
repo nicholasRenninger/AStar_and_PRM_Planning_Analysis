@@ -31,13 +31,16 @@ To run the code:
 ### Configuring the Code
 
 ## C-Space visualizer for a translating, rotating robot and obstacle
-To change the scenarios for the bug algorithm code, simply modify one of the `$(REPO_DIR_LOCATION)/config/cspace_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot.
+To change the scenarios for the c-space visualization simulation, simply modify one of the `$(REPO_DIR_LOCATION)/config/cspace_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot.
 
-## Gradient descent planner
+## Gradient descent planner for a point robot
+To change the scenarios for the gradient descent planning simulation, simply modify one of the `$(REPO_DIR_LOCATION)/config/gradient_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot, or to change the planner settings.
 
-## C-Space visualizer for a translating, rotating robot and obstacle
+## Wavefront planner for a point Robot
+To change the scenarios for the wavefront planning simulation, simply modify one of the `$(REPO_DIR_LOCATION)/config/wavefront_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot, or to change properties of the wavefront planner.
 
-## C-Space visualizer for a translating, rotating robot and obstacle
+## 2-DOF Manipulator C-Space visualizer, inverse kinematics, and wavefront planning
+To change the scenarios for the manipulator simulation, simply modify one of the `$(REPO_DIR_LOCATION)/config/manipulator_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot, or to change properties of the wavefront planner.
 
 ---
 
