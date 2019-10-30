@@ -12,9 +12,9 @@ def main():
 
     sim = Simulation(shouldSavePlots, basePlotDir)
 
-    # simRunner(shouldSavePlots, basePlotDir, simType='cspace')
-    sim.run(simType='gradient')
-    # sim.run(shouldSavePlots, basePlotDir, simType='wavefront')
+    # sim.run(simType='cspace')
+    # sim.run(simType='gradient')
+    sim.run(simType='wavefront')
 
 
 if __name__ == '__main__':

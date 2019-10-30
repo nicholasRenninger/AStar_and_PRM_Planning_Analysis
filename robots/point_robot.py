@@ -43,11 +43,13 @@ class PointRobot(Robot):
         self.updateRobotState(self.startState)
 
         linearDiscretizationDensity = configData['linearDiscretizationDensity']
+        makeSquareCSpace = configData['makeSquareCSpace']
 
         # have the factory make the PointRobot's C-space
         self.cSpace = activeSpaces.get(robotSpaceType='POINTROBOTCSPACE',
                                        robot=self,
                                        N=linearDiscretizationDensity,
+                                       makeSquare=makeSquareCSpace,
                                        shouldSavePlots=shouldSavePlots,
                                        baseSaveFName=baseSaveFName)
 
@@ -114,30 +116,24 @@ class PointRobot(Robot):
     ##
     # @brief      Function for PointRobot instance to "run" itself
     #
-    #             For the PointRobot, we are just going to linearly evolve
-    #             all config states from startState to goalState (without a
-    #             planner) as we are just testing c-space construction and
-    #             visualization
+    #             Runs the planning algorithm, reports if it found a path, and
+    #             plots the solution
     #
     # @param      planner    The planner object containing the motion planning
     #                        algorithm to be used on the robot
-    # @param      plotTitle   The plot title string
+    # @param      plotTitle  The plot title string
     #
     # @return     runs robot, then plots results of running the robot
     #
     def runAndPlot(self, planner, plotTitle):
 
-        U, points = planner.calcPotentialField()
-        foundPath = planner.findPathToGoal(U, points)
+        foundPath = planner.findPathToGoal(plotTitle=plotTitle)
 
         if foundPath:
             print('Reached goal at:', self.stateHistory[-1])
             print('Path length: ', self.distTraveled)
         else:
             print('No valid path found with current planner:', planner)
-            # self.stateHistory = [copy.deepcopy(self.startState)]
-
-        planner.plotPotentialField(U=U, plotTitle=plotTitle)
 
         plotConfigData = {'plotTitle': plotTitle + 'workspace',
                           'xlabel': 'x',

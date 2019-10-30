@@ -14,24 +14,24 @@ class PointRobotCSpace(CSpace_2D):
     ##
     # @brief      PointRobotCSpace class constructor
     #
-    # @param      robot                        The PointRobot instance
-    # @param      workspace                    The CSpace object the PointRobot
-    #                                          operates in
-    # @param      linearDiscretizationDensity  linear discretization density of
-    #                                          CSpace
-    # @param      shouldSavePlots              Boolean controlling whether or
-    #                                          not the plt objs can be saved to
-    #                                          the baseSaveName dir
-    # @param      baseSaveFName                The base directory file name for
-    #                                          output plot
+    # @param      robot            The PointRobot instance
+    # @param      workspace        The CSpace object the PointRobot operates in
+    # @param      N                linear discretization density of CSpace
+    # @param      makeSquare       determines whether the CSpace will be made
+    #                              square when enlarged for planning. for the
+    #                              gradient descent planner, you must set this
+    #                              to be True
+    # @param      shouldSavePlots  Boolean controlling whether or not the plt
+    #                              objs can be saved to the baseSaveName dir
+    # @param      baseSaveFName    The base directory file name for output plot
     #
     # @return     initialized PointRobotCSpace object
     #
-    def __init__(self, robot, workspace, linearDiscretizationDensity,
+    def __init__(self, robot, workspace, N, makeSquare,
                  shouldSavePlots, baseSaveFName):
 
         # get inherited properties from superclass implementation
-        CSpace_2D.__init__(self, robot, workspace, linearDiscretizationDensity,
+        CSpace_2D.__init__(self, robot, workspace, N,
                            shouldSavePlots, baseSaveFName)
 
         # as the robot is a point robot, its obstacles are just the workspace
@@ -45,21 +45,24 @@ class PointRobotCSpace(CSpace_2D):
          self.minGridY,
          self.maxGridY) = self.determineSpatialBounds(robot.startState,
                                                       robot.goalState,
-                                                      workspace)
+                                                      workspace, makeSquare)
 
         # need to discretize the cspace for the brushfire algorithm
         (self.polygonGridCells,
          self.numericGridCells,
          self.numericCoordArrays,
-         self.distanceCells,
+         initDistanceCells,
          (self.xGridSize,
-          self.yGridSize)) = self.discretizeCSpace(linearDiscretizationDensity)
+          self.yGridSize)) = self.discretizeCSpace(N)
+
+        # save the initial distance cells to be used by the wavefront planner
+        self.initDistanceCells = initDistanceCells
 
         # compute the distance to an obstacle from any cell using the brushfire
         # algorithm
         (self.distanceCells,
          self.maxManhattanDist) = \
-            self.brushFireDistanceComputation(self.distanceCells,
+            self.brushFireDistanceComputation(copy.deepcopy(initDistanceCells),
                                               self.polygonGridCells)
 
         print('Built CSpace with grid cells of size :',
@@ -72,11 +75,15 @@ class PointRobotCSpace(CSpace_2D):
     # @param      robotStartState  The robot's start state in cspace
     # @param      robotGoalState   The robot start state
     # @param      workspace        The robot's goal state in cspace
+    # @param      makeSquare       determines whether the CSpace will be made
+    #                              square when enlarged for planning. for the
+    #                              gradient descent planner, you must set this
+    #                              to be True
     #
     # @return     (minGridX, maxGridX, minGridY, maxGridY)
     #
     def determineSpatialBounds(self, robotStartState, robotGoalState,
-                               workspace):
+                               workspace, makeSquare):
 
         # once again, (0_0) python
         robStartX = copy.deepcopy(robotStartState[0])
@@ -115,18 +122,21 @@ class PointRobotCSpace(CSpace_2D):
                                        scale=scale,
                                        coordType='max')
 
-        length = abs(maxGridX - minGridX)
-        height = abs(maxGridY - minGridY)
+        # only renormalize the grid bounding box to be square if desired
+        if makeSquare:
 
-        if length > height:
-            nonSquareness = (length - height) / 2
-            maxGridY += nonSquareness
-            minGridY -= nonSquareness
+            length = abs(maxGridX - minGridX)
+            height = abs(maxGridY - minGridY)
 
-        elif length < height:
-            nonSquareness = (height - length) / 2
-            maxGridX += nonSquareness
-            minGridX -= nonSquareness
+            if length > height:
+                nonSquareness = (length - height) / 2
+                maxGridY += nonSquareness
+                minGridY -= nonSquareness
+
+            elif length < height:
+                nonSquareness = (height - length) / 2
+                maxGridX += nonSquareness
+                minGridX -= nonSquareness
 
         return (float(minGridX), float(maxGridX),
                 float(minGridY), float(maxGridY))
@@ -190,6 +200,10 @@ class PointRobotCSpaceBuilder(Builder):
     #
     # @param      robot            The PointRobotCSpace type string
     # @param      N                linear discretization density of CSpace
+    # @param      makeSquare       determines whether the CSpace will be made
+    #                              square when enlarged for planning. for the
+    #                              gradient descent planner, you must set this
+    #                              to be True
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
@@ -197,7 +211,7 @@ class PointRobotCSpaceBuilder(Builder):
     #
     # @return     instance of an initialized PointRobotCSpace object
     #
-    def __call__(self, robot, N, shouldSavePlots, baseSaveFName):
+    def __call__(self, robot, N, makeSquare, shouldSavePlots, baseSaveFName):
 
         robotHasChanged = (self.robot != robot)
         workspaceHasChanged = (self.workspace != robot.workspace)
@@ -208,7 +222,8 @@ class PointRobotCSpaceBuilder(Builder):
             self._instance = \
                 PointRobotCSpace(robot=robot,
                                  workspace=robot.workspace,
-                                 linearDiscretizationDensity=N,
+                                 N=N,
+                                 makeSquare=makeSquare,
                                  shouldSavePlots=shouldSavePlots,
                                  baseSaveFName=baseSaveFName)
 

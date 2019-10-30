@@ -18,6 +18,10 @@ goalState: [10, 10]
 # determines N such that CSpace is discretized into an NxN grid
 linearDiscretizationDensity: 50
 
+# determines whether the CSpace will be made square when enlarged for planning.
+# for the gradient descent planner, you must set this to be True
+makeSquareCSpace: True
+
 ##
 ## setup gradient descent params
 ##

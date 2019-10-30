@@ -157,7 +157,7 @@ class Simulation:
             configNames = ['WO_Rob_triangles', 'WO_Rob_triangles_no_rot']
 
         if simType == 'gradient':
-            configNames = ['env3']
+            configNames = ['env1', 'env2', 'env3']
 
         if simType == 'wavefront':
             configNames = ['env2', 'env3']

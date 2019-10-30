@@ -79,17 +79,21 @@ class GradientPlanner(Planner):
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
     #
-    # @param      U       the potential field over the discretized grid
-    # @param      points  The point the potential is evaluated at
+    # @param      plotTitle  The plot title string
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
-    def findPathToGoal(self, U, points):
+    def findPathToGoal(self, plotTitle):
+
+        U, points = self.calcPotentialField()
 
         print('Starting gradient descent planner using distance measure: ',
               self.distanceMeasurement)
 
-        return self.gradientDescent(U, points)
+        foundPath = self.gradientDescent(U, points)
+        self.plotPotentialField(U=U, plotTitle=plotTitle)
+
+        return foundPath
 
     ##
     # @brief      Gets the distance to the closest obstacle from a given state
@@ -338,7 +342,7 @@ class GradientPlanner(Planner):
     # @brief      plots the potential field overlaid on the cspace plot
     #
     # @param      U          the potential field 2d array
-    # @param      plotTitle  The plot title
+    # @param      plotTitle  The plot title string
     #
     def plotPotentialField(self, U, plotTitle):
 
@@ -351,7 +355,7 @@ class GradientPlanner(Planner):
         dy, dx = np.gradient(potField, self.cSpace.yGridSize,
                              self.cSpace.xGridSize)
 
-        N = self.cSpace.linearDiscretizationDensity
+        N = self.cSpace.N
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
