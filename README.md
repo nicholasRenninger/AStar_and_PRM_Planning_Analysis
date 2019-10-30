@@ -46,4 +46,52 @@ To change the scenarios for the manipulator simulation, simply modify one of the
 
 ## Results
 
-<!-- ![Alt](Figures/LDBA.PNG "Specification Buchi Automaton") -->
+### Manipulator with Wavefront Planner
+
+#### Environment 1
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-workspace.gif"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-wavefrontPlannerwavefront.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env1-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env1-workspace.png"/>
+
+#### Environment 2
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-workspace.gif"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-wavefrontPlannerwavefront.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env2-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env2-workspace.png"/>
+
+#### Environment 3
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-workspace.gif"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-wavefrontPlannerwavefront.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/a/manipulator_env3-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/manipulator_env3-workspace.png"/>
+
+
+### Point Robot with Gradient Descent Planner
+
+#### Environment 1
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env1-workspace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env1-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env1-gradientPlanner.png"/>
+
+#### Environment 2
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env2-workspace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env2-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env2-gradientPlanner.png"/>
+
+#### Environment 3
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env3-workspace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env3-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/gradient_env3-gradientPlanner.png"/>
+
+### Point Robot with Wavefront Planner
+
+#### Environment 2
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env2-workspace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env2-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env2-wavefront.png"/>
+
+#### Environment 3
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env3-workspace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env3-cSpace.png"/>
+<img src="https://github.com/nicholasRenninger/cSpaceViz_Gradient_Wavefront_planners/blob/master/figures/wavefront_env3-wavefront.png"/>
