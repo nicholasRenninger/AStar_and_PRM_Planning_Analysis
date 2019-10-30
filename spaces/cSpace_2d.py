@@ -479,8 +479,8 @@ class CSpace_2D(RobotSpace):
             # plotting the robot origin's path through cspace
             x = [state[0] for state in robotPath]
             y = [state[1] for state in robotPath]
-            plt.plot(x, y, color='red', linestyle='solid',
-                     linewidth=4, markersize=16,
+            plt.plot(x, y, color='red', marker='*', linestyle='none',
+                     linewidth=4, markersize=3,
                      label='Robot path')
 
         # plotting the start / end location of the robot
