@@ -1,4 +1,4 @@
-name: motionPlanning2
+name: motionPlanning3
 channels:
   - defaults
 dependencies:
@@ -10,5 +10,5 @@ dependencies:
   - geopandas
   - plotly
   - imageio
-prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning2
+prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning3
 
