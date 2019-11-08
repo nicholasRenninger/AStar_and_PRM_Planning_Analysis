@@ -36,7 +36,8 @@ class Builder:
     #
     # @return     configuration data dictionary for the simulation
     #
-    def loadConfigData(self, configFileName):
+    @staticmethod
+    def loadConfigData(configFileName):
 
         with open(configFileName, 'r') as stream:
             configData = yaml.load(stream, Loader=yaml.Loader)

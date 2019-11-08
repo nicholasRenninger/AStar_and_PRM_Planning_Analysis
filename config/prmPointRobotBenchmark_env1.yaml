@@ -44,23 +44,11 @@ minCSpaceBounds:
 # define a list of how many samples to use for each PRM run 
 numberOfSamplesToUse: 
   - 200
-  - 200
-  - 200
-  - 200
-  - 200
-  - 500
-  - 500
-  - 500
   - 500
 
 # define a list of radii in CSpace in which all samples must be connected by a
 # line for each PRM run
 sampleNeighborRadius:
-  - 2.0
-  - 0.5
-  - 1.0
-  - 1.5
-  - 2.0
   - 0.5
   - 1.0
   - 1.5
@@ -73,32 +61,11 @@ sampleNeighborRadius:
 
 # define how many times the PRM should be run with its given settings when doing
 # benchmarking and statistical performance analysis
-numTimesToRunWhenBenchmarking: 50
+numRunsOfPlannerPerSetting: 50
 
-# a list of the same size as numberOfSamplesToUse, determining whether or not
-# that particular PRM run's results should be plotted in CSpace
-shouldPlotPRMAndSolution:
-  - True
-  - False
-  - False
-  - False
-  - False
-  - False
-  - False
-  - False
-  - False
-
-# a list of the same size as numberOfSamplesToUse, determining whether or not
-# that particular PRM should be run with its parameters
-# numTimesToRunWhenBenchmarking and then have the run statistics reported and
-# plotted
-shouldPlotPRMAndSolution:
-  - False
-  - True
-  - True
-  - True
-  - True
-  - True
-  - True
-  - True
-  - True
+# define a list of planner paramters to vary parametrically while benchmarking.
+# Should correspond to names of planner variables (lists of paramters) in the
+# planner config section
+paramterNamesToVary:
+  - numberOfSamplesToUse
+  - sampleNeighborRadius

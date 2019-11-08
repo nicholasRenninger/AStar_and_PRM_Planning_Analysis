@@ -1,0 +1,67 @@
+# each list element is a list of tuples containing the coordinates of the
+# vertices of the polygonal obstacles in the workspace
+# 
+# these coords are in CCW order to make sure its a square yo
+WO:
+  - [[3, 2], [5, 2], [5, 0], [3, 0], [3, 2]]
+  - [[6, 0], [8, 0], [8, -2], [6, -2], [6, 0]]
+
+# coordinates of the robot start state in state space
+# [x, y]
+startState: [0, 0]
+
+# coordinates of the robot goal state in the workspace
+# [x, y]
+goalState: [10, 0]
+
+# determines N such that CSpace is discretized into an NxN grid
+# not really used for the PRM planner, so keep it very sparse for speed
+linearDiscretizationDensity: 3
+
+# determines whether the CSpace will be made square when enlarged for planning.
+# for the gradient descent planner, you must set this to be True
+makeSquareCSpace: False
+
+# if not making CSpace square, give it a list of minimum bounds in each cspace
+# coordinate direction
+minCSpaceBounds:
+  - -1.0
+  - -3.0
+
+# if not making CSpace square, give it a list of maximum bounds in each cspace
+# coordinate direction
+minCSpaceBounds:
+  - 11.0
+  - 3.0
+
+
+##
+## setup PRM planner params
+##
+
+# each of these lists must be the same size
+
+# define a list of max sample numbers to try when running the planner
+numberOfSamplesToUse: 
+  - 200
+
+# define a list of radii in CSpace in which all samples must be connected by a
+# line to try when running the planner
+sampleNeighborRadius:
+  - 2.0
+
+
+##
+## setup simulation benchmarking
+##
+
+# define how many times the PRM should be run with its given settings when doing
+# benchmarking and statistical performance analysis
+numRunsOfPlannerPerSetting: 50
+
+# define a list of planner paramters to vary parametrically while benchmarking.
+# Should correspond to names of planner variables (lists of paramters) in the
+# planner config section
+paramterNamesToVary:
+  - numberOfSamplesToUse
+  - sampleNeighborRadius

@@ -11,12 +11,14 @@ def main():
     # create an instance of the simulation class
     sim = Simulation(shouldSavePlots=True, basePlotDir='figures')
 
-    # simulation runner handles all of the class interfaces for each type of
-    # sim
-    sim.run(simType='graphSearchAStar')
-    sim.run(simType='graphSearchDijkstra')
-    sim.run(simType='prmPlannerViz')
-    sim.run(simType='prmPlannerBenchmark')
+    # simulation runner handles all class interfaces for each type of sim
+    # sim.run(simType='polygonalRobot')
+    # sim.run(simType='gradient')
+    # sim.run(simType='wavefront')
+    # sim.run(simType='manipulator')
+    sim.run(simType='graphSearch')
+    sim.run(simType='prmPointRobot')
+    sim.run(simType='prmPointRobotBenchmark')
 
 
 if __name__ == '__main__':

@@ -27,3 +27,4 @@ class PlannerCreator(ObjectFactory):
 availablePlanners = PlannerCreator()
 availablePlanners.register_builder('GRADIENT', GradientPlannerBuilder())
 availablePlanners.register_builder('WAVEFRONT', WavefrontPlannerBuilder())
+availablePlanners.register_builder('PRM', WavefrontPlannerBuilder())

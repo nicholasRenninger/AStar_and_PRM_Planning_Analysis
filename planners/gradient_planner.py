@@ -399,7 +399,7 @@ class GradientPlannerBuilder(Builder):
     # @param      plannerType      The planner type string
     # @param      cSpace           The configuration space of the robot
     # @param      workspace        The workspace object the robot operates in
-    # @param      robot            The Planner type string
+    # @param      robot            The Robot object to use
     # @param      configFileName   The configuration file name
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir

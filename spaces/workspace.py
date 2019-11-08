@@ -72,7 +72,7 @@ class Workspace(RobotSpace):
             self.maxXObst = max(maxx, self.maxXObst)
             self.minYObst = min(miny, self.minYObst)
             self.maxYObst = max(maxy, self.maxYObst)
-        print(obstacles)
+
         return (np.array(obstacles, dtype='float64'), polygonObstacles)
 
     ##
