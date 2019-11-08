@@ -13,10 +13,10 @@ def main():
 
     # simulation runner handles all of the class interfaces for each type of
     # sim
-    sim.run(simType='cspace')
-    sim.run(simType='gradient')
-    sim.run(simType='wavefront')
-    sim.run(simType='manipulator')
+    sim.run(simType='graphSearchAStar')
+    sim.run(simType='graphSearchDijkstra')
+    sim.run(simType='prmPlannerViz')
+    sim.run(simType='prmPlannerBenchmark')
 
 
 if __name__ == '__main__':
