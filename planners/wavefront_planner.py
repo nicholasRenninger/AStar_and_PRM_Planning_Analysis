@@ -3,6 +3,7 @@ import copy
 from collections import deque
 import matplotlib.pyplot as plt
 import numpy as np
+from timeit import default_timer as timer
 
 # local packages
 from planners.planner import Planner
@@ -10,9 +11,8 @@ from factory.builder import Builder
 
 
 ##
-# @brief      This class describes a Planner subclass used to find a path
-#             in two-dimensional configuration space using gradient descent
-#             algorithms
+# @brief      This class describes a Planner subclass used to find a path in
+#             two-dimensional configuration space using the wavefront algorithm
 #
 class WavefrontPlanner(Planner):
 
@@ -59,18 +59,19 @@ class WavefrontPlanner(Planner):
     #
     def findPathToGoal(self, startState, goalState, plotConfigData):
 
-        print('Starting wavefront planner')
-
+        start = timer()
         (distCells,
          foundPath) = self.computeWavefront(startState, goalState,
                                             self.distCells,
                                             self.cSpace.polygonGridCells)
+        finish = timer()
+        computationTime = finish - start
 
         # plot the resulting path over the wavefront computation
         plotConfigData['plotTitle'] += 'wavefront'
         self.plot(distCells, startState, goalState, plotConfigData)
 
-        return foundPath
+        return (computationTime, foundPath)
 
     ##
     # @brief      Implements the wavefront path finding algorithm
@@ -81,7 +82,8 @@ class WavefrontPlanner(Planner):
     # @param      polygonGridCells  The polygon grid cells
     #
     # @return     (each cell in distCells is labeled with its mimum manhattan
-    #             distance from an obstacle, maximum distance from an obstacle)
+    #             distance from an obstacle, boolean indicating whether or not
+    #             a path was found)
     #
     def computeWavefront(self, startState, goalState, distCells,
                          polygonGridCells):
@@ -119,6 +121,7 @@ class WavefrontPlanner(Planner):
                          (startCol == neighborCol))
 
             if foundPath:
+
                 foundPath = True
                 break
 
@@ -165,9 +168,12 @@ class WavefrontPlanner(Planner):
                 # check for goal, as goal has no previous coords
                 atGoal = currentCell[3] is None
                 if atGoal:
+
                     self.robot.updateRobotState(goalState)
                     break
+
                 else:
+
                     prevCellIndices = currentCell[3]
                     currentCell = allNeighbors[prevCellIndices]
 
@@ -261,6 +267,7 @@ class WavefrontPlannerBuilder(Builder):
     #             properties
     #
     def __init__(self):
+
         Builder.__init__(self)
         self.robot = None
         self.workspace = None

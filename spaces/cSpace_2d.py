@@ -450,7 +450,7 @@ class CSpace_2D(RobotSpace):
         plotTitle = plotConfigData['plotTitle']
         xlabel = plotConfigData['xlabel']
         ylabel = plotConfigData['ylabel']
-        shouldPlotGrid = plotConfigData['plotGrid']
+        shouldPlotCSpaceDiscretizationGrid = plotConfigData['plotGrid']
         shouldPlotObstacles = plotConfigData['plotObstacles']
 
         if not ax or not fig:
@@ -460,12 +460,14 @@ class CSpace_2D(RobotSpace):
         # plot grid lines BEHIND the data
         ax.set_axisbelow(True)
 
-        if shouldPlotGrid:
+        if shouldPlotCSpaceDiscretizationGrid:
             cBarLabel = 'manhattan distance from obstacle'
             distCells = self.distanceCells
             x, y = self.numericGridCells
             self.plotGrid(ax, fig, self.polygonGridCells, distCells,
                           x, y, cBarLabel, colormap='hot')
+        else:
+            plt.grid()
 
         # plotting all the obstacles
         if shouldPlotObstacles:

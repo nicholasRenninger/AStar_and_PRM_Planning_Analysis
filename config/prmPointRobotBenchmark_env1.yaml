@@ -42,13 +42,13 @@ minCSpaceBounds:
 # each of these lists must be the same size
 
 # define a list of how many samples to use for each PRM run 
-numberOfSamplesToUse: 
+n: 
   - 200
   - 500
 
 # define a list of radii in CSpace in which all samples must be connected by a
 # line for each PRM run
-sampleNeighborRadius:
+r:
   - 0.5
   - 1.0
   - 1.5
@@ -67,5 +67,5 @@ numRunsOfPlannerPerSetting: 50
 # Should correspond to names of planner variables (lists of paramters) in the
 # planner config section
 paramterNamesToVary:
-  - numberOfSamplesToUse
-  - sampleNeighborRadius
+  - n
+  - r

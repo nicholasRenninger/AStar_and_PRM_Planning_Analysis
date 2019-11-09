@@ -42,12 +42,12 @@ minCSpaceBounds:
 # each of these lists must be the same size
 
 # define a list of max sample numbers to try when running the planner
-numberOfSamplesToUse: 
+n: 
   - 200
 
 # define a list of radii in CSpace in which all samples must be connected by a
 # line to try when running the planner
-sampleNeighborRadius:
+r:
   - 2.0
 
 
@@ -63,5 +63,5 @@ numRunsOfPlannerPerSetting: 50
 # Should correspond to names of planner variables (lists of paramters) in the
 # planner config section
 paramterNamesToVary:
-  - numberOfSamplesToUse
-  - sampleNeighborRadius
+  - n
+  - r

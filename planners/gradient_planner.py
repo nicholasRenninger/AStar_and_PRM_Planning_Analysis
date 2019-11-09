@@ -4,6 +4,7 @@ from shapely.geometry import Point
 import copy
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
+from timeit import default_timer as timer
 
 # local packages
 from planners.planner import Planner
@@ -89,15 +90,15 @@ class GradientPlanner(Planner):
 
         U, points = self.calcPotentialField()
 
-        print('Starting gradient descent planner using distance measure: ',
-              self.distanceMeasurement)
-
+        start = timer()
         foundPath = self.gradientDescent(U, points)
+        finish = timer()
+        computationTime = finish - start
 
         plotConfigData['plotTitle'] += 'gradientPlanner'
         self.plotPotentialField(U=U, plotConfigData=plotConfigData)
 
-        return foundPath
+        return (computationTime, foundPath)
 
     ##
     # @brief      Gets the distance to the closest obstacle from a given state

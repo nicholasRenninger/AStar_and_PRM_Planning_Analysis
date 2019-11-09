@@ -2,6 +2,7 @@
 from factory.object_factory import ObjectFactory
 from planners.gradient_planner import GradientPlannerBuilder
 from planners.wavefront_planner import WavefrontPlannerBuilder
+from planners.prm_planner import PRMPlannerBuilder
 
 
 # registering the builders for the different types of Robot objects with a more
@@ -27,4 +28,4 @@ class PlannerCreator(ObjectFactory):
 availablePlanners = PlannerCreator()
 availablePlanners.register_builder('GRADIENT', GradientPlannerBuilder())
 availablePlanners.register_builder('WAVEFRONT', WavefrontPlannerBuilder())
-availablePlanners.register_builder('PRM', WavefrontPlannerBuilder())
+availablePlanners.register_builder('PRM', PRMPlannerBuilder())

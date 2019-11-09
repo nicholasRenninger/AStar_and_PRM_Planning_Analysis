@@ -1,6 +1,7 @@
 # 3rd-party packages
 import copy
 from shapely.geometry import Point
+from numpy.random import normal
 
 # local packages
 from robots.robot import Robot
@@ -126,49 +127,87 @@ class PointRobot(Robot):
     ##
     # @brief      Function for PointRobot instance to "run" itself
     #
-    #             Runs the planning algorithm, reports if it found a path, and
-    #             plots the solution
+    #             Runs the planning algorithm, reports if it found a path,
+    #             collects benchmarking info, and plots the solution if desired
     #
-    # @param      planner    The planner object containing the motion planning
-    #                        algorithm to be used on the robot
-    # @param      plotTitle  The plot title string
+    # @param      planner            The planner object containing the motion
+    #                                planning algorithm to be used on the robot
+    # @param      plotPlannerOutput  A flag to tell the run whether to run its
+    #                                plotting routines
+    # @param      plotTitle          The plot title string
+    # @param      shouldBenchmark    Flag to turn on / off benchmarking
+    #                                reporting
+    # @param      plannerConfigData  The planner configuration data
     #
-    # @return     runs robot, then plots results of running the robot
+    # @return     (a dictionary with the benchmarking performance and planner
+    #             settings used in this run, a boolean flag indicating whether
+    #             or not a path was found)
     #
-    def runAndPlot(self, planner, plotTitle):
+    def runAndPlot(self, planner, plotPlannerOutput, plotTitle,
+                   shouldBenchmark=False, plannerConfigData=None):
 
-        plotConfigData = {'plotTitle': plotTitle,
+        plotConfigData = {'shouldPlot': plotPlannerOutput,
+                          'plotTitle': plotTitle,
                           'xlabel': 'x',
                           'ylabel': 'y',
                           'plotObstacles': True,
                           'plotGrid': False}
-        foundPath = planner.findPathToGoal(startState=self.startCState,
-                                           goalState=self.goalCState,
-                                           plotConfigData=plotConfigData)
 
-        if foundPath:
-            print('Reached goal at:', self.stateHistory[-1])
-            print('Path length: ', self.distTraveled)
+        # don't print statuses when benchmarking as it floods the terminal
+        if not shouldBenchmark:
+            print('Starting ', planner.plannerType, ' planner ...')
+
+        (computationTime,
+         fp) = planner.findPathToGoal(startState=self.startCState,
+                                      goalState=self.goalCState,
+                                      plotConfigData=plotConfigData,
+                                      plannerConfigData=plannerConfigData)
+        foundPath = fp
+
+        # don't print statuses when benchmarking as it floods the terminal
+        if not shouldBenchmark:
+            if foundPath:
+                print('Reached goal at:', self.stateHistory[-1])
+                print('Path length: ', self.distTraveled)
+            else:
+                print('No valid path found with current planner:',
+                      planner.plannerType)
+
+        if shouldBenchmark:
+
+            # return this benchmarking info as a dictionary so it can be loaded
+            # as a pandas dataframe later
+            data = {'computationTime': computationTime,
+                    'pathLength': normal(loc=20, scale=5)}
+            bencmarkingInfo = {**data, **plannerConfigData}
+
         else:
-            print('No valid path found with current planner:', planner)
 
-        plotConfigData = {'plotTitle': plotTitle + 'workspace',
-                          'xlabel': 'x',
-                          'ylabel': 'y'}
-        self.workspace.plot(robot=self,
-                            startState=self.startState,
-                            goalState=self.goalState,
-                            plotConfigData=plotConfigData)
+            bencmarkingInfo = None
 
-        plotConfigData = {'plotTitle': plotTitle + 'cSpace',
-                          'xlabel': 'x',
-                          'ylabel': 'y',
-                          'plotObstacles': True,
-                          'plotGrid': True}
-        self.cSpace.plot(robot=self,
-                         startState=self.startState,
-                         goalState=self.goalState,
-                         plotConfigData=plotConfigData)
+        # allow the robot to run without plotting all of its spatial
+        # representations
+        if plotPlannerOutput:
+
+            plotConfigData = {'plotTitle': plotTitle + 'workspace',
+                              'xlabel': 'x',
+                              'ylabel': 'y'}
+            self.workspace.plot(robot=self,
+                                startState=self.startState,
+                                goalState=self.goalState,
+                                plotConfigData=plotConfigData)
+
+            plotConfigData = {'plotTitle': plotTitle + 'cSpace',
+                              'xlabel': 'x',
+                              'ylabel': 'y',
+                              'plotObstacles': True,
+                              'plotGrid': True}
+            self.cSpace.plot(robot=self,
+                             startState=self.startState,
+                             goalState=self.goalState,
+                             plotConfigData=plotConfigData)
+
+        return (bencmarkingInfo, foundPath)
 
 
 ##

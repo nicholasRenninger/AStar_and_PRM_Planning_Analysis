@@ -1,6 +1,8 @@
 # 3rd-party packages
 import os.path
 import itertools
+import pandas as pd
+import copy
 
 # local packages
 from spaces.factory import activeSpaces
@@ -76,7 +78,7 @@ class Simulation:
                 self.runGraphSearch(file, baseSaveFName)
 
             if (simType == 'prmPointRobot' or
-               simType == 'prmPointRobotBenchmark'):
+                    simType == 'prmPointRobotBenchmark'):
 
                 runBenchMarks = (simType == 'prmPointRobotBenchmark')
 
@@ -131,22 +133,20 @@ class Simulation:
                                                 shouldSavePlots=ssp,
                                                 baseSaveFName=baseSaveFName)
 
-        # if benchmarking, use the same workspace, cspace, and planner, just
-        # adjust settings in planner for each experiment
-        if plannerType and runPlannerBenchmarking:
+            # if benchmarking, use the same workspace, cspace, and planner,
+            # just adjust settings in planner for each experiment
+            if runPlannerBenchmarking:
 
-            self.runPlannerBenchmarking(planner=currPlanner,
-                                        cSpace=currRobot.cSpace,
-                                        workspace=currWorkspace,
-                                        robot=currRobot,
-                                        configFileName=configFileName,
-                                        baseSaveFName=baseSaveFName)
+                self.runPlannerBenchmarking(planner=currPlanner,
+                                            robot=currRobot,
+                                            configFileName=configFileName)
 
         # execute robot with whatever planner is given, even if planner is
         # still None
         if not runPlannerBenchmarking:
 
-            currRobot.runAndPlot(planner=currPlanner, plotTitle='')
+            currRobot.runAndPlot(planner=currPlanner, plotPlannerOutput=True,
+                                 plotTitle='', shouldBenchmark=False)
 
     ##
     # @brief      Generic function to run a robot in the same workspace many
@@ -155,16 +155,20 @@ class Simulation:
     #
     # @param      planner         The initialized planner object for the
     #                             simulation scenario
-    # @param      cSpace          The configuration space of the robot
-    # @param      workspace       The workspace object the robot operates in
     # @param      robot           The Robot object to use
     # @param      configFileName  The configuration file name
-    # @param      baseSaveFName   The base directory file name for output plot
     #
-    def runPlannerBenchmarking(self, planner, cSpace, workspace, robot,
-                               configFileName, baseSaveFName):
-
-        shouldSavePlots = self.shouldSavePlots
+    # @return     (pandas data frame with the computation time and path length
+    #             of each run for each paramteric experimental setting
+    #             specified in the configuration file (e.g.): computationTime
+    #             pathLength    n    r 0       1.702000e-06   23.814193  200
+    #             0.5 1       6.310000e-07   21.638431  200  0.5,
+    #
+    #             pandas data frame with the number of valid paths per
+    #             experimental paramter set and the number of times the planner
+    #             tried to find a path)
+    #
+    def runPlannerBenchmarking(self, planner, robot, configFileName):
 
         # need to load the config data here to extract simulation benchmarking
         # parameters
@@ -189,11 +193,50 @@ class Simulation:
         # experiment, we now need to run each of these settings combinations
         # numRunsOfPlannerPerSetting times, then average the statistics across
         # all runs
-        for i in range(0, numRunsOfPlannerPerSetting):
+        data = []
+        pathValidityData = []
+        for experiment in experiments:
 
-            for experiment in experiments:
+            print('benchmarking the ', planner.plannerType, ' planner ',
+                  numRunsOfPlannerPerSetting, ' times with:', experiment)
 
-                pass
+            # we would like to count how many times each experiment produces a
+            # valid path to the goal in cspace
+            numValidPaths = 0
+            runInfo = {}
+
+            for i in range(0, numRunsOfPlannerPerSetting):
+
+                (bencmarkingInfo,
+                 foundPath) = robot.runAndPlot(planner=planner,
+                                               plotPlannerOutput=False,
+                                               plotTitle='',
+                                               shouldBenchmark=True,
+                                               plannerConfigData=experiment)
+
+                # add the current experiment parameters to the dictionary for
+                # creating the data frame later
+                bencmarkingInfo.update(experiment)
+                data.append(bencmarkingInfo)
+
+                if foundPath:
+                    numValidPaths += 1
+
+            # add how many times a valid path was found to the benchmarking
+            # info so we can later analyze the efficacy of our experimental
+            # settings
+            runInfo['numValidPaths'] = copy.deepcopy(numValidPaths)
+            runInfo['numTimesRun'] = numRunsOfPlannerPerSetting
+            runInfo.update(copy.deepcopy(experiment))
+            pathValidityData.append(runInfo)
+
+        # easier to do stat analysis with a dataframe
+        benchMarkingDF = pd.DataFrame(data)
+        pathValidityDF = pd.DataFrame(pathValidityData)
+        print(benchMarkingDF)
+        print(pathValidityDF)
+
+        return (benchMarkingDF, pathValidityDF)
 
     ##
     # @brief      A function to interface with the graph class and demonstrate

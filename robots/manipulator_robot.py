@@ -356,7 +356,8 @@ class ManipulatorRobot(Robot):
             print('Reached goal at:', self.stateHistory[-1])
             print('Path length: ', self.distTraveled)
         else:
-            print('No valid path found with current planner:', planner)
+            print('No valid path found with current planner:',
+                  planner.plannerType)
 
         plotConfigData = {'plotTitle': plotTitle + 'workspace',
                           'xlabel': 'x',
