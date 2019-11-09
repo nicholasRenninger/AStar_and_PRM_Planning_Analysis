@@ -2,13 +2,15 @@ name: motionPlanning3
 channels:
   - defaults
 dependencies:
-  - matplotlib
-  - pyyaml
-  - python=3
-  - scipy
-  - shapely
-  - geopandas
-  - plotly
   - imageio
+  - plotly
+  - geopandas
+  - pyyaml
+  - scipy
+  - matplotlib
+  - python=3
+  - shapely
+  - seaborn
+  - networkx
 prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning3
 
