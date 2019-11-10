@@ -122,6 +122,7 @@ class PointRobot(Robot):
     # @return     plots the PointRobot's body's path on ax
     #
     def plotBodyInWorkspace(self, ax, fig):
+
         return None
 
     ##
@@ -166,6 +167,7 @@ class PointRobot(Robot):
 
         # don't print statuses when benchmarking as it floods the terminal
         if not shouldBenchmark:
+
             if foundPath:
                 print('Reached goal at:', self.stateHistory[-1])
                 print('Path length: ', self.distTraveled)

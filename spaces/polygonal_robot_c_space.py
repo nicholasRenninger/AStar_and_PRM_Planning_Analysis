@@ -12,6 +12,7 @@ import copy
 # local packages
 from factory.builder import Builder
 from spaces.robot_space import RobotSpace
+from util.plots import savePlot
 
 
 ##
@@ -302,14 +303,8 @@ class PolygonalRobotCSpace(RobotSpace):
         ax.set_ylim3d(2, 8)
         ax.set_zlim3d(0, 7)
 
-        if self.shouldSavePlots:
-            saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
-            fig = pl.gcf()
-            fig.canvas.manager.full_screen_toggle()
-            fig.show()
-            fig.set_size_inches((11, 8.5), forward=False)
-            pl.savefig(saveFName, dpi=500)
-            print('wrote figure to: ', saveFName)
+        savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
+                 baseSaveFName=self.baseSaveFName, plotTitle=plotTitle)
 
         return None
 

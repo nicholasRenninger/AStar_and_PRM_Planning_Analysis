@@ -1,5 +1,5 @@
 # local packages
-import os_calls
+import util.os_calls as os_calls
 from simulation import Simulation
 
 
@@ -16,8 +16,8 @@ def main():
     # sim.run(simType='gradient')
     # sim.run(simType='wavefront')
     # sim.run(simType='manipulator')
-    sim.run(simType='graphSearch')
-    sim.run(simType='prmPointRobot')
+    # sim.run(simType='graphSearch')
+    # sim.run(simType='prmPointRobot')
     sim.run(simType='prmPointRobotBenchmark')
 
 

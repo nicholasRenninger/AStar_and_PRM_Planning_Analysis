@@ -8,6 +8,7 @@ import math
 
 # local packages
 from spaces.robot_space import RobotSpace
+from util.plots import savePlot
 
 
 ##
@@ -504,13 +505,7 @@ class CSpace_2D(RobotSpace):
         ax.set_ylim(self.minGridY, self.maxGridY)
         fig.legend()
 
-        if self.shouldSavePlots:
-            saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
-            fig = plt.gcf()
-            fig.canvas.manager.full_screen_toggle()
-            fig.show()
-            fig.set_size_inches((11, 8.5), forward=False)
-            plt.savefig(saveFName, dpi=500)
-            print('wrote figure to: ', saveFName)
+        savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
+                 baseSaveFName=self.baseSaveFName, plotTitle=plotTitle)
 
         return ax

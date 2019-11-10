@@ -3,12 +3,15 @@ import os.path
 import itertools
 import pandas as pd
 import copy
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # local packages
 from spaces.factory import activeSpaces
 from robots.factory import activeRobots
 from planners.factory import availablePlanners
 from factory.builder import Builder
+from util.plots import savePlot
 
 
 ##
@@ -80,11 +83,11 @@ class Simulation:
             if (simType == 'prmPointRobot' or
                     simType == 'prmPointRobotBenchmark'):
 
-                runBenchMarks = (simType == 'prmPointRobotBenchmark')
+                doBench = (simType == 'prmPointRobotBenchmark')
 
                 self.runRobotWithPlanner(robotType='POINTROBOT',
                                          plannerType='PRM',
-                                         runPlannerBenchmarking=runBenchMarks,
+                                         runPlannerBenchmarking=doBench,
                                          configFileName=file,
                                          baseSaveFName=baseSaveFName)
 
@@ -107,15 +110,16 @@ class Simulation:
                             baseSaveFName):
 
         ssp = self.shouldSavePlots
+        confName = configFileName
 
         # the workspace doesn't change for this simulation
         currWorkspace = activeSpaces.get(robotSpaceType='WORKSPACE',
-                                         configFileName=configFileName,
+                                         configFileName=confName,
                                          shouldSavePlots=ssp,
                                          baseSaveFName=baseSaveFName)
 
         currRobot = activeRobots.get(robotType=robotType,
-                                     configFileName=configFileName,
+                                     configFileName=confName,
                                      workspace=currWorkspace,
                                      shouldSavePlots=ssp,
                                      baseSaveFName=baseSaveFName)
@@ -129,7 +133,7 @@ class Simulation:
                                                 cSpace=currRobot.cSpace,
                                                 workspace=currWorkspace,
                                                 robot=currRobot,
-                                                configFileName=configFileName,
+                                                configFileName=confName,
                                                 shouldSavePlots=ssp,
                                                 baseSaveFName=baseSaveFName)
 
@@ -137,9 +141,17 @@ class Simulation:
             # just adjust settings in planner for each experiment
             if runPlannerBenchmarking:
 
-                self.runPlannerBenchmarking(planner=currPlanner,
-                                            robot=currRobot,
-                                            configFileName=configFileName)
+                data = self.runPlannerBenchmarking(planner=currPlanner,
+                                                   robot=currRobot,
+                                                   configFileName=confName)
+
+                (benchMarkingDF, pathValidityDF, benchParams) = data
+                plotTitle = plannerType + '_stats'
+                self.plotStatistics(benchMarkingDF=benchMarkingDF,
+                                    pathValidityDF=pathValidityDF,
+                                    benchParams=benchParams,
+                                    baseSaveFName=baseSaveFName,
+                                    plotTitle=plotTitle)
 
         # execute robot with whatever planner is given, even if planner is
         # still None
@@ -160,13 +172,19 @@ class Simulation:
     #
     # @return     (pandas data frame with the computation time and path length
     #             of each run for each paramteric experimental setting
-    #             specified in the configuration file (e.g.): computationTime
-    #             pathLength    n    r 0       1.702000e-06   23.814193  200
-    #             0.5 1       6.310000e-07   21.638431  200  0.5,
+    #             specified in the configuration file (e.g.):
+    #                   computationTime pathLength    n    r
+    #                    1.702000e-06   23.814193     200  0.5
+    #                    6.310000e-07   21.638431     200  0.5
     #
     #             pandas data frame with the number of valid paths per
     #             experimental paramter set and the number of times the planner
-    #             tried to find a path)
+    #             tried to find a path:
+    #                   numValidPaths    n    r
+    #                               0  200  0.5
+    #                               0  200  1.0
+    #
+    #             list of strings of the parameters varied in benchmarking)
     #
     def runPlannerBenchmarking(self, planner, robot, configFileName):
 
@@ -207,7 +225,7 @@ class Simulation:
 
             for i in range(0, numRunsOfPlannerPerSetting):
 
-                (bencmarkingInfo,
+                (benchmarkingInfo,
                  foundPath) = robot.runAndPlot(planner=planner,
                                                plotPlannerOutput=False,
                                                plotTitle='',
@@ -216,8 +234,8 @@ class Simulation:
 
                 # add the current experiment parameters to the dictionary for
                 # creating the data frame later
-                bencmarkingInfo.update(experiment)
-                data.append(bencmarkingInfo)
+                benchmarkingInfo.update(experiment)
+                data.append(benchmarkingInfo)
 
                 if foundPath:
                     numValidPaths += 1
@@ -233,10 +251,79 @@ class Simulation:
         # easier to do stat analysis with a dataframe
         benchMarkingDF = pd.DataFrame(data)
         pathValidityDF = pd.DataFrame(pathValidityData)
-        print(benchMarkingDF)
-        print(pathValidityDF)
 
-        return (benchMarkingDF, pathValidityDF)
+        return (benchMarkingDF, pathValidityDF, parametersToVary)
+
+    ##
+    # @brief      Plots the statistics for the dataframes from the benchmark
+    #             and path validity (how often the probabilistic planner is
+    #             able to find a path)
+    #
+    # @param      benchMarkingDF  pandas data frame with the computation time
+    #                             and path length of each run for each
+    #                             paramteric experimental setting specified in
+    #                             the configuration file (e.g.):
+    #                             computationTime pathLength    n    r
+    #                             1.702000e-06   23.814193     200  0.5
+    #                             6.310000e-07   21.638431     200  0.5
+    #
+    # @param      pathValidityDF  pandas data frame with the number of valid
+    #                             paths per experimental paramter set and the
+    #                             number of times the planner tried to find a
+    #                             path
+    #                             numValidPaths    n    r
+    #                                         0  200  0.5
+    #                                         0  200  1.0
+    #
+    # @param      benchParams     list of strings of the parameters varied in
+    #                             benchmarking
+    # @param      baseSaveFName   The base directory file name for output plot
+    # @param      plotTitle       The plot title
+    #
+    def plotStatistics(self, benchMarkingDF, pathValidityDF, benchParams,
+                       baseSaveFName, plotTitle):
+
+        ##
+        # Plotting boxplots
+        ##
+        boxPlotsToMake = ['computationTime', 'pathLength']
+
+        # need to create a new, merged categorical data for boxplots
+        mergedParamsName = ', '.join(benchParams)
+        benchMarkingDF[mergedParamsName] = benchMarkingDF[benchParams].apply(
+            lambda x: ', '.join(x.astype(str)), axis=1)
+        pathValidityDF[mergedParamsName] = pathValidityDF[
+            benchParams].apply(lambda x: ', '.join(x.astype(str)), axis=1)
+
+        # Usual boxplot for each variable that was benchmarked
+        for plotVar in boxPlotsToMake:
+
+            fig = plt.figure()
+
+            plt.style.use("seaborn-darkgrid")
+            sns.boxplot(data=benchMarkingDF, x=mergedParamsName, y=plotVar)
+            sns.swarmplot(x=mergedParamsName, y=plotVar, data=benchMarkingDF,
+                          color="grey")
+
+            newPlotTitle = plotVar + '-' + plotTitle
+            plt.title('Benchmarking of ' + plotVar)
+            savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
+                     baseSaveFName=baseSaveFName, plotTitle=newPlotTitle)
+
+        ##
+        # Plotting bar graphs
+        ##
+
+        # number of times a valid path was found
+        fig = plt.figure()
+
+        plt.style.use('seaborn-darkgrid')
+        sns.barplot(x=mergedParamsName, y='numValidPaths', data=pathValidityDF)
+        plt.title('Number of Valid Paths Found for Each Parameter Combination')
+
+        newPlotTitle = 'numPaths' + '-' + plotTitle
+        savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
+                 baseSaveFName=baseSaveFName, plotTitle=newPlotTitle)
 
     ##
     # @brief      A function to interface with the graph class and demonstrate

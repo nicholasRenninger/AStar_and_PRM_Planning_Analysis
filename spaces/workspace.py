@@ -7,6 +7,7 @@ import imageio
 # local packages
 from spaces.robot_space import RobotSpace
 from factory.builder import Builder
+from util.plots import savePlot
 
 
 ##
@@ -157,20 +158,15 @@ class Workspace(RobotSpace):
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
-        if self.shouldSavePlots:
+        savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
+                 baseSaveFName=self.baseSaveFName, plotTitle=plotTitle)
 
-            saveFName = self.baseSaveFName + '-' + plotTitle + '.png'
-            fig = plt.gcf()
-            fig.canvas.manager.full_screen_toggle()
-            fig.show()
-            fig.set_size_inches((11, 8.5), forward=False)
-            plt.savefig(saveFName, dpi=500)
-            print('wrote figure to: ', saveFName)
+        # saving the animation data
+        if self.shouldSavePlots and (images is not None):
 
-            if images is not None:
-                gifSaveFName = self.baseSaveFName + '-' + plotTitle + '.gif'
-                imageio.mimsave(gifSaveFName, images, fps=20)
-                print('wrote figure to: ', gifSaveFName)
+            gifSaveFName = self.baseSaveFName + '-' + plotTitle + '.gif'
+            imageio.mimsave(gifSaveFName, images, fps=20)
+            print('wrote figure to: ', gifSaveFName)
 
         return ax
 
