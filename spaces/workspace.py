@@ -156,7 +156,7 @@ class Workspace(RobotSpace):
 
         ax.set_aspect('equal')
         plt.title(plotTitle)
-        fig.legend()
+        fig.legend(loc='upper left')
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 

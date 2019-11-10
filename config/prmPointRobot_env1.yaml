@@ -50,6 +50,10 @@ n:
 r:
   - 2.0
 
+# used to choose whether or not path smoothing should be varied between both
+# true and false, or if it should just be on (or just off)
+smoothing:
+  - False
 
 ##
 ## setup simulation benchmarking

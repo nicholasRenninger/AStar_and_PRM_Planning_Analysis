@@ -503,7 +503,7 @@ class CSpace_2D(RobotSpace):
         plt.ylabel(ylabel)
         ax.set_xlim(self.minGridX, self.maxGridX)
         ax.set_ylim(self.minGridY, self.maxGridY)
-        fig.legend()
+        fig.legend(loc='upper left')
 
         savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
                  baseSaveFName=self.baseSaveFName, plotTitle=plotTitle)

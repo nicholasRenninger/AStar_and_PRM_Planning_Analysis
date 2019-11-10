@@ -15,7 +15,7 @@ def main():
     # sim.run(simType='polygonalRobot')
     # sim.run(simType='gradient')
     # sim.run(simType='wavefront')
-    sim.run(simType='manipulator')
+    # sim.run(simType='manipulator')
     sim.run(simType='graphSearch')
     sim.run(simType='prmPointRobot')
     sim.run(simType='prmPointRobotBenchmark')

@@ -16,10 +16,7 @@ def savePlot(fig, shouldSavePlots, baseSaveFName, plotTitle):
     if shouldSavePlots:
 
         saveFName = baseSaveFName + '-' + plotTitle + '.png'
-        fig = plt.gcf()
-        fig.canvas.manager.full_screen_toggle()
-        fig.show()
-        fig.set_size_inches((11, 8.5), forward=False)
+        plt.tight_layout()
         plt.savefig(saveFName, dpi=500)
 
         print('wrote figure to: ', saveFName)

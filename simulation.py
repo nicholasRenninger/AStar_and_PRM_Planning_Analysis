@@ -219,7 +219,7 @@ class Simulation:
 
             # we would like to count how many times each experiment produces a
             # valid path to the goal in cspace
-            numValidPaths = 0
+            numValidPaths = 1
             runInfo = {}
 
             for i in range(0, numRunsOfPlannerPerSetting):
@@ -297,12 +297,17 @@ class Simulation:
         # Usual boxplot for each variable that was benchmarked
         for plotVar in boxPlotsToMake:
 
-            fig = plt.figure()
+            # make it wider for the insanse length of xticklabels
+            fig = plt.figure(figsize=(10, 5))
 
             plt.style.use("seaborn-darkgrid")
-            sns.boxplot(data=benchMarkingDF, x=mergedParamsName, y=plotVar)
+            bp = sns.boxplot(data=benchMarkingDF,
+                             x=mergedParamsName, y=plotVar)
             sns.swarmplot(x=mergedParamsName, y=plotVar, data=benchMarkingDF,
                           color="grey")
+
+            # for readability of axis labels
+            bp.set_xticklabels(bp.get_xticklabels(), rotation=45, ha='right')
 
             newPlotTitle = plotVar + '-' + plotTitle
             plt.title('Benchmarking of Sampled Planner ' + plotVar)
@@ -317,8 +322,12 @@ class Simulation:
         fig = plt.figure()
 
         plt.style.use('seaborn-darkgrid')
-        sns.barplot(x=mergedParamsName, y='numValidPaths', data=pathValidityDF)
+        bp = sns.barplot(x=mergedParamsName, y='numValidPaths',
+                         data=pathValidityDF)
         plt.title('Number of Valid Paths Found for Each Parameter Combination')
+
+        # for readability of axis labels
+        bp.set_xticklabels(bp.get_xticklabels(), rotation=45, ha='right')
 
         newPlotTitle = 'numPaths' + '-' + plotTitle
         savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
