@@ -350,6 +350,7 @@ class ManipulatorRobot(Robot):
                           'plotGrid': False}
         foundPath = planner.findPathToGoal(startState=self.startCState,
                                            goalState=self.goalCState,
+                                           plannerConfigData=None,
                                            plotConfigData=plotConfigData)
 
         if foundPath:

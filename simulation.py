@@ -157,8 +157,7 @@ class Simulation:
         # still None
         if not runPlannerBenchmarking:
 
-            currRobot.runAndPlot(planner=currPlanner, plotPlannerOutput=True,
-                                 plotTitle='', shouldBenchmark=False)
+            currRobot.runAndPlot(planner=currPlanner, plotTitle='')
 
     ##
     # @brief      Generic function to run a robot in the same workspace many
@@ -306,12 +305,12 @@ class Simulation:
                           color="grey")
 
             newPlotTitle = plotVar + '-' + plotTitle
-            plt.title('Benchmarking of ' + plotVar)
+            plt.title('Benchmarking of Sampled Planner ' + plotVar)
             savePlot(fig=fig, shouldSavePlots=self.shouldSavePlots,
                      baseSaveFName=baseSaveFName, plotTitle=newPlotTitle)
 
         ##
-        # Plotting bar graphs
+        # Plotting path validity bar graph
         ##
 
         # number of times a valid path was found

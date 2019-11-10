@@ -144,7 +144,7 @@ class PointRobot(Robot):
     #             settings used in this run, a boolean flag indicating whether
     #             or not a path was found)
     #
-    def runAndPlot(self, planner, plotPlannerOutput, plotTitle,
+    def runAndPlot(self, planner, plotTitle, plotPlannerOutput=True,
                    shouldBenchmark=False, plannerConfigData=None):
 
         plotConfigData = {'shouldPlot': plotPlannerOutput,

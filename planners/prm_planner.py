@@ -44,8 +44,8 @@ class PRMPlanner(Planner):
 
         # load in planner settings from the confg file
         self.n = configData['n']
-
         self.r = configData['r']
+        self.usePathSmoothing = configData['smoothing']
 
     ##
     # @brief      Computes a viable path in robot's cSpace to the goalState
@@ -53,34 +53,37 @@ class PRMPlanner(Planner):
     #
     # @param      startState         The start config state
     # @param      goalState          The goal config state
-    # @param      plotConfigData     The plot config dictionary
     # @param      plannerConfigData  A dictionary containing planner
     #                                configuration data, None if using internal
     #                                config data:
     #                                   - 'n': Fixed number of samples to try
     #                                   - 'r': the radius in cspace in which to
     #                                     try to connect samples together
+    # @param      plotConfigData     The plot config dictionary
     #
     # @return     a viable set of cSpace states from startState to goalState
     #             (the)
     #
-    def findPathToGoal(self, startState, goalState, plotConfigData,
-                       plannerConfigData):
+    def findPathToGoal(self, startState, goalState, plannerConfigData,
+                       plotConfigData):
 
         # allow the user to overide the settings in the config file
         if plannerConfigData:
 
             n = plannerConfigData['n']
             r = plannerConfigData['r']
+            usePathSmoothing = plannerConfigData['smoothing']
 
         else:
             n = self.n
             r = self.r
+            usePathSmoothing = self.usePathSmoothing
 
         start = timer()
         (graph,
          shortestPath,
-         foundPath) = self.computePRM(startState, goalState, n, r)
+         foundPath) = self.computePRM(startState, goalState, n, r,
+                                      usePathSmoothing)
         finish = timer()
         computationTime = finish - start
 
@@ -98,11 +101,12 @@ class PRMPlanner(Planner):
     ##
     # @brief      Implements the PRM path finding algorithm
     #
-    # @param      startState  The start config state
-    # @param      goalState   The goal config state
-    # @param      n           Fixed number of samples to try
-    # @param      r           the radius in cspace in which to try to connect
-    #                         samples together
+    # @param      startState        The start config state
+    # @param      goalState         The goal config state
+    # @param      n                 Fixed number of samples to try
+    # @param      r                 the radius in cspace in which to try to
+    #                               connect samples together
+    # @param      usePathSmoothing  Flag to enable / disable path smoothing
     #
     # @return     (the networkx graph object computed by the prm algortihm, the
     #             shortest path found by the search on the connected PRM,
@@ -110,7 +114,7 @@ class PRMPlanner(Planner):
     #             state updated according to the best path found by the
     #             planner)
     #
-    def computePRM(self, startState, goalState, n, r):
+    def computePRM(self, startState, goalState, n, r, usePathSmoothing):
 
         foundPath = False
         graph = None

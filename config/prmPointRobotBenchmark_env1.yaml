@@ -54,6 +54,12 @@ r:
   - 1.5
   - 2.0
 
+# used to choose whether or not path smoothing should be varied between both
+# true and false, or if it should just be on (or just off)
+smoothing:
+  - True
+  - False
+
 
 ##
 ## setup simulation benchmarking
@@ -69,3 +75,4 @@ numRunsOfPlannerPerSetting: 50
 paramterNamesToVary:
   - n
   - r
+  - smoothing

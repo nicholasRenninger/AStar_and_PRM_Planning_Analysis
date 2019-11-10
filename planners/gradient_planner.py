@@ -80,13 +80,17 @@ class GradientPlanner(Planner):
     # @brief      Computes a viable path in robot's cSpace to the goalState
     #             from the robot's startState
     #
-    # @param      startState  The start config state
-    # @param      goalState   The goal config state
-    # @param      plotTitle   The plot title string
+    # @param      startState         The start config state
+    # @param      goalState          The goal config state
+    # @param      plannerConfigData  A dictionary containing planner
+    #                                configuration data, None if using internal
+    #                                config data
+    # @param      plotConfigData     The plot configuration data
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
-    def findPathToGoal(self, startState, goalState, plotConfigData):
+    def findPathToGoal(self, startState, goalState, plannerConfigData,
+                       plotConfigData):
 
         U, points = self.calcPotentialField()
 
