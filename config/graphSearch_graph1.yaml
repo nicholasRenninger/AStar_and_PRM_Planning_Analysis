@@ -42,7 +42,7 @@ nodes:
     heuristicDist: 1.0
     prevNode: null
     dist: .inf
-    pos: [-2.0, 7.0]
+    pos: [-2.0, 5.0]
 
   'F':
     heuristicDist: 3.0
@@ -78,7 +78,7 @@ nodes:
     heuristicDist: 2.0
     prevNode: null
     dist: .inf
-    pos: [2.0, 7.0]
+    pos: [2.0, 5.0]
 
   'L':
     heuristicDist: 3.0

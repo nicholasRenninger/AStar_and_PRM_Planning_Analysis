@@ -46,6 +46,9 @@ class Graph(nx.DiGraph):
         pathLength = None
         numIter = 0
 
+        path = nx.shortest_path(self, source=start, target=goal)
+        pathLength = nx.shortest_path_length(self, source=start, target=goal)
+
         return (path, pathLength, numIter)
 
     ##
@@ -55,13 +58,33 @@ class Graph(nx.DiGraph):
     # @param      path       A list of lists of Nodes defining each path
     # @param      fig        The mpl figure handle to plot the graph on
     # @param      plotTitle  The plot title string
+    # @param      baseSize   The base size of each node, gets scaled by the
+    #                        length of each node
     #
     # @return     figure handles to the graph
     #
-    def plot(self, path=None, fig=None, plotTitle='MyLittlePony'):
+    def plot(self, path=None, fig=None, plotTitle='MyLittlePony',
+             baseSize=400):
 
         if not fig:
             fig = plt.figure()
+
+        # scale node sizes by string length
+        node_size = [len(v) * baseSize for v in self.nodes()]
+        pos = nx.get_node_attributes(self, 'pos')
+        nx.draw(self, pos=pos,
+                with_labels=True, node_size=node_size)
+
+        # show edge weights as well
+        labels = nx.get_edge_attributes(self, 'weight')
+        nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
+
+        # draw path in red
+        path_edges = [(v1, v2) for v1, v2 in zip(path, path[1:])]
+
+        nx.draw_networkx_nodes(self, pos, nodelist=path, node_color='r')
+        nx.draw_networkx_edges(self, pos, edgelist=path_edges, edge_color='r',
+                               width=4)
 
         return fig
 

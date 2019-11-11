@@ -362,7 +362,7 @@ class Simulation:
                             destEdgeData in destEdgesData]
                 edgeList.extend(newEdges)
 
-        myLittleGraph = Graph(nodes, edges=edgeList)
+        myLittleGraph = Graph(nodes.items(), edges=edgeList)
         myLittleGraph.dispEdges()
 
         # make a generic solution info printing function
@@ -378,14 +378,17 @@ class Simulation:
         def plotPath(method, graph, path, pathLength, shouldSavePlots,
                      baseSaveFName):
             if path:
-                plotTitle = 'Shortest Path (length = ' + pathLength + \
+                plotTitle = 'Shortest Path (length = ' + str(pathLength) + \
                             ') Found with ' + method
             else:
                 plotTitle = 'No Path Found with ' + method
 
             fig = graph.plot(path, plotTitle)
+
+            # tight plot layout messes up the graph
             savePlot(fig=fig, shouldSavePlots=shouldSavePlots,
-                     baseSaveFName=baseSaveFName, plotTitle=plotTitle)
+                     baseSaveFName=baseSaveFName, plotTitle=plotTitle,
+                     useTightLayout=False)
 
         # now run and compare the performance statistics of A* to plain
         # Dijkstra's

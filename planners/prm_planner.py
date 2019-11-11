@@ -141,18 +141,7 @@ class PRMPlanner(Planner):
         ax = fig.add_subplot(111)
 
         # plot the graph and its shortest path
-        G = nx.karate_club_graph()
-        pos = nx.spring_layout(G)
-        nx.draw(G, pos, node_color='k')
-
-        # draw path in red
-        path = nx.shortest_path(G, source=14, target=16)
-        path_edges = [(v1, v2) for v1, v2 in zip(path, path[1:])]
-
-        nx.draw_networkx_nodes(G, pos, nodelist=path, node_color='r')
-        nx.draw_networkx_edges(G, pos,
-                               edgelist=path_edges, edge_color='r',
-                               width=4)
+        graph.plot(path=shortestPath, fig=fig)
 
         self.cSpace.plot(robot=self.robot,
                          startState=startState,
