@@ -1,0 +1,140 @@
+# define the node to start the search from
+startNodeLabel: 'ALPHA'
+
+# define the node to find the shortest path to
+goalNodeLabel: 'OMEGA'
+
+# define a list of node labels, where each label is a string identifier label
+# for a unique node, and the metadata properties for each node
+nodes:
+
+  'ALPHA':
+    heuristicDist: 0.0
+    prevNode: null
+    dist: .inf
+    pos: [0, 10.0]
+
+  'A':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [-1.0, 9.0]
+
+  'B':
+    heuristicDist: 2.0
+    prevNode: null
+    dist: .inf
+    pos: [0, 8.0]
+
+  'C':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [1.0, 9.0]
+
+  'D':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [-2.0, 9.0]
+
+  'E':
+    heuristicDist: 1.0
+    prevNode: null
+    dist: .inf
+    pos: [-2.0, 7.0]
+
+  'F':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [-1.0, 7.0]
+
+  'G':
+    heuristicDist: 2.0
+    prevNode: null
+    dist: .inf
+    pos: [-1.0, 5.0]
+
+  'H':
+    heuristicDist: 1.0
+    prevNode: null
+    dist: .inf
+    pos: [0.0, 5.0]
+
+  'I':
+    heuristicDist: 2.0
+    prevNode: null
+    dist: .inf
+    pos: [1.0, 5.0]
+
+  'J':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [1.0, 7.0]
+
+  'K':
+    heuristicDist: 2.0
+    prevNode: null
+    dist: .inf
+    pos: [2.0, 7.0]
+
+  'L':
+    heuristicDist: 3.0
+    prevNode: null
+    dist: .inf
+    pos: [2.0, 9.0]
+
+  'OMEGA':
+    heuristicDist: .nan
+    prevNode: null
+    dist: .inf
+    pos: [0.0, 3.0]
+
+# define the edges of the graph
+edges:
+
+  'ALPHA':
+    - ['A', weight: 1.0]
+    - ['B', weight: 1.0]
+    - ['C', weight: 1.0]
+
+  'A':
+    - ['D', weight: 1.0]
+    - ['E', weight: 1.0]
+    - ['F', weight: 3.0]
+
+  'B':
+    - ['G', weight: 4.0]
+    - ['H', weight: 1.0]
+    - ['I', weight: 2.0]
+
+  'C':
+    - ['J', weight: 1.0]
+    - ['K', weight: 1.0]
+    - ['L', weight: 1.0]
+
+  'D':
+
+  'E':
+    - ['OMEGA', weight: 3.0]
+  
+  'F':
+
+  'G':
+    - ['OMEGA', weight: 3.0]
+
+  'H':
+
+  'I':
+    - ['OMEGA', weight: 3.0]
+
+  'J':
+  
+  'K':
+    - ['OMEGA', weight: 2.0]
+
+  'L':
+
+  'OMEGA':

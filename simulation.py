@@ -12,6 +12,7 @@ from robots.factory import activeRobots
 from planners.factory import availablePlanners
 from factory.builder import Builder
 from util.plots import savePlot
+from spaces.graph import Graph
 
 
 ##
@@ -344,7 +345,79 @@ class Simulation:
     #
     def runGraphSearch(self, configFileName, baseSaveFName):
 
-        pass
+        # need to load the config data here to extract simulation benchmarking
+        # parameters
+        configData = Builder.loadConfigData(configFileName)
+        nodes = configData['nodes']
+        adjList = configData['edges']
+        startNode = configData['startNodeLabel']
+        goalNode = configData['goalNodeLabel']
+
+        # need to convert the configuration adjacency list given in the config
+        # to an edge list given as a 3-tuple of (source, dest, edgeAttrDict)
+        edgeList = []
+        for sourceEdge, destEdgesData in adjList.items():
+            if destEdgesData:
+                newEdges = [(sourceEdge, destEdgeData[0], destEdgeData[1]) for
+                            destEdgeData in destEdgesData]
+                edgeList.extend(newEdges)
+
+        myLittleGraph = Graph(nodes, edges=edgeList)
+        myLittleGraph.dispEdges()
+
+        # make a generic solution info printing function
+        def printShit(method, pathLength, numIter):
+            print('|--------  ', method, '  -------|')
+            if pathLength:
+                print('Path Length:', pathLength)
+            else:
+                print('No path exists')
+            print('Number of Dequeues to Find Path:', numIter)
+
+        # define a generic path printing function
+        def plotPath(method, graph, path, pathLength, shouldSavePlots,
+                     baseSaveFName):
+            if path:
+                plotTitle = 'Shortest Path (length = ' + pathLength + \
+                            ') Found with ' + method
+            else:
+                plotTitle = 'No Path Found with ' + method
+
+            fig = graph.plot(path, plotTitle)
+            savePlot(fig=fig, shouldSavePlots=shouldSavePlots,
+                     baseSaveFName=baseSaveFName, plotTitle=plotTitle)
+
+        # now run and compare the performance statistics of A* to plain
+        # Dijkstra's
+        path = {}
+        pathLength = {}
+        numIter = {}
+
+        ##
+        # A* Baby
+        ##
+        method = 'A*'
+        (path[method],
+         pathLength[method],
+         numIter[method]) = myLittleGraph.findPathToGoal(start=startNode,
+                                                         goal=goalNode,
+                                                         method=method)
+        printShit(method, pathLength[method], numIter[method])
+        plotPath(method, myLittleGraph, path[method], pathLength[method],
+                 self.shouldSavePlots, baseSaveFName)
+
+        ##
+        # Dijkstra :'(
+        ##
+        method = 'Dijkstra'
+        (path[method],
+         pathLength[method],
+         numIter[method]) = myLittleGraph.findPathToGoal(start=startNode,
+                                                         goal=goalNode,
+                                                         method=method)
+        printShit(method, pathLength[method], numIter[method])
+        plotPath(method, myLittleGraph, path[method], pathLength[method],
+                 self.shouldSavePlots, baseSaveFName)
 
     ##
     # @brief      Gets the configuration file paths for the  given sim type
@@ -368,7 +441,7 @@ class Simulation:
             configNames = ['env1', 'env2', 'env3']
 
         elif simType == 'graphSearch':
-            configNames = ['']
+            configNames = ['graph1']
 
         elif simType == 'prmPointRobot':
             configNames = ['env1']
