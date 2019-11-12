@@ -1,6 +1,5 @@
 # 3rd-party packages
 import matplotlib.pyplot as plt
-import networkx as nx
 from timeit import default_timer as timer
 
 # local packages
@@ -141,7 +140,7 @@ class PRMPlanner(Planner):
         ax = fig.add_subplot(111)
 
         # plot the graph and its shortest path
-        graph.plot(path=shortestPath, fig=fig)
+        # graph.plot(path=shortestPath, fig=fig)
 
         self.cSpace.plot(robot=self.robot,
                          startState=startState,

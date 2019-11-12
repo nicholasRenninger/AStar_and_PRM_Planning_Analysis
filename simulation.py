@@ -375,19 +375,23 @@ class Simulation:
             print('Number of Dequeues to Find Path:', numIter)
 
         # define a generic path printing function
-        def plotPath(method, graph, path, pathLength, shouldSavePlots,
+        def plotPath(method, graph, path, pathLength, nIter, shouldSavePlots,
                      baseSaveFName):
             if path:
                 plotTitle = 'Shortest Path (length = ' + str(pathLength) + \
-                            ') Found with ' + method
+                            ') Found with ' + method + ' - nIter: ' + \
+                            str(nIter)
             else:
-                plotTitle = 'No Path Found with ' + method
+                plotTitle = 'No Path Found with ' + method + ' - nIter: ' + \
+                            str(nIter)
 
-            fig = graph.plot(path, plotTitle)
+            fig = graph.plot(path, plotTitle=plotTitle)
 
             # tight plot layout messes up the graph
+            saveTitle = method + '_' + 'pathLength' + str(pathLength) + '_' + \
+                'nIter' + str(nIter)
             savePlot(fig=fig, shouldSavePlots=shouldSavePlots,
-                     baseSaveFName=baseSaveFName, plotTitle=plotTitle,
+                     baseSaveFName=baseSaveFName, plotTitle=saveTitle,
                      useTightLayout=False)
 
         # now run and compare the performance statistics of A* to plain
@@ -399,7 +403,7 @@ class Simulation:
         ##
         # A* Baby
         ##
-        method = 'A*'
+        method = 'A star'
         (path[method],
          pathLength[method],
          numIter[method]) = myLittleGraph.findPathToGoal(start=startNode,
@@ -407,7 +411,7 @@ class Simulation:
                                                          method=method)
         printShit(method, pathLength[method], numIter[method])
         plotPath(method, myLittleGraph, path[method], pathLength[method],
-                 self.shouldSavePlots, baseSaveFName)
+                 numIter[method], self.shouldSavePlots, baseSaveFName)
 
         ##
         # Dijkstra :'(
@@ -420,7 +424,7 @@ class Simulation:
                                                          method=method)
         printShit(method, pathLength[method], numIter[method])
         plotPath(method, myLittleGraph, path[method], pathLength[method],
-                 self.shouldSavePlots, baseSaveFName)
+                 numIter[method], self.shouldSavePlots, baseSaveFName)
 
     ##
     # @brief      Gets the configuration file paths for the  given sim type

@@ -1,15 +1,15 @@
-# 3rd-party packages
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import numpy as np
-from shapely.geometry import Polygon
-import imageio
-
 # local packages
 from spaces.robot_space import RobotSpace
 from factory.builder import Builder
 from util.plots import savePlot
+
+# 3rd-party packages
+import numpy as np
+from shapely.geometry import Polygon
+import imageio
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 
 ##
