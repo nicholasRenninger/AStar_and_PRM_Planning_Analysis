@@ -5,6 +5,7 @@ import pandas as pd
 import copy
 import matplotlib.pyplot as plt
 import seaborn as sns
+from timeit import default_timer as timer
 
 # local packages
 from spaces.factory import activeSpaces
@@ -110,6 +111,7 @@ class Simulation:
                             runPlannerBenchmarking, configFileName,
                             baseSaveFName):
 
+        start = timer()
         ssp = self.shouldSavePlots
         confName = configFileName
 
@@ -159,6 +161,10 @@ class Simulation:
         if not runPlannerBenchmarking:
 
             currRobot.runAndPlot(planner=currPlanner, plotTitle='')
+
+        finish = timer()
+        computationTime = finish - start
+        print('Took', computationTime, 'seconds to complete simulation')
 
     ##
     # @brief      Generic function to run a robot in the same workspace many
@@ -286,7 +292,7 @@ class Simulation:
         ##
         # Plotting boxplots
         ##
-        boxPlotsToMake = ['computationTime', 'pathLength']
+        boxPlotsToMake = ['computationTimeInSeconds', 'pathLength']
 
         # need to create a new, merged categorical data for boxplots
         mergedParamsName = ', '.join(benchParams)
