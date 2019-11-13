@@ -229,8 +229,11 @@ class Graph(nx.Graph):
     ##
     # @brief      Determines whether the search should halt
     #
-    # @param      currNode     The curr node label
-    # @param      goal         The goal node label
+    # @param      currNode  The current node label
+    # @param      goal      The goal node label
+    # @param      method    The method string:
+    #                       - 'A star'
+    #                       - 'Dijkstra'
     #
     # @return     boolean as to whether the search should stop
     #
@@ -304,10 +307,12 @@ class Graph(nx.Graph):
     # @param      plotTitle        The plot title string
     # @param      baseSize         The base size of each node, gets scaled by
     #                              the length of each node
+    # @param      node_size        The node size
     # @param      showLabels       flag to show node labels
     # @param      showEdgeWeights  flag to show edge weights
+    # @param      showAxes         flag to turn on / off the axes
     #
-    # @return     figure handles to the graph
+    # @return     (figure handles to the graph, axes handle to the graph)
     #
     def plot(self, path=None, fig=None, plotTitle=None,
              baseSize=400, node_size=10, showLabels=True,
@@ -430,8 +435,8 @@ class Graph(nx.Graph):
 ##
 # @brief      Implements a priority queue that maintains unique elements
 #
-# Implemented according to official heapq documentation:
-# https://stackoverflow.com/questions/5997189/how-can-i-make-a-unique-value-priority-queue-in-python
+#             Implemented according to official heapq documentation:
+#             https://stackoverflow.com/questions/5997189/how-can-i-make-a-unique-value-priority-queue-in-python
 #
 # - https://github.com/python/cpython/blob/2.7/Lib/Queue.py
 # - https://docs.python.org/3/library/heapq.html
@@ -439,12 +444,21 @@ class Graph(nx.Graph):
 class UniquePriorityQueue(queue.Queue):
 
     def _init(self, maxsize):
+        """!
+        @brief      Initializes the given maxsize.
+        @param      maxsize  The maxsize
+        """
 
         self.queue = []
         self.REMOVED = '<removed-task>'
         self.entry_finder = {}
 
     def _put(self, item, heappush=heapq.heappush):
+        """!
+        @brief      adds the tuple of priority and item to the queue
+        @param      item      The item
+        @param      heappush  The heappush
+        """
 
         item = list(item)
         priority, task = item
@@ -457,14 +471,17 @@ class UniquePriorityQueue(queue.Queue):
             heappush(self.queue, item)
 
     def _qsize(self, len=len):
+
         return len(self.entry_finder)
 
     def is_empty(self):
-        """Determines if the priority queue has any elements.
-        Performs removal of any elements that were "marked-as-invalid".
+        """!
+        Determines if the priority queue has any elements. Performs removal of
+        any elements that were "marked-as-invalid".
 
         :returns: true iff the priority queue has no elements.
 
+        @return     True if empty, False otherwise.
         """
         while self.pq:
             if self.queue[0][1] != self.REMOVED:
@@ -478,6 +495,10 @@ class UniquePriorityQueue(queue.Queue):
     def _get(self, heappop=heapq.heappop):
         """
         The base makes sure this shouldn't be called if `_qsize` is 0.
+
+        @param      heappop  The heappop
+
+        @return     the lowest priority item
         """
         while self.queue:
 

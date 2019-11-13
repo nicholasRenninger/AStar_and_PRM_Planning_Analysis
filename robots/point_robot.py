@@ -1,7 +1,6 @@
 # 3rd-party packages
 import copy
 from shapely.geometry import Point, LineString
-from numpy.random import normal
 
 # local packages
 from robots.robot import Robot
@@ -19,10 +18,9 @@ class PointRobot(Robot):
     # @brief      PointRobot class constructor
     #
     # @param      robotType        The PointRobot type string
-    # @param      configData       Configuration dictionary for the
-    #                              PointRobot
-    # @param      workspace        The Workspace object the PointRobot
-    #                              operates in
+    # @param      configData       Configuration dictionary for the PointRobot
+    # @param      workspace        The Workspace object the PointRobot operates
+    #                              in
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot
@@ -65,8 +63,8 @@ class PointRobot(Robot):
     #             workspace obstacles
     #
     # @param      shapelyObject  The shapely object to check for collision
-    # @param      gridIndices    The grid indices of the shapely object
-    #                            (not used here)
+    # @param      gridIndices    The grid indices of the shapely object (not
+    #                            used here)
     #
     # @return     True if the shapely object collides with any obstacle, False
     #             otherwise
@@ -154,9 +152,9 @@ class PointRobot(Robot):
     #
     # @param      planner            The planner object containing the motion
     #                                planning algorithm to be used on the robot
+    # @param      plotTitle          The plot title string
     # @param      plotPlannerOutput  A flag to tell the run whether to run its
     #                                plotting routines
-    # @param      plotTitle          The plot title string
     # @param      shouldBenchmark    Flag to turn on / off benchmarking
     #                                reporting
     # @param      plannerConfigData  The planner configuration data
@@ -183,7 +181,8 @@ class PointRobot(Robot):
          fp) = planner.findPathToGoal(startState=self.startCState,
                                       goalState=self.goalCState,
                                       plotConfigData=plotConfigData,
-                                      plannerConfigData=plannerConfigData)
+                                      plannerConfigData=plannerConfigData,
+                                      shouldBenchmark=shouldBenchmark)
         foundPath = fp
 
         # don't print statuses when benchmarking as it floods the terminal
@@ -200,8 +199,8 @@ class PointRobot(Robot):
 
             # return this benchmarking info as a dictionary so it can be loaded
             # as a pandas dataframe later
-            data = {'computationTime': computationTime,
-                    'pathLength': normal(loc=20, scale=5)}
+            data = {'computationTimeInSeconds': computationTime,
+                    'pathLength': self.distTraveled}
             bencmarkingInfo = {**data, **plannerConfigData}
 
         else:
@@ -239,7 +238,8 @@ class PointRobot(Robot):
 class PointRobotBuilder(Builder):
 
     ##
-    # @brief need to call the super class constructor to gain its properties
+    # @brief      need to call the super class constructor to gain its
+    #             properties
     #
     def __init__(self):
         Builder.__init__(self)
@@ -252,8 +252,8 @@ class PointRobotBuilder(Builder):
     #
     # @param      robotType        The PointRobot type string
     # @param      configFileName   The configuration file name
-    # @param      workspace        The Workspace object the PointRobot
-    #                              operates in
+    # @param      workspace        The Workspace object the PointRobot operates
+    #                              in
     # @param      shouldSavePlots  Boolean controlling whether or not the plt
     #                              objs can be saved to the baseSaveName dir
     # @param      baseSaveFName    The base directory file name for output plot

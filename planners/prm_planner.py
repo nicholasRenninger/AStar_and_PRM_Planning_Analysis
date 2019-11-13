@@ -68,12 +68,15 @@ class PRMPlanner(Planner):
     #                                   - 'r': the radius in cspace in which to
     #                                     try to connect samples together
     # @param      plotConfigData     The plot config dictionary
+    # @param      shouldBenchmark    Flag to turn on / off benchmarking
+    #                                reporting
     #
     # @return     a viable set of cSpace states from startState to goalState
-    #             (the)
+    #             (the computation time [s], bool whether or not a path was
+    #             found)
     #
     def findPathToGoal(self, startState, goalState, plannerConfigData,
-                       plotConfigData):
+                       plotConfigData, shouldBenchmark):
 
         # allow the user to overide the settings in the config file
         if plannerConfigData:
@@ -143,7 +146,6 @@ class PRMPlanner(Planner):
         # now connect all of the samples within radius r of each other
         graph = self.connectAllNodesInRadius(graph, kdTree, r)
 
-        print('starting search')
         (shortestPath,
          pathLength, _) = graph.findPathToGoal(startNodeLabel,
                                                goalNodeLabel,
@@ -152,7 +154,7 @@ class PRMPlanner(Planner):
 
         # only start smoothing if desired
         if foundPath and usePathSmoothing:
-            print('smoothing path')
+
             (shortestPath,
              pathLength) = self.smoothPathInGraph(graph, shortestPath,
                                                   goalNodeLabel, pathLength)
@@ -187,11 +189,12 @@ class PRMPlanner(Planner):
 
         return samples
 
-    #
+    ##
     # @brief      Gets a sample in Cspace that has no collision on the line
     #             between start and the new sampled node
     #
     # @param      startNodePos  The start node's position
+    # @param      endNodePos    The end node's position
     # @param      lowerBounds   A length m list of lower bounds in each of the
     #                           m coordinate directions
     # @param      upperBounds   A length m list of upper bounds in each of the
@@ -241,9 +244,9 @@ class PRMPlanner(Planner):
     # @param      goalState   The goal state position
     # @param      n           number of samples
     #
-    # @return     (graph with all start, goal, and sampled nodes added,
-    #              the graph label of the startState,
-    #              the graph label of the goalState)
+    # @return     (graph with all start, goal, and sampled nodes added, the
+    #             graph label of the startState, the graph label of the
+    #             goalState)
     #
     def addAllNodesToGraph(self, graph, samples, startState, goalState, n):
 
@@ -462,14 +465,13 @@ class PRMPlanner(Planner):
 
         return distance
 
-    #
+    ##
     # @brief      Take a random sample without replacement of the indices, sort
     #             the indices, and take them from the original.
     #
-    # Optimized O(N)-time, O(1)-auxiliary-space
+    #             Optimized O(N)-time, O(1)-auxiliary-space
     #
-    # shamelessly from
-    # https://stackoverflow.com/a/6482925
+    #             shamelessly from https://stackoverflow.com/a/6482925
     #
     # @param      seq         The iterable object to sample from
     # @param      sampleSize  The number of samples to return

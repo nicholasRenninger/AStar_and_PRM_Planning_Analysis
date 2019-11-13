@@ -454,7 +454,7 @@ class Simulation:
             configNames = ['env1', 'env2', 'env3']
 
         elif simType == 'prmPointRobotBenchmark':
-            configNames = ['env1']
+            configNames = ['env1', 'env2', 'env3']
 
         else:
             raise ValueError(simType)

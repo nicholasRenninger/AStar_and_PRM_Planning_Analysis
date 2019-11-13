@@ -16,9 +16,9 @@ def main():
     # sim.run(simType='gradient')
     # sim.run(simType='wavefront')
     # sim.run(simType='manipulator')
-    sim.run(simType='graphSearch')
-    sim.run(simType='prmPointRobot')
-    # sim.run(simType='prmPointRobotBenchmark')
+    # sim.run(simType='graphSearch')
+    # sim.run(simType='prmPointRobot')
+    sim.run(simType='prmPointRobotBenchmark')
 
 
 if __name__ == '__main__':
