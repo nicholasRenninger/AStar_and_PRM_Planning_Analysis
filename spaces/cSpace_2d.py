@@ -501,6 +501,8 @@ class CSpace_2D(RobotSpace):
         plt.title(plotTitle)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
+        ax.axes.get_xaxis().set_visible(True)
+        ax.axes.get_yaxis().set_visible(True)
         ax.set_xlim(self.minGridX, self.maxGridX)
         ax.set_ylim(self.minGridY, self.maxGridY)
         fig.legend(loc='upper left')

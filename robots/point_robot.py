@@ -1,6 +1,6 @@
 # 3rd-party packages
 import copy
-from shapely.geometry import Point
+from shapely.geometry import Point, LineString
 from numpy.random import normal
 
 # local packages
@@ -71,13 +71,14 @@ class PointRobot(Robot):
     # @return     True if the shapely object collides with any obstacle, False
     #             otherwise
     #
-    def checkCollision(self, shapelyObject, gridIndices):
+    def checkCollision(self, shapelyObject, gridIndices=None):
 
         obstacles = self.workspace.polygonObstacles
 
         for obstacle in obstacles:
 
             if obstacle.intersects(shapelyObject):
+
                 return True
 
         return False
@@ -94,9 +95,29 @@ class PointRobot(Robot):
     def checkCollisionWithState(self, state):
 
         pointToCheck = Point(state)
-        self.checkCollision(pointToCheck)
+        collided = self.checkCollision(pointToCheck)
 
-        return False
+        return collided
+
+    ##
+    # @brief      Checks whether the line connecting the two states collides
+    #             with anything
+    #
+    # @param      startState  The start state in Cspace as an np array
+    # @param      endState    The end state in Cspace as an np array
+    #
+    # @return     boolean determining whether following a line between the
+    #             start and end states will cause you to collide with an
+    #             obstacle
+    #
+    def checkLinearPathCollision(self, startState, endState):
+
+        start = tuple(startState.flatten())
+        end = tuple(endState.flatten())
+        lineToCheck = LineString([start, end])
+
+        collided = self.checkCollision(lineToCheck)
+        return collided
 
     ##
     # @brief      Puts the robot into the newState and updates appropriate data

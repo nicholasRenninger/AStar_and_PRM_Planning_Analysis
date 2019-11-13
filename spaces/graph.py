@@ -123,10 +123,15 @@ class Graph(nx.Graph):
     #
     def isTense(self, edgeLabel, method):
 
-        (_, _, weight, srcDist, _,
+        (source, dest, weight, srcDist, _,
          _, destPriority) = self.getEdgeData(edgeLabel, method)
 
-        edgeIsTense = (srcDist + weight) < destPriority
+        # need to prevent cyclical paths when using undirected graphs
+        alreadyVisitedEdge = (self.getNodeData(source, 'prev') == dest)
+        if not alreadyVisitedEdge:
+            edgeIsTense = (srcDist + weight) < destPriority
+        else:
+            edgeIsTense = False
 
         return edgeIsTense
 
@@ -278,6 +283,19 @@ class Graph(nx.Graph):
         return path
 
     ##
+    # @brief      Gets a list of edges from the path list
+    #
+    # @param      path  The path list
+    #
+    # @return     a list of path edges as node label tuples
+    #
+    def getPathEdges(self, path):
+
+        path_edges = [(v1, v2) for v1, v2 in zip(path, path[1:])]
+
+        return path_edges
+
+    ##
     # @brief      Plots the networkx graph and any given paths through the
     #             graph
     #
@@ -292,7 +310,8 @@ class Graph(nx.Graph):
     # @return     figure handles to the graph
     #
     def plot(self, path=None, fig=None, plotTitle=None,
-             baseSize=400, showLabels=True, showEdgeWeights=True):
+             baseSize=400, node_size=10, showLabels=True,
+             showEdgeWeights=True, showAxes=True):
 
         if not fig:
             fig = plt.figure()
@@ -306,7 +325,9 @@ class Graph(nx.Graph):
             nx.draw_networkx(self, pos=pos,
                              with_labels=showLabels, node_size=node_size)
         else:
-            nx.draw_networkx(self, pos=pos, with_labels=showLabels)
+            nx.draw_networkx(self, pos=pos, with_labels=showLabels,
+                             node_size=node_size,
+                             cmap=plt.get_cmap('jet'))
 
         # show edge weights as well
         if showEdgeWeights:
@@ -316,21 +337,25 @@ class Graph(nx.Graph):
         # draw path through the graph if it exists
         if path:
 
-            path_edges = [(v1, v2) for v1, v2 in zip(path, path[1:])]
+            nx.draw_networkx_nodes(self, pos, nodelist=path, node_color='r',
+                                   node_size=node_size)
 
-            nx.draw_networkx_nodes(self, pos, nodelist=path, node_color='r')
+            path_edges = self.getPathEdges(path)
             nx.draw_networkx_edges(self, pos, edgelist=path_edges,
                                    edge_color='r', width=4)
 
-        # Axes settings (make the spines invisible, remove all ticks and set
-        # title) - otherwise the title doesn't show up sigh
+        # Axes settings
         ax = plt.gca()
-        [sp.set_visible(False) for sp in ax.spines.values()]
-        ax.set_xticks([])
-        ax.set_yticks([])
         ax.set_title(plotTitle)
+        if showAxes:
+            ax.tick_params(left=True, bottom=True,
+                           labelleft=True, labelbottom=True)
+        else:
+            [sp.set_visible(False) for sp in ax.spines.values()]
+            ax.set_xticks([])
+            ax.set_yticks([])
 
-        return fig
+        return (fig, ax)
 
     ##
     # @brief      Returns a tuple with the node's priority and label for use in
@@ -425,25 +450,30 @@ class UniquePriorityQueue(queue.Queue):
         priority, task = item
 
         if task in self.entry_finder:
-
-            previous_item = self.entry_finder[task]
-            previous_priority, _ = previous_item
-            if priority < previous_priority:
-
-                # Remove previous item.
-                previous_item[-1] = self.REMOVED
-                self.entry_finder[task] = item
-                heappush(self.queue, item)
-            else:
-
-                # Do not add new item.
-                pass
+            # Do not add new item.
+            pass
         else:
             self.entry_finder[task] = item
             heappush(self.queue, item)
 
     def _qsize(self, len=len):
         return len(self.entry_finder)
+
+    def is_empty(self):
+        """Determines if the priority queue has any elements.
+        Performs removal of any elements that were "marked-as-invalid".
+
+        :returns: true iff the priority queue has no elements.
+
+        """
+        while self.pq:
+            if self.queue[0][1] != self.REMOVED:
+                return False
+            else:
+                _, _, element = heapq.heappop(self.pq)
+                if element in self.element_finder:
+                    del self.element_finder[element]
+        return True
 
     def _get(self, heappop=heapq.heappop):
         """

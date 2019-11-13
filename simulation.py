@@ -385,7 +385,7 @@ class Simulation:
                 plotTitle = 'No Path Found with ' + method + ' - nIter: ' + \
                             str(nIter)
 
-            fig = graph.plot(path, plotTitle=plotTitle)
+            fig = graph.plot(path, plotTitle=plotTitle, showAxes=False)
 
             # tight plot layout messes up the graph
             saveTitle = method + '_' + 'pathLength' + str(pathLength) + '_' + \
@@ -451,7 +451,7 @@ class Simulation:
             configNames = ['graph1']
 
         elif simType == 'prmPointRobot':
-            configNames = ['env1']
+            configNames = ['env1', 'env2', 'env3']
 
         elif simType == 'prmPointRobotBenchmark':
             configNames = ['env1']

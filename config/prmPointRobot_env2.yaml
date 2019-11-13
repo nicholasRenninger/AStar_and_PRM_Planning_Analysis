@@ -1,10 +1,11 @@
 # each list element is a list of tuples containing the coordinates of the
 # vertices of the polygonal obstacles in the workspace
-# 
-# these coords are in CCW order to make sure its a square yo
 WO:
-  - [[3.5, 1.5], [4.5, 1.5], [4.5, 0.5], [3.5, 0.5], [3.5, 1.5]]
-  - [[6.5, -0.5], [7.5, -0.5], [7.5, -1.5], [6.5, -1.5], [6.5, -0.5]]
+  - [[1, 1], [2, 1], [2, 5], [1, 5]]
+  - [[3, 4], [4, 4], [4, 12], [3, 12]]
+  - [[3, 12], [12, 12], [12, 13], [3, 13]]
+  - [[12, 5], [13, 5], [13, 13], [12, 13]]
+  - [[6, 5], [12, 5], [12, 6], [6, 6]]
 
 # coordinates of the robot start state in state space
 # [x, y]
@@ -12,7 +13,8 @@ startState: [0, 0]
 
 # coordinates of the robot goal state in the workspace
 # [x, y]
-goalState: [10, 0]
+goalState: [10, 10]
+
 
 # determines N such that CSpace is discretized into an NxN grid
 # not really used for the PRM planner, so keep it very sparse for speed
@@ -20,19 +22,19 @@ linearDiscretizationDensity: 3
 
 # determines whether the CSpace will be made square when enlarged for planning.
 # for the gradient descent planner, you must set this to be True
-makeSquareCSpace: False
+makeSquareCSpace: True
 
 # if not making CSpace square, give it a list of minimum bounds in each cspace
 # coordinate direction
 minCSpaceBounds:
   - -1.0
-  - -3.0
+  - -1.0
 
 # if not making CSpace square, give it a list of maximum bounds in each cspace
 # coordinate direction
 maxCSpaceBounds:
-  - 11.0
-  - 3.0
+  - 13.0
+  - 13.0
 
 
 ##
@@ -41,25 +43,19 @@ maxCSpaceBounds:
 
 # each of these lists must be the same size
 
-# define a list of how many samples to use for each PRM run 
+# define a list of max sample numbers to try when running the planner
 n: 
-  - 200
-  - 500
+  - 250
 
 # define a list of radii in CSpace in which all samples must be connected by a
-# line for each PRM run
+# line to try when running the planner
 r:
-  - 0.5
-  - 1.0
-  - 1.5
   - 2.0
 
 # used to choose whether or not path smoothing should be varied between both
 # true and false, or if it should just be on (or just off)
 smoothing:
   - True
-  - False
-
 
 ##
 ## setup simulation benchmarking
@@ -75,4 +71,3 @@ numRunsOfPlannerPerSetting: 50
 paramterNamesToVary:
   - n
   - r
-  - smoothing
