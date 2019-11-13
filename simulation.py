@@ -40,6 +40,7 @@ class Simulation:
 
         for (file, configName) in zip(configFileNames, configNames):
 
+            print(' ')
             print('===============================')
             print(configName)
             print('===============================')
@@ -391,7 +392,7 @@ class Simulation:
                 plotTitle = 'No Path Found with ' + method + ' - nIter: ' + \
                             str(nIter)
 
-            fig = graph.plot(path, plotTitle=plotTitle, showAxes=False)
+            (fig, _) = graph.plot(path, plotTitle=plotTitle, showAxes=False)
 
             # tight plot layout messes up the graph
             saveTitle = method + '_' + 'pathLength' + str(pathLength) + '_' + \

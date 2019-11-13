@@ -57,11 +57,13 @@ class WavefrontPlanner(Planner):
     #                                configuration data, None if using internal
     #                                config data
     # @param      plotConfigData     The plot config dictionary
+    # @param      shouldBenchmark    Flag determining whether running in
+    #                                benchmarking mode (turns off printing)
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
     def findPathToGoal(self, startState, goalState, plannerConfigData,
-                       plotConfigData):
+                       plotConfigData, shouldBenchmark):
 
         start = timer()
         (distCells,
@@ -75,7 +77,7 @@ class WavefrontPlanner(Planner):
         plotConfigData['plotTitle'] += 'wavefront'
         self.plot(distCells, startState, goalState, plotConfigData)
 
-        return (computationTime, foundPath)
+        return (computationTime, self.robot.distTraveled, foundPath)
 
     ##
     # @brief      Implements the wavefront path finding algorithm

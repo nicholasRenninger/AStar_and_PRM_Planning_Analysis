@@ -86,11 +86,13 @@ class GradientPlanner(Planner):
     #                                configuration data, None if using internal
     #                                config data
     # @param      plotConfigData     The plot configuration data
+    # @param      shouldBenchmark    Flag determining whether running in
+    #                                benchmarking mode (turns off printing)
     #
     # @return     a viable set of cSpace states from startState to goalState
     #
     def findPathToGoal(self, startState, goalState, plannerConfigData,
-                       plotConfigData):
+                       plotConfigData, shouldBenchmark):
 
         U, points = self.calcPotentialField()
 
@@ -102,7 +104,7 @@ class GradientPlanner(Planner):
         plotConfigData['plotTitle'] += 'gradientPlanner'
         self.plotPotentialField(U=U, plotConfigData=plotConfigData)
 
-        return (computationTime, foundPath)
+        return (computationTime, self.robot.distTraveled, foundPath)
 
     ##
     # @brief      Gets the distance to the closest obstacle from a given state

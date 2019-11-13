@@ -42,6 +42,10 @@ class ManipulatorRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
+        self.configData = configData
+        self.shouldSavePlots = shouldSavePlots
+        self.baseSaveFName = baseSaveFName
+
         # configure manipulator's links
         linkLengths = configData['linkLengths']
         jointOffset = configData['jointOffset']
@@ -335,48 +339,88 @@ class ManipulatorRobot(Robot):
     #             Runs the planning algorithm, reports if it found a path, and
     #             plots the solution
     #
-    # @param      planner    The planner object containing the motion planning
-    #                        algorithm to be used on the robot
-    # @param      plotTitle  The plot title string
+    # @param      planner            The planner object containing the motion
+    #                                planning algorithm to be used on the robot
+    # @param      plotTitle          The plot title string
+    # @param      plotPlannerOutput  A flag to tell the run whether to run its
+    #                                plotting routines
+    # @param      shouldBenchmark    Flag to turn on / off benchmarking
+    #                                reporting
+    # @param      plannerConfigData  The planner configuration data
     #
     # @return     runs robot, then plots results of running the robot
     #
-    def runAndPlot(self, planner, plotTitle):
+    def runAndPlot(self, planner, plotTitle, plotPlannerOutput=True,
+                   shouldBenchmark=False, plannerConfigData=None):
 
-        plotConfigData = {'plotTitle': plotTitle + 'wavefrontPlanner',
+        # need to reset everything about the robot's state when it's run
+        self.__init__(self.robotType, self.configData, self.workspace,
+                      self.shouldSavePlots, self.baseSaveFName)
+
+        plotConfigData = {'plotTitle': plotTitle + ' CSpace Path',
                           'xlabel': 'theta - link 1 [rad]',
                           'ylabel': 'theta - link 2 [rad]',
                           'plotObstacles': False,
                           'plotGrid': False}
-        foundPath = planner.findPathToGoal(startState=self.startCState,
-                                           goalState=self.goalCState,
-                                           plannerConfigData=None,
-                                           plotConfigData=plotConfigData)
 
-        if foundPath:
-            print('Reached goal at:', self.stateHistory[-1])
-            print('Path length: ', self.distTraveled)
+        # don't print statuses when benchmarking as it floods the terminal
+        if not shouldBenchmark:
+            print('Starting ', planner.plannerType, ' planner ...')
+
+        (computationTime,
+         pathLength,
+         fp) = planner.findPathToGoal(startState=self.startCState,
+                                      goalState=self.goalCState,
+                                      plannerConfigData=None,
+                                      plotConfigData=plotConfigData,
+                                      shouldBenchmark=shouldBenchmark)
+        foundPath = fp
+
+        # don't print statuses when benchmarking as it floods the terminal
+        if not shouldBenchmark:
+
+            if foundPath:
+                print('Reached goal at:', self.stateHistory[-1])
+                print('Path length: ', self.distTraveled)
+            else:
+                print('No valid path found with current planner:',
+                      planner.plannerType)
+
+        if shouldBenchmark:
+
+            # return this benchmarking info as a dictionary so it can be loaded
+            # as a pandas dataframe later
+            data = {'computationTimeInSeconds': computationTime,
+                    'pathLength': pathLength}
+            bencmarkingInfo = {**data, **plannerConfigData}
+
         else:
-            print('No valid path found with current planner:',
-                  planner.plannerType)
 
-        plotConfigData = {'plotTitle': plotTitle + 'workspace',
-                          'xlabel': 'x',
-                          'ylabel': 'y'}
-        self.workspace.plot(robot=self,
-                            startState=self.startState,
-                            goalState=self.goalState,
-                            plotConfigData=plotConfigData)
+            bencmarkingInfo = None
 
-        plotConfigData = {'plotTitle': plotTitle + 'cSpace',
-                          'xlabel': 'theta - link 1 [rad]',
-                          'ylabel': 'theta - link 2 [rad]',
-                          'plotObstacles': True,
-                          'plotGrid': False}
-        self.cSpace.plot(robot=self,
-                         startState=self.startCState,
-                         goalState=self.goalCState,
-                         plotConfigData=plotConfigData)
+        # allow the robot to run without plotting all of its spatial
+        # representations
+        if plotPlannerOutput:
+
+            plotConfigData = {'plotTitle': plotTitle + 'workspace',
+                              'xlabel': 'x',
+                              'ylabel': 'y'}
+            self.workspace.plot(robot=self,
+                                startState=self.startState,
+                                goalState=self.goalState,
+                                plotConfigData=plotConfigData)
+
+            plotConfigData = {'plotTitle': plotTitle + 'cSpace',
+                              'xlabel': 'theta - link 1 [rad]',
+                              'ylabel': 'theta - link 2 [rad]',
+                              'plotObstacles': True,
+                              'plotGrid': False}
+            self.cSpace.plot(robot=self,
+                             startState=self.startCState,
+                             goalState=self.goalCState,
+                             plotConfigData=plotConfigData)
+
+        return (bencmarkingInfo, foundPath)
 
 
 ##
