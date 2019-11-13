@@ -68,8 +68,8 @@ class PRMPlanner(Planner):
     #                                   - 'r': the radius in cspace in which to
     #                                     try to connect samples together
     # @param      plotConfigData     The plot config dictionary
-    # @param      shouldBenchmark    Flag to turn on / off benchmarking
-    #                                reporting
+    # @param      shouldBenchmark    Flag determining whether running in
+    #                                benchmarking mode (turns off printing)
     #
     # @return     a viable set of cSpace states from startState to goalState
     #             (the computation time [s], bool whether or not a path was
@@ -94,7 +94,8 @@ class PRMPlanner(Planner):
         (graph,
          shortestPath,
          pathLength, foundPath) = self.computePRM(startState, goalState, n, r,
-                                                  usePathSmoothing)
+                                                  usePathSmoothing,
+                                                  shouldBenchmark)
         finish = timer()
         computationTime = finish - start
 
@@ -119,14 +120,17 @@ class PRMPlanner(Planner):
     # @param      r                 the radius in cspace in which to try to
     #                               connect samples together
     # @param      usePathSmoothing  Flag to enable / disable path smoothing
+    # @param      shouldBenchmark   Flag determining whether running in
+    #                               benchmarking mode (turns off printing)
     #
-    # @return     (the networkx graph object computed by the prm algortihm, the
+    # @return     (the networkx graph object computed by the prm algorithm, the
     #             shortest path found by the search on the connected PRM,
     #             whether or not the planner found a path, self.robot has its
     #             state updated according to the best path found by the
     #             planner)
     #
-    def computePRM(self, startState, goalState, n, r, usePathSmoothing):
+    def computePRM(self, startState, goalState, n, r, usePathSmoothing,
+                   shouldBenchmark):
 
         # compute all samples at once, no need to check for collision
         samples = self.getSamples(numSamples=n,
@@ -137,6 +141,9 @@ class PRMPlanner(Planner):
         kdTree = spatial.cKDTree(samples)
 
         # add all start, goal, and sampled nodes
+        if not shouldBenchmark:
+            print('Initializing PRM...')
+
         graph = Graph()
         (graph,
          startNodeLabel,
@@ -144,7 +151,13 @@ class PRMPlanner(Planner):
                                                   startState, goalState, n)
 
         # now connect all of the samples within radius r of each other
+        if not shouldBenchmark:
+            print('Connecting PRM...')
+
         graph = self.connectAllNodesInRadius(graph, kdTree, r)
+
+        if not shouldBenchmark:
+            print('Finding path through PRM...')
 
         (shortestPath,
          pathLength, _) = graph.findPathToGoal(startNodeLabel,
@@ -155,9 +168,13 @@ class PRMPlanner(Planner):
         # only start smoothing if desired
         if foundPath and usePathSmoothing:
 
+            if not shouldBenchmark:
+                print('Smoothing path found through PRM...')
+
             (shortestPath,
              pathLength) = self.smoothPathInGraph(graph, shortestPath,
-                                                  goalNodeLabel, pathLength)
+                                                  goalNodeLabel, pathLength,
+                                                  shouldBenchmark)
 
         # run robot through whole path
         if foundPath:
@@ -356,16 +373,19 @@ class PRMPlanner(Planner):
     ##
     # @brief      smooths path in the already computed PRM path
     #
-    # @param      graph          The connected PRM Graph
-    # @param      path           The list of node labels describing the path to
-    #                            smooth
-    # @param      goalNodeLabel  The goal node's label
-    # @param      pathLength     The path length of the unsmoothed path
+    # @param      graph            The connected PRM Graph
+    # @param      path             The list of node labels describing the path
+    #                              to smooth
+    # @param      goalNodeLabel    The goal node's label
+    # @param      pathLength       The path length of the unsmoothed path
+    # @param      shouldBenchmark  Flag determining whether running in
+    #                              benchmarking mode (turns off printing)
     #
     # @return     graph will have more valid paths that are hopefully
     #             "smoother"
     #
-    def smoothPathInGraph(self, graph, path, goalNodeLabel, pathLength):
+    def smoothPathInGraph(self, graph, path, goalNodeLabel, pathLength,
+                          shouldBenchmark):
 
         newPath = copy.deepcopy(path)
 
@@ -441,9 +461,14 @@ class PRMPlanner(Planner):
 
         # only return the smoothed path if its shorter
         if newPathLength > pathLength:
-            print('smoothing failed, using unsmoothed path')
+
+            if not shouldBenchmark:
+                print('smoothing failed, using unsmoothed path')
+
             return path, pathLength
+
         else:
+
             return newPath, newPathLength
 
     ##
