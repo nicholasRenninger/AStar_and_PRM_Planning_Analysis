@@ -4,9 +4,9 @@
 Implementation of the A* and Dijkstra optimal graph search algorithms, a Fast Probabilistic Roadmap (PRM) Planner with path smoothing, and a benchmarking suite for doing parametric performance evaluation of the planners modules. 
 
 Built with a `networkx` Graph backbone and library implementations of:
-    * Set-Priority Queue (based on `heapq`)
-    * KDTree (based on `cKDTree`)
-    * Union-Find (based on `newtorkx.util`)
+* Set-Priority Queue (based on `heapq`)
+* KDTree (based on `cKDTree`)
+* Union-Find (based on `newtorkx.util`)
 
 ADTs for speed.
 
