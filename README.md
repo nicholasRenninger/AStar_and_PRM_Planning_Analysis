@@ -75,7 +75,7 @@ To change the scenarios for the PRM planner benchmarking, simply modify one of t
 ### PRM Planner Viz and Benchmarking Stats
 
 #### Environment 1 - PRM Viz
-<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env2-PRM%20-%20path%20length%20%3D%2015.8%20%20n%20%3D%20250%20%20r%20%3D%202.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env1-PRM%20-%20path%20length%20%3D%2011.5%20%20n%20%3D%20200%20%20r%20%3D%201.png"/>
 <img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env1-workspace.png"/>
 
 #### Environment 1 - PRM Benchmarking Results
