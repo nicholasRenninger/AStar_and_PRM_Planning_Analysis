@@ -12,5 +12,6 @@ dependencies:
   - shapely
   - seaborn
   - networkx
+  - queuelib
 prefix: /Users/nicholasrenninger/anaconda3/envs/motionPlanning3
 
