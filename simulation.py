@@ -127,7 +127,7 @@ class Simulation:
                                      shouldSavePlots=ssp,
                                      baseSaveFName=baseSaveFName)
 
-        # gaurds against trying to plan for a robot that does not support any
+        # guards against trying to plan for a robot that does not support any
         # planners yet
         currPlanner = None
         if plannerType:
@@ -177,18 +177,18 @@ class Simulation:
     # @param      configFileName  The configuration file name
     #
     # @return     (pandas data frame with the computation time and path length
-    #             of each run for each paramteric experimental setting
+    #             of each run for each parametric experimental setting
     #             specified in the configuration file (e.g.):
-    #                   computationTime pathLength    n    r
-    #                    1.702000e-06   23.814193     200  0.5
-    #                    6.310000e-07   21.638431     200  0.5
+    #                   computationTime pathLength    n    r     smoothing
+    #                    1.702000e-06   23.814193     200  0.5   True
+    #                    6.310000e-07   21.638431     200  0.5   False
     #
     #             pandas data frame with the number of valid paths per
-    #             experimental paramter set and the number of times the planner
-    #             tried to find a path:
-    #                   numValidPaths    n    r
-    #                               0  200  0.5
-    #                               0  200  1.0
+    #             experimental parameter set and the number of times the
+    #             planner tried to find a path:
+    #                   numValidPaths    n    r     smoothing
+    #                               0  200  0.5     True
+    #                               0  200  1.0     False
     #
     #             list of strings of the parameters varied in benchmarking)
     #
@@ -267,19 +267,19 @@ class Simulation:
     #
     # @param      benchMarkingDF  pandas data frame with the computation time
     #                             and path length of each run for each
-    #                             paramteric experimental setting specified in
+    #                             parametric experimental setting specified in
     #                             the configuration file (e.g.):
-    #                             computationTime pathLength    n    r
-    #                             1.702000e-06   23.814193     200  0.5
-    #                             6.310000e-07   21.638431     200  0.5
+    #                   computationTime pathLength    n    r     smoothing
+    #                    1.702000e-06   23.814193     200  0.5   True
+    #                    6.310000e-07   21.638431     200  0.5   False
     #
     # @param      pathValidityDF  pandas data frame with the number of valid
-    #                             paths per experimental paramter set and the
+    #                             paths per experimental parameter set and the
     #                             number of times the planner tried to find a
     #                             path
-    #                             numValidPaths    n    r
-    #                                         0  200  0.5
-    #                                         0  200  1.0
+    #                   numValidPaths    n    r     smoothing
+    #                               0  200  0.5     True
+    #                               0  200  1.0     False
     #
     # @param      benchParams     list of strings of the parameters varied in
     #                             benchmarking
