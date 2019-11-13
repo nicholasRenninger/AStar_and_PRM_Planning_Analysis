@@ -10,7 +10,7 @@ import copy
 ##
 # @brief      This class wraps a networkx graph implementation
 #
-class Graph(nx.DiGraph):
+class Graph(nx.Graph):
 
     ##
     # @brief      Constructs a new instance of the Graph
@@ -26,26 +26,29 @@ class Graph(nx.DiGraph):
         # need to start with a fully initialized networkx digraph
         super().__init__()
 
-        self.add_nodes_from(nodes)
-        self.add_edges_from(edges)
+        if nodes:
+            self.add_nodes_from(nodes)
 
-        # save all of the node attributes
-        # @warning assuming here that each node has the same attributes
-        # currently:
-        #   - 'heuristicDist'
-        #   - 'prev'
-        #   - 'dist'
-        #   - 'priority'
-        #   - 'pos'
-        self.nodeProperties = set([k for n in self.nodes
-                                   for k in self.nodes[n].keys()])
+            if edges:
+                self.add_edges_from(edges)
+
+            # save all of the node attributes
+            # @warning assuming here that each node has the same attributes
+            # currently:
+            #   - 'heuristicDist'
+            #   - 'prev'
+            #   - 'dist'
+            #   - 'priority'
+            #   - 'pos'
+            self.nodeProperties = set([k for n in self.nodes
+                                       for k in self.nodes[n].keys()])
 
     ##
     # @brief      Finds a path in the graph from start to goal using the search
     #             algorithm specified by method string
     #
-    # @param      start   The start node label string
-    # @param      goal    The goal node label string
+    # @param      start   The start node label
+    # @param      goal    The goal node label
     # @param      method  The method string:
     #                       - 'A star'
     #                       - 'Dijkstra'
@@ -147,7 +150,11 @@ class Graph(nx.DiGraph):
 
         self.setNodeData(dest, 'dist', destDist)
         self.setNodeData(dest, 'priority', destPriority)
-        self.setNodeData(dest, 'prev', source)
+
+        # need to prevent cyclical paths when using undirected graphs
+        alreadyVisitedEdge = (self.getNodeData(source, 'prev') == dest)
+        if not alreadyVisitedEdge:
+            self.setNodeData(dest, 'prev', source)
 
         return destDist
 
@@ -274,29 +281,37 @@ class Graph(nx.DiGraph):
     # @brief      Plots the networkx graph and any given paths through the
     #             graph
     #
-    # @param      path       A list of lists of Nodes defining each path
-    # @param      fig        The mpl figure handle to plot the graph on
-    # @param      plotTitle  The plot title string
-    # @param      baseSize   The base size of each node, gets scaled by the
-    #                        length of each node
+    # @param      path             A list of lists of Nodes defining each path
+    # @param      fig              The mpl figure handle to plot the graph on
+    # @param      plotTitle        The plot title string
+    # @param      baseSize         The base size of each node, gets scaled by
+    #                              the length of each node
+    # @param      showLabels       flag to show node labels
+    # @param      showEdgeWeights  flag to show edge weights
     #
     # @return     figure handles to the graph
     #
     def plot(self, path=None, fig=None, plotTitle=None,
-             baseSize=400):
+             baseSize=400, showLabels=True, showEdgeWeights=True):
 
         if not fig:
             fig = plt.figure()
 
-        # scale node sizes by string length
-        node_size = [len(v) * baseSize for v in self.nodes()]
+        # scale node sizes by string length only if all node labels are strings
+        allStrs = bool(self.nodes()) and all(isinstance(elem, str)
+                                             for elem in self.nodes())
         pos = nx.get_node_attributes(self, 'pos')
-        nx.draw_networkx(self, pos=pos,
-                         with_labels=True, node_size=node_size)
+        if allStrs:
+            node_size = [len(v) * baseSize for v in self.nodes()]
+            nx.draw_networkx(self, pos=pos,
+                             with_labels=showLabels, node_size=node_size)
+        else:
+            nx.draw_networkx(self, pos=pos, with_labels=showLabels)
 
         # show edge weights as well
-        labels = nx.get_edge_attributes(self, 'weight')
-        nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
+        if showEdgeWeights:
+            labels = nx.get_edge_attributes(self, 'weight')
+            nx.draw_networkx_edge_labels(self, pos, edge_labels=labels)
 
         # draw path through the graph if it exists
         if path:
@@ -321,26 +336,23 @@ class Graph(nx.DiGraph):
     # @brief      Returns a tuple with the node's priority and label for use in
     #             the priority queue
     #
-    # @param      node  The node label string
+    # @param      node  The node label
     #
     # @return     The (priority, node label) tuple for node
     #
     def getPriorityTuple(self, node):
 
-        return copy.deepcopy((self.getNodeData(node, 'priority'), node))
+        return (self.getNodeData(node, 'priority'), node)
 
     ##
     # @brief      Gets the node's dataKey data from the graph
     #
-    # @param      nodeLabel  The node label string
+    # @param      nodeLabel  The node label
     # @param      dataKey    The data key string
     #
     # @return     The node data associated with the nodeLabel and dataKey
     #
     def getNodeData(self, nodeLabel, dataKey):
-
-        if dataKey not in self.nodeProperties:
-            raise ValueError(dataKey)
 
         nodeData = self.nodes.data()
 
@@ -349,14 +361,11 @@ class Graph(nx.DiGraph):
     ##
     # @brief      Sets the node's dataKey data from the graph
     #
-    # @param      nodeLabel  The node label string
+    # @param      nodeLabel  The node label
     # @param      dataKey    The data key string
     # @param      data       The data to set the item at dataKey to
     #
     def setNodeData(self, nodeLabel, dataKey, data):
-
-        if dataKey not in self.nodeProperties:
-            raise ValueError(dataKey)
 
         nodeData = self.nodes.data()
         nodeData[nodeLabel][dataKey] = data
