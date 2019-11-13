@@ -62,3 +62,41 @@ To change the scenarios for the PRM planner benchmarking, simply modify one of t
 ---
 
 ## Results
+
+### A* and Dijkstra Optimal Search Algorithms
+
+#### Graph 1 - A*
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/graphSearch_graph1-A%20star_pathLength4.0_nIter12.png"/>
+
+#### Graph 1 - Dijkstra
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/graphSearch_graph1-Dijkstra_pathLength4.0_nIter14.png"/>
+
+
+### PRM Planner Viz and Benchmarking Stats
+
+#### Environment 1 - PRM Viz
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env2-PRM%20-%20path%20length%20%3D%2015.8%20%20n%20%3D%20250%20%20r%20%3D%202.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env1-workspace.png"/>
+
+#### Environment 1 - PRM Benchmarking Results
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env1-computationTimeInSeconds-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env1-numPaths-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env1-pathLength-PRM_stats.png"/>
+
+#### Environment 2 - PRM Viz
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env2-PRM%20-%20path%20length%20%3D%2015.8%20%20n%20%3D%20250%20%20r%20%3D%202.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env2-workspace.png"/>
+
+#### Environment 2 - PRM Benchmarking Results
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env2-computationTimeInSeconds-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env2-numPaths-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env2-pathLength-PRM_stats.png"/>
+
+#### Environment 3 - PRM Viz
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env3-PRM%20-%20path%20length%20%3D%2064%20%20n%20%3D%20500%20%20r%20%3D%202.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobot_env3-workspace.png"/>
+
+#### Environment 3 - PRM Benchmarking Results
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env3-computationTimeInSeconds-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env3-numPaths-PRM_stats.png"/>
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/prmPointRobotBenchmark_env3-pathLength-PRM_stats.png"/>
