@@ -79,3 +79,4 @@ numRunsOfPlannerPerSetting: 50
 paramterNamesToVary:
   - n
   - r
+  - smoothing

@@ -28,14 +28,12 @@ class Robot:
         self.robotType = robotType
 
         # state refers to the robot's actual state vector
-        (self.startState,
-         self.goalState,
-         self.numStates) = self.initializeRobotState(configData)
-
-        self.stateHistory = []
+        self.startState = None
+        self.goalState = None
+        self.distTraveled = None
+        self.stateHistory = None
         self.currentState = None
-
-        self.distTraveled = 0
+        self.initializeRobotState(configData)
 
     ##
     # @brief      returns the start state and goal location lists for the robot
@@ -51,12 +49,14 @@ class Robot:
 
         numStates = len(startStateList)
 
-        startState = np.array(startStateList,
-                              dtype='float64').reshape((numStates, 1))
-        goalState = np.array(goalStateList,
-                             dtype='float64').reshape((numStates, 1))
+        self.startState = np.array(startStateList,
+                                   dtype='float64').reshape((numStates, 1))
+        self.goalState = np.array(goalStateList,
+                                  dtype='float64').reshape((numStates, 1))
 
-        return (startState, goalState, numStates)
+        self.distTraveled = 0
+        self.stateHistory = []
+        self.currentState = None
 
     ##
     # @brief      abstract method to set the robot shape from the configData

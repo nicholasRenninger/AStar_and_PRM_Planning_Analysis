@@ -38,14 +38,15 @@ class PointRobot(Robot):
                        shouldSavePlots=shouldSavePlots,
                        baseSaveFName=baseSaveFName)
 
+        self.configData = configData
+
         # need to maintain a separate history for c states and workspace states
         # however, for a point robot, they are the same
-        self.cStateHistory = []
-        self.startCState = self.startState
-        self.goalCState = self.goalState
-
-        self.currentState = self.startState
-        self.updateRobotState(self.startState)
+        self.cStateHistory = None
+        self.startCState = None
+        self.goalCState = None
+        self.currentState = None
+        self.initializeAllRobotStates(configData)
 
         linearDiscretizationDensity = configData['linearDiscretizationDensity']
         makeSquareCSpace = configData['makeSquareCSpace']
@@ -57,6 +58,22 @@ class PointRobot(Robot):
                                        makeSquare=makeSquareCSpace,
                                        shouldSavePlots=shouldSavePlots,
                                        baseSaveFName=baseSaveFName)
+
+    #
+    # @brief      Initializes both workspace and cspace robot states.
+    #
+    # @param      configData  The configuration data
+    #
+    def initializeAllRobotStates(self, configData):
+
+        self.initializeRobotState(configData)
+
+        self.cStateHistory = []
+        self.startCState = self.startState
+        self.goalCState = self.goalState
+
+        self.currentState = self.startState
+        self.updateRobotState(self.startState)
 
     ##
     # @brief      Returns whether the given Shapely object collides with any
@@ -166,6 +183,9 @@ class PointRobot(Robot):
     def runAndPlot(self, planner, plotTitle, plotPlannerOutput=True,
                    shouldBenchmark=False, plannerConfigData=None):
 
+        # need to reset everything about the robot's state when it's run
+        self.initializeAllRobotStates(self.configData)
+
         plotConfigData = {'shouldPlot': plotPlannerOutput,
                           'plotTitle': plotTitle,
                           'xlabel': 'x',
@@ -178,6 +198,7 @@ class PointRobot(Robot):
             print('Starting ', planner.plannerType, ' planner ...')
 
         (computationTime,
+         pathLength,
          fp) = planner.findPathToGoal(startState=self.startCState,
                                       goalState=self.goalCState,
                                       plotConfigData=plotConfigData,
@@ -200,7 +221,7 @@ class PointRobot(Robot):
             # return this benchmarking info as a dictionary so it can be loaded
             # as a pandas dataframe later
             data = {'computationTimeInSeconds': computationTime,
-                    'pathLength': self.distTraveled}
+                    'pathLength': pathLength}
             bencmarkingInfo = {**data, **plannerConfigData}
 
         else:

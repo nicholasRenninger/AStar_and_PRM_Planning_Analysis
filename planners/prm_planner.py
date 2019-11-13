@@ -67,13 +67,15 @@ class PRMPlanner(Planner):
     #                                   - 'n': Fixed number of samples to try
     #                                   - 'r': the radius in cspace in which to
     #                                     try to connect samples together
+    #                                   - 'smoothing': whether or not to use
+    #                                     path smoothing
     # @param      plotConfigData     The plot config dictionary
     # @param      shouldBenchmark    Flag determining whether running in
     #                                benchmarking mode (turns off printing)
     #
     # @return     a viable set of cSpace states from startState to goalState
-    #             (the computation time [s], bool whether or not a path was
-    #             found)
+    #             (the computation time [s], the path length, bool whether or
+    #             not a path was found)
     #
     def findPathToGoal(self, startState, goalState, plannerConfigData,
                        plotConfigData, shouldBenchmark):
@@ -103,13 +105,15 @@ class PRMPlanner(Planner):
         shouldPlot = plotConfigData['shouldPlot']
 
         if shouldPlot:
-            title = 'PRM - path length = %0.3g  n = %d  r = %0.3g' \
-                % (self.robot.distTraveled, n, r)
+            if not pathLength:
+                pathLength = np.nan
+            title = 'PRM - path length = %0.3g  n = %0.3g  r = %0.3g' \
+                % (pathLength, n, r)
             plotConfigData['plotTitle'] += title
             self.plot(graph, startState, goalState, plotConfigData,
                       path=shortestPath)
 
-        return (computationTime, foundPath)
+        return (computationTime, pathLength, foundPath)
 
     ##
     # @brief      Implements the PRM path finding algorithm
