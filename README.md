@@ -47,6 +47,7 @@ To run the code:
 * Run the main python module to run all of the simulations:
 `$(REPO_DIR_LOCATION) $ python main.py`
 
+---
 
 ## Configuring the Code
 
@@ -58,6 +59,10 @@ To change the scenarios for the PRM planning simulation, simply modify one of th
 
 ### PRM planner Benchmarking
 To change the scenarios for the PRM planner benchmarking, simply modify one of the `$(REPO_DIR_LOCATION)/config/prmPointRobotBenchmark_XXX.yaml` files to change the robot or obstacle vertices, or to change the location of the start / goal state or the robot, or to change properties of the PRM planner or to change the parameters you would like to vary.
+
+### Tool Class Hierarchy
+This diagram shows the exact class design for the underlying python framework:
+<img src="https://github.com/nicholasRenninger/AStar_and_PRM_Planning_Analysis/blob/master/figures/classHierarchyDiagram.png"/>
 
 ---
 
